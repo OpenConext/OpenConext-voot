@@ -9,6 +9,8 @@ This project uses Spring Boot and Maven. To run locally, type:
 
 `mvn spring-boot:run`
 
+When developing, it's convenient to just execute the applications main-method, which is in [VootServiceApplication](src/main/java/vootservice/VootServiceApplication).
+
 # Deployment
 The application contains an embedded Tomcat, so it isn't deployed as a .war-file. Instead, the application is
 started like any other Java programme (eg. java -jar myjarfile).
