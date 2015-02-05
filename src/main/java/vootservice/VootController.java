@@ -17,12 +17,12 @@ import com.google.common.collect.ImmutableMap;
 public class VootController {
 
     @RequestMapping(value = "/me/groups")
-    public List<Map<String, Object>> myGroups(@RequestHeader("Authorization") final String bearerToken) {
+    public List<Map<String, Object>> myGroups() {
 
         Map<String, Object> first = ImmutableMap.of(
                 "id", "8878ae43-965a-412a-87b5-38c398a76569",
                 "displayName", "Course M.201 Mathematics at University of Oslo",
-                "notBefore", LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ISO_DATE_TIME)
+                "notBefore", LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
         return ImmutableList.of(first);
 

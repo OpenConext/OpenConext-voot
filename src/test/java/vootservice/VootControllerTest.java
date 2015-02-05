@@ -16,6 +16,6 @@ public class VootControllerTest {
     @Test
     public void testMyGroups() throws Exception {
 
-        assertNotNull(subject.myGroups("bearer foo"));
+        assertNotNull(subject.myGroups());
     }
 }
