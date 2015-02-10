@@ -1,4 +1,4 @@
-This application is acts as Oauth2 Resource Server which provides a HTTP+Json-based API where Oauth2 clients can query information about
+This application acts as Oauth2 Resource Server which provides a HTTP+Json-based API where Oauth2 clients can query information about
 the 'groups' a user may belong to. Such clients may then use that information for their own internal authorization
 purposes. The way this information is shared adheres to the [Voot protocol](http://openvoot.org/).
 
