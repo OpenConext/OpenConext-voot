@@ -11,6 +11,14 @@ This project uses Spring Boot and Maven. To run locally, type:
 
 When developing, it's convenient to just execute the applications main-method, which is in [VootServiceApplication](src/main/java/vootservice/VootServiceApplication).
 
+This application exposes a REST-like API that is secured using oAuth2.
+To be able to check the tokens that this application is presented with by its clients, it needs to connect to the oAuth server.
+The oAuth server requires this application to authenticate itself. This is setup by a couple of
+properties mentioned in the [application.properties](src/main/resources/application.properties) file that start with 'oauth.checkToken'.
+
+See the [README of the authorization server](https://github.com/OpenConext/OpenConext-authorization-server/blob/master/README.md) on how to set this up on the servers part (a clientId, secret and role will have to be granted).
+
+
 # Deployment
 The application contains an embedded Tomcat, so it isn't deployed as a .war-file. Instead, the application is
 started like any other Java programme (eg. java -jar myjarfile).
@@ -28,3 +36,4 @@ properties file is loaded after the default one, overriding those default values
 `$ java -jar myproject.jar --spring.config.location=/etc/myapp.properties`
 
 For details, see the [Spring Boot manual](http://docs.spring.io/spring-boot/docs/1.2.1.RELEASE/reference/htmlsingle/).
+
