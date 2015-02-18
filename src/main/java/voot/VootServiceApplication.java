@@ -53,7 +53,7 @@ public class VootServiceApplication {
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
         .and()
         .authorizeRequests()
-        .antMatchers("/**").access("#oauth2.isOAuth()");
+        .antMatchers("/**").access("#oauth2.hasScope('read')");
     }
   }
 }
