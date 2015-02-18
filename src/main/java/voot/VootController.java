@@ -1,10 +1,13 @@
 package voot;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,12 +18,14 @@ import com.google.common.collect.ImmutableMap;
 @RestController
 public class VootController {
 
-  @RequestMapping(value = "/me/groups")
-  public List<Map<String, Object>> myGroups() {
+  private static Logger LOG = LoggerFactory.getLogger(VootController.class);
 
+  @RequestMapping(value = "/me/groups")
+  public List<Map<String, Object>> myGroups(final Principal principal) {
+    LOG.debug("User on whose behalf this request is made is {} ", principal.getName());
     Map<String, Object> first = ImmutableMap.of(
       "id", "8878ae43-965a-412a-87b5-38c398a76569",
-      "displayName", "Course M.201 Mathematics at University of Oslo",
+      "displayName", "Some group this user (" + principal.getName() + ") belongs to.",
       "notBefore", LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     );
     return ImmutableList.of(first);
