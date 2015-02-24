@@ -37,3 +37,12 @@ properties file is loaded after the default one, overriding those default values
 
 For details, see the [Spring Boot manual](http://docs.spring.io/spring-boot/docs/1.2.1.RELEASE/reference/htmlsingle/).
 
+# Implementation
+
+This application exposes a [VOOT2-compatible](http://openvoot.org/protocol/) HTTP/Json API.
+
+To answer queries, this application talks to other webservices downstream. Those are:
+
+- Any client [compatible with VOOT1](http://openvoot.org/v1/)
+- Grouper 1.6
+- SURFteams
