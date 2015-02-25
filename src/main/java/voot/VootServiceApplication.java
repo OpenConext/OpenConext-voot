@@ -9,7 +9,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+
+import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
 
 @SpringBootApplication()
 public class VootServiceApplication {
@@ -44,6 +47,11 @@ public class VootServiceApplication {
       remoteTokenServices.setCheckTokenEndpointUrl(checkTokenEndpointUrl);
       remoteTokenServices.setClientId(checkTokenClientId);
       remoteTokenServices.setClientSecret(checkTokenSecret);
+
+      final DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
+      accessTokenConverter.setUserTokenConverter(new SchacHomeAwareUserAuthenticationConverter());
+      remoteTokenServices.setAccessTokenConverter(accessTokenConverter);
+
       return remoteTokenServices;
     }
 

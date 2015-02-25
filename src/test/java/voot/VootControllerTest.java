@@ -3,13 +3,14 @@ package voot;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
-import java.security.Principal;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+
+import voot.oauth.SchacHomeAuthentication;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VootControllerTest {
@@ -22,12 +23,17 @@ public class VootControllerTest {
   }
 
   @Mock
-  private Principal principal;
+  private OAuth2Authentication auth;
+
+  @Mock
+  private SchacHomeAuthentication userAuthentication;
 
   @Test
   public void testMyGroups() throws Exception {
+    when(auth.getName()).thenReturn("foo");
+    when(auth.getUserAuthentication()).thenReturn(userAuthentication);
+    when(userAuthentication.getSchacHomeAuthentication()).thenReturn("surfnet.nl");
 
-    when(principal.getName()).thenReturn("foo");
-    assertNotNull(subject.myGroups(principal));
+    assertNotNull(subject.myGroups(auth));
   }
 }
