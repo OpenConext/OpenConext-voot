@@ -1,0 +1,19 @@
+externalGroupProviders:
+  - {
+      type: "voot",
+      url: "http://groups.foo.com",
+      credentials: {
+        username: "vootservice",
+        secret: "secret"
+      },
+      schacHomeOrganisation: "foo.com"
+     }
+  - {
+      type: "grouper",
+      url: "http://grouper/api",
+      credentials: {
+        username: "vootservice",
+        secret: "secret"
+      },
+      schacHomeOrganisation: "surfnet.nl"
+     }
