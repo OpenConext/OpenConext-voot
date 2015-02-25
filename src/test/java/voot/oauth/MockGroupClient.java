@@ -12,6 +12,7 @@ import voot.oauth.valueobject.Group;
 public class MockGroupClient implements GroupClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(MockGroupClient.class);
+
   private final Long timeoutMillis;
   private final boolean simulateTimeout;
 
@@ -28,9 +29,19 @@ public class MockGroupClient implements GroupClient {
   @Override
   public List<Group> getMemberships(String uid, String schacHomeOrganization) {
     if (simulateTimeout) {
+      try {
+        Thread.sleep(timeoutMillis);
+      } catch (InterruptedException e) {}
+      LOG.debug("timed out");
       return Collections.emptyList();
     } else {
+      LOG.debug("got result");
       return Arrays.asList(new Group("came from" + this.toString()));
     }
+  }
+
+  @Override
+  public Long getMaxExecutionTime() {
+    return timeoutMillis;
   }
 }
