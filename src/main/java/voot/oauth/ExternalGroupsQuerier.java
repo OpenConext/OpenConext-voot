@@ -40,8 +40,7 @@ public class ExternalGroupsQuerier {
     // calling all downstream providers must not take any longer than their collective total timeoutsettings
     ForkJoinPool forkJoinPool = new ForkJoinPool(groupClients.size()); // we're I/O bound
     try {
-      return forkJoinPool.submit(() -> this.groupClients.stream()
-        .parallel()
+      return forkJoinPool.submit(() -> this.groupClients.parallelStream()
         .filter(client -> client.isAuthorative(schacHomeOrganization))
         .map(client -> client.getMemberships(uid, schacHomeOrganization))
         .flatMap(Collection::stream)
