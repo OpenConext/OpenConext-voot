@@ -28,7 +28,7 @@ public class VootController {
     LOG.debug("On behalf of uid {}, schacHomeOrg: {} ", authentication.getName(), schacHome);
     Map<String, Object> first = ImmutableMap.of(
       "id", "8878ae43-965a-412a-87b5-38c398a76569",
-      "displayName", "Some group this user (" + authentication.getName() + ") belongs to.",
+      "displayName", "Some group this user with uid (" + authentication.getName() + ") and schach " + schacHome + " belongs to.",
       "notBefore", LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     );
     return ImmutableList.of(first);
