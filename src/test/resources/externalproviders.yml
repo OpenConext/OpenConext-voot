@@ -6,7 +6,8 @@ externalGroupProviders:
         username: "vootservice",
         secret: "secret"
       },
-      schacHomeOrganisation: "foo.com"
+      schacHomeOrganisation: "foo.com",
+      timeoutMillis: 2000
      }
   - {
       type: "grouper",
@@ -15,5 +16,6 @@ externalGroupProviders:
         username: "vootservice",
         secret: "secret"
       },
-      schacHomeOrganisation: "surfnet.nl"
+      schacHomeOrganisation: "surfnet.nl",
+      timeoutMillis: 500
      }
