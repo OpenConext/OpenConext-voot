@@ -13,15 +13,16 @@ import voot.oauth.valueobject.Group;
 public class ExternalGroupsQuerier {
 
   private final List<GroupClient> groupClients;
+  private final ForkJoinPool forkJoinPool;
 
   public ExternalGroupsQuerier(List<GroupClient> groupClients) {
     Preconditions.checkArgument(groupClients.size() > 0, "No clients configured");
     this.groupClients = groupClients;
+    forkJoinPool = new ForkJoinPool(groupClients.size() * 20); // we're I/O bound.
   }
 
   public List<Group> getMyGroups(String uid, String schacHomeOrganization) {
-    // we're I/O bound and groupClients.size() will be < 5
-    ForkJoinPool forkJoinPool = new ForkJoinPool(groupClients.size());
+
     try {
       return forkJoinPool.submit(() -> this.groupClients.parallelStream()
         .filter(client -> client.isAuthorative(schacHomeOrganization))
