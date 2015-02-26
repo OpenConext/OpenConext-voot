@@ -25,7 +25,7 @@ public class ExternalGroupsQuerier {
 
     try {
       return forkJoinPool.submit(() -> this.groupClients.parallelStream()
-        .filter(client -> client.isAuthorative(schacHomeOrganization))
+        .filter(client -> client.shouldBeQueriedFor(schacHomeOrganization))
         .map(client -> client.getMemberships(uid, schacHomeOrganization))
         .flatMap(Collection::stream)
         .collect(Collectors.toList())).get();

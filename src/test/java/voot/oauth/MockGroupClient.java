@@ -22,7 +22,7 @@ public class MockGroupClient implements GroupClient {
   }
 
   @Override
-  public boolean isAuthorative(String schacHomeOrganization) {
+  public boolean shouldBeQueriedFor(String schacHomeOrganization) {
     return true;
   }
 
@@ -31,17 +31,13 @@ public class MockGroupClient implements GroupClient {
     if (simulateTimeout) {
       try {
         Thread.sleep(timeoutMillis);
-      } catch (InterruptedException e) {}
+      } catch (InterruptedException e) {
+      }
       LOG.debug("timed out");
       return Collections.emptyList();
     } else {
       LOG.debug("got result");
       return Arrays.asList(new Group("came from" + this.toString()));
     }
-  }
-
-  @Override
-  public Long getMaxExecutionTime() {
-    return timeoutMillis;
   }
 }
