@@ -11,10 +11,10 @@ externalGroupProviders:
      }
   - {
       type: "grouper",
-      url: "http://grouper/api",
+      url: "https://grouper.vm.openconext.org/grouper-ws/servicesRest",
       credentials: {
-        username: "vootservice",
-        secret: "secret"
+        username: "gadget",
+        secret: "gadget"
       },
       schacHomeOrganisation: "surfnet.nl",
       timeoutMillis: 500
