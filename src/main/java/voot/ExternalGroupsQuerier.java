@@ -1,4 +1,4 @@
-package voot.oauth;
+package voot;
 
 import java.util.Collection;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
 
-import voot.oauth.valueobject.Group;
+import voot.valueobject.Group;
 
 public class ExternalGroupsQuerier {
 

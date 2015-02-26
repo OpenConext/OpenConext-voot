@@ -1,8 +1,8 @@
-package voot.oauth;
+package voot;
 
 import java.util.List;
 
-import voot.oauth.valueobject.Group;
+import voot.valueobject.Group;
 
 public interface GroupClient {
 

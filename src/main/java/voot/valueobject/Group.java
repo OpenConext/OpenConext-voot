@@ -1,4 +1,4 @@
-package voot.oauth.valueobject;
+package voot.valueobject;
 
 public class Group {
   public final String name;

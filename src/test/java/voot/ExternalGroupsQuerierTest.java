@@ -1,16 +1,15 @@
-package voot.oauth;
+package voot;
 
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import org.junit.Test;
 
-import voot.oauth.valueobject.Group;
+import voot.valueobject.Group;
 
 public class ExternalGroupsQuerierTest {
 
