@@ -1,9 +1,18 @@
 package voot;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -11,14 +20,63 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
+import voot.provider.GrouperClient;
+import voot.provider.Provider;
+import voot.provider.Voot1Client;
+import voot.valueobject.Group;
 
 @SpringBootApplication()
 public class VootServiceApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(VootServiceApplication.class, args);
+  }
+
+  @Autowired
+  private ResourceLoader resourceLoader;
+
+  @Bean
+  @Autowired
+  public ExternalGroupsService externalGroupsService(
+    @Value("${externalProviders.config.path}") final String configFileLocation) throws IOException {
+
+    Yaml yaml = new Yaml(new SafeConstructor());
+
+    @SuppressWarnings("unchecked")
+    Map<String, List<Map<String,Object>>> config = (Map<String, List<Map<String, Object>>>) yaml.load(resourceLoader.getResource(configFileLocation).getInputStream());
+    final List<Map<String, Object>> externalGroupProviders = config.get("externalGroupProviders");
+
+    final List<Provider> groupClients = new ArrayList<>();
+
+    externalGroupProviders.forEach( entryMap -> {
+        final String type = (String) entryMap.get("type");
+        final String url = (String) entryMap.get("url");
+        final String schacHomeOrganization = (String) entryMap.get("schacHomeOrganization");
+        final Integer timeoutMillis = (Integer) entryMap.get("timeoutMillis");
+
+        final Map<String, Object> rawCredentials = (Map<String, Object>) entryMap.get("credentials");
+        String username = (String) rawCredentials.get("username");
+        String secret = (String) rawCredentials.get(rawCredentials.get("secret"));
+
+        final Provider.Configuration configuration = new Provider.Configuration(url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization);
+        switch(type){
+          case "voot1":
+            groupClients.add(new Voot1Client(configuration));
+            break;
+          case "grouper":
+            groupClients.add(new GrouperClient(configuration));
+            break;
+          default:
+            throw new IllegalArgumentException("Unknown external provider-type: " + type);
+        }
+      }
+    );
+
+    return new ExternalGroupsService(groupClients);
   }
 
   @Configuration
@@ -63,5 +121,6 @@ public class VootServiceApplication {
         .authorizeRequests()
         .antMatchers("/**").access("#oauth2.hasScope('read')");
     }
+
   }
 }

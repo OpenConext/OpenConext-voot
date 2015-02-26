@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,9 @@ import voot.oauth.SchacHomeAuthentication;
 public class VootController {
 
   private static Logger LOG = LoggerFactory.getLogger(VootController.class);
+
+  @Autowired
+  ExternalGroupsService externalGroupsService;
 
   @RequestMapping(value = "/me/groups")
   public List<Map<String, Object>> myGroups(final OAuth2Authentication authentication) {

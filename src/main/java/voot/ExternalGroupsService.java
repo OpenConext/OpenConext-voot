@@ -8,23 +8,24 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
 
+import voot.provider.Provider;
 import voot.valueobject.Group;
 
-public class ExternalGroupsQuerier {
+public class ExternalGroupsService {
 
-  private final List<GroupClient> groupClients;
+  private final List<Provider> providers;
   private final ForkJoinPool forkJoinPool;
 
-  public ExternalGroupsQuerier(List<GroupClient> groupClients) {
-    Preconditions.checkArgument(groupClients.size() > 0, "No clients configured");
-    this.groupClients = groupClients;
-    forkJoinPool = new ForkJoinPool(groupClients.size() * 20); // we're I/O bound.
+  public ExternalGroupsService(List<Provider> providers) {
+    Preconditions.checkArgument(providers.size() > 0, "No clients configured");
+    this.providers = providers;
+    forkJoinPool = new ForkJoinPool(providers.size() * 20); // we're I/O bound.
   }
 
   public List<Group> getMyGroups(String uid, String schacHomeOrganization) {
 
     try {
-      return forkJoinPool.submit(() -> this.groupClients.parallelStream()
+      return forkJoinPool.submit(() -> this.providers.parallelStream()
         .filter(client -> client.shouldBeQueriedFor(schacHomeOrganization))
         .map(client -> client.getMemberships(uid, schacHomeOrganization))
         .flatMap(Collection::stream)

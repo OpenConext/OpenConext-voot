@@ -7,16 +7,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import voot.provider.Provider;
 import voot.valueobject.Group;
 
-public class MockGroupClient implements GroupClient {
+public class MockProvider implements Provider {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MockGroupClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MockProvider.class);
 
   private final Long timeoutMillis;
   private final boolean simulateTimeout;
 
-  public MockGroupClient(Long timeoutMillis, boolean simulateTimeout) {
+  public MockProvider(Long timeoutMillis, boolean simulateTimeout) {
     this.timeoutMillis = timeoutMillis;
     this.simulateTimeout = simulateTimeout;
   }

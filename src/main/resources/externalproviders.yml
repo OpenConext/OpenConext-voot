@@ -1,6 +1,6 @@
 externalGroupProviders:
   - {
-      type: "voot",
+      type: "voot1",
       url: "http://groups.foo.com",
       credentials: {
         username: "vootservice",
