@@ -1,10 +1,9 @@
 package voot;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +26,6 @@ import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
 import voot.provider.GrouperClient;
 import voot.provider.Provider;
 import voot.provider.Voot1Client;
-import voot.valueobject.Group;
 
 @SpringBootApplication()
 public class VootServiceApplication {
@@ -47,35 +45,29 @@ public class VootServiceApplication {
     Yaml yaml = new Yaml(new SafeConstructor());
 
     @SuppressWarnings("unchecked")
-    Map<String, List<Map<String,Object>>> config = (Map<String, List<Map<String, Object>>>) yaml.load(resourceLoader.getResource(configFileLocation).getInputStream());
+    Map<String, List<Map<String, Object>>> config = (Map<String, List<Map<String, Object>>>) yaml.load(resourceLoader.getResource(configFileLocation).getInputStream());
     final List<Map<String, Object>> externalGroupProviders = config.get("externalGroupProviders");
 
-    final List<Provider> groupClients = new ArrayList<>();
+    final List<Provider> groupClients = externalGroupProviders.stream().map(entryMap -> {
+      final String type = (String) entryMap.get("type");
+      final String url = (String) entryMap.get("url");
+      final String schacHomeOrganization = (String) entryMap.get("schacHomeOrganization");
+      final Integer timeoutMillis = (Integer) entryMap.get("timeoutMillis");
 
-    externalGroupProviders.forEach( entryMap -> {
-        final String type = (String) entryMap.get("type");
-        final String url = (String) entryMap.get("url");
-        final String schacHomeOrganization = (String) entryMap.get("schacHomeOrganization");
-        final Integer timeoutMillis = (Integer) entryMap.get("timeoutMillis");
+      final Map<String, Object> rawCredentials = (Map<String, Object>) entryMap.get("credentials");
+      String username = (String) rawCredentials.get("username");
+      String secret = (String) rawCredentials.get(rawCredentials.get("secret"));
 
-        final Map<String, Object> rawCredentials = (Map<String, Object>) entryMap.get("credentials");
-        String username = (String) rawCredentials.get("username");
-        String secret = (String) rawCredentials.get(rawCredentials.get("secret"));
-
-        final Provider.Configuration configuration = new Provider.Configuration(url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization);
-        switch(type){
-          case "voot1":
-            groupClients.add(new Voot1Client(configuration));
-            break;
-          case "grouper":
-            groupClients.add(new GrouperClient(configuration));
-            break;
-          default:
-            throw new IllegalArgumentException("Unknown external provider-type: " + type);
-        }
+      final Provider.Configuration configuration = new Provider.Configuration(url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization);
+      switch (type) {
+        case "voot1":
+          return new Voot1Client(configuration);
+        case "grouper":
+          return new GrouperClient(configuration);
+        default:
+          throw new IllegalArgumentException("Unknown external provider-type: " + type);
       }
-    );
-
+    }).collect(Collectors.toList());
     return new ExternalGroupsService(groupClients);
   }
 
