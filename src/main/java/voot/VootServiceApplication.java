@@ -56,7 +56,7 @@ public class VootServiceApplication {
 
       final Map<String, Object> rawCredentials = (Map<String, Object>) entryMap.get("credentials");
       String username = (String) rawCredentials.get("username");
-      String secret = (String) rawCredentials.get(rawCredentials.get("secret"));
+      String secret = (String) rawCredentials.get("secret");
 
       final Provider.Configuration configuration = new Provider.Configuration(url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization);
       switch (type) {
