@@ -72,8 +72,9 @@ public class GrouperSoapClient implements Provider {
       final List<Group> groups = response.getReturn().getValue().getResults().stream()
         .filter(Objects::nonNull)
         .map(wsGetGroupsResult ->
-            wsGetGroupsResult.getWsGroups().stream().
-              map(wsGroup -> new Group(wsGroup.getDisplayName().getValue(), wsGroup.getName().getValue()))
+            wsGetGroupsResult.getWsGroups().stream()
+            .filter(Objects::nonNull)
+            .map(wsGroup -> new Group(wsGroup.getDisplayName().getValue(), wsGroup.getName().getValue()))
         )
         .flatMap(l -> l).collect(Collectors.toList());
       LOG.debug("Grouper result: {} groups.", groups.size());
