@@ -18,7 +18,7 @@ public class Voot1Client implements Provider {
   }
 
   @Override
-  public List<Group> getMemberships(String uid, String schacHomeOrganization) {
+  public List<Group> getMemberships(String uid) {
     return null;
   }
 }

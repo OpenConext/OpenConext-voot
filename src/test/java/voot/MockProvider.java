@@ -28,7 +28,7 @@ public class MockProvider implements Provider {
   }
 
   @Override
-  public List<Group> getMemberships(String uid, String schacHomeOrganization) {
+  public List<Group> getMemberships(String uid) {
     if (simulateTimeout) {
       try {
         Thread.sleep(timeoutMillis);
@@ -38,7 +38,7 @@ public class MockProvider implements Provider {
       return Collections.emptyList();
     } else {
       LOG.debug("got result");
-      return Arrays.asList(new Group("came from" + this.toString()));
+      return Arrays.asList(new Group("came from" + this.toString(), "id"));
     }
   }
 }

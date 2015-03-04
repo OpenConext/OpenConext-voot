@@ -13,7 +13,7 @@ public interface Provider {
    */
   boolean shouldBeQueriedFor(String schacHomeOrganization);
 
-  List<Group> getMemberships(String uid, String schacHomeOrganization);
+  List<Group> getMemberships(String uid);
 
   static class Configuration{
 

@@ -27,7 +27,7 @@ public class ExternalGroupsService {
     try {
       return forkJoinPool.submit(() -> this.providers.parallelStream()
         .filter(client -> client.shouldBeQueriedFor(schacHomeOrganization))
-        .map(client -> client.getMemberships(uid, schacHomeOrganization))
+        .map(client -> client.getMemberships(uid))
         .flatMap(Collection::stream)
         .collect(Collectors.toList())).get();
     } catch (InterruptedException | ExecutionException e) {

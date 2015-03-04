@@ -23,7 +23,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
-import voot.provider.GrouperClient;
+import voot.provider.GrouperSoapClient;
 import voot.provider.Provider;
 import voot.provider.Voot1Client;
 
@@ -63,7 +63,7 @@ public class VootServiceApplication {
         case "voot1":
           return new Voot1Client(configuration);
         case "grouper":
-          return new GrouperClient(configuration);
+          return new GrouperSoapClient(configuration);
         default:
           throw new IllegalArgumentException("Unknown external provider-type: " + type);
       }
