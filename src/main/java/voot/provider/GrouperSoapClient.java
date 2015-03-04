@@ -67,6 +67,7 @@ public class GrouperSoapClient implements Provider {
 
     request.getSubjectLookups().add(wsSubjectLookup);
     try {
+      LOG.debug("Querying grouper for uid/subjectId: {}", uid);
       GetGroupsResponse response = (GetGroupsResponse) webServiceTemplate.marshalSendAndReceive(request);
 
       final List<Group> groups = response.getReturn().getValue().getResults().stream()
