@@ -1,9 +1,8 @@
 package voot;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import voot.oauth.SchacHomeAuthentication;
+import voot.valueobject.Group;
 
 @RestController
 public class VootController {
@@ -30,12 +30,17 @@ public class VootController {
   public List<Map<String, Object>> myGroups(final OAuth2Authentication authentication) {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
     LOG.debug("On behalf of uid {}, schacHomeOrg: {} ", authentication.getName(), schacHome);
-    Map<String, Object> first = ImmutableMap.of(
-      "id", "8878ae43-965a-412a-87b5-38c398a76569",
-      "displayName", "Some group this user with uid (" + authentication.getName() + ") and schach " + schacHome + " belongs to.",
-      "notBefore", LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-    );
-    return ImmutableList.of(first);
+    final List<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome);
+
+    LOG.debug("Found groups: {}", myGroups);
+
+    final List<Map<String, Object>> collect = myGroups.stream()
+      .map(group -> ImmutableMap.<String, Object>of(
+        "id", group.id,
+        "displayName", group.displayName))
+      .collect(Collectors.toList());
+
+    return collect;
 
   }
 
