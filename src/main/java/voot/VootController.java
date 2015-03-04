@@ -38,13 +38,11 @@ public class VootController {
 
     LOG.debug("Found groups: {}", myGroups);
 
-    final List<Map<String, Object>> collect = myGroups.stream()
+    return myGroups.stream()
       .map(group -> ImmutableMap.<String, Object>of(
         "id", group.id,
         "displayName", group.displayName))
       .collect(Collectors.toList());
-
-    return collect;
 
   }
 
