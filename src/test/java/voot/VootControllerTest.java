@@ -1,7 +1,10 @@
 package voot;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
+
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +22,7 @@ public class VootControllerTest {
 
   @Before
   public void before() {
-    subject = new VootController();
+    subject = new VootController(externalGroupsService);
   }
 
   @Mock
@@ -28,12 +31,17 @@ public class VootControllerTest {
   @Mock
   private SchacHomeAuthentication userAuthentication;
 
-  @Test
-  public void testMyGroups() throws Exception {
-    when(auth.getName()).thenReturn("foo");
-    when(auth.getUserAuthentication()).thenReturn(userAuthentication);
-    when(userAuthentication.getSchacHomeAuthentication()).thenReturn("surfnet.nl");
+  @Mock
+  private ExternalGroupsService externalGroupsService;
 
+  @Test
+  public void testEmptyResult() throws Exception {
+    final String uid = "foo";
+    when(auth.getName()).thenReturn(uid);
+    when(auth.getUserAuthentication()).thenReturn(userAuthentication);
+    final String schacHome = "surfnet.nl";
+    when(userAuthentication.getSchacHomeAuthentication()).thenReturn(schacHome);
+    when(externalGroupsService.getMyGroups(uid, schacHome)).thenReturn(Collections.emptyList());
     assertNotNull(subject.myGroups(auth));
   }
 }

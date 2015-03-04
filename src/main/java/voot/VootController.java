@@ -23,8 +23,12 @@ public class VootController {
 
   private static Logger LOG = LoggerFactory.getLogger(VootController.class);
 
+  private ExternalGroupsService externalGroupsService;
+
   @Autowired
-  ExternalGroupsService externalGroupsService;
+  public VootController(ExternalGroupsService externalGroupsService) {
+    this.externalGroupsService = externalGroupsService;
+  }
 
   @RequestMapping(value = "/me/groups")
   public List<Map<String, Object>> myGroups(final OAuth2Authentication authentication) {
