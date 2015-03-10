@@ -1,15 +1,14 @@
 package voot;
 
+import com.google.common.base.Preconditions;
+import voot.provider.Provider;
+import voot.valueobject.Group;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Preconditions;
-
-import voot.provider.Provider;
-import voot.valueobject.Group;
 
 public class ExternalGroupsService {
 
@@ -23,11 +22,10 @@ public class ExternalGroupsService {
   }
 
   public List<Group> getMyGroups(String uid, String schacHomeOrganization) {
-
     try {
       return forkJoinPool.submit(() -> this.providers.parallelStream()
-        .filter(client -> client.shouldBeQueriedFor(schacHomeOrganization))
-        .map(client -> client.getMemberships(uid))
+        .filter(provider -> provider.shouldBeQueriedFor(schacHomeOrganization))
+        .map(provider -> provider.getMemberships(uid))
         .flatMap(Collection::stream)
         .collect(Collectors.toList())).get();
     } catch (InterruptedException | ExecutionException e) {

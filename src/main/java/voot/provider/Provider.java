@@ -1,13 +1,14 @@
 package voot.provider;
 
-import java.util.List;
-
 import voot.valueobject.Group;
+
+import java.util.List;
 
 public interface Provider {
 
   /**
    * Tells us if it is worthwhile calling this client
+   *
    * @param schacHomeOrganization the end-user's schacHomeOrg
    * @return
    */
@@ -15,7 +16,12 @@ public interface Provider {
 
   List<Group> getMemberships(String uid);
 
-  static class Configuration{
+  static class Configuration {
+
+    public final String url;
+    public final Credentials credentials;
+    public final Integer timeOutMillis;
+    public final String schacHomeOrganisation;
 
     public Configuration(String url, Credentials credentials, Integer timeOutMillis, String schacHomeOrganisation) {
       this.url = url;
@@ -34,10 +40,7 @@ public interface Provider {
       }
     }
 
-    public final String url;
-    public final Credentials credentials;
-    public final Integer timeOutMillis;
-    public final String schacHomeOrganisation;
-
   }
+
+
 }

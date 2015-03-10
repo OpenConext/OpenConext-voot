@@ -1,0 +1,66 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+  <soapenv:Body>
+    <ns:getGroupsResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xsi:type="ns:WsGetGroupsResults" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
+          <ns:serverVersion>2.1.5</ns:serverVersion>
+        </ns:responseMetadata>
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true"/>
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:resultCode2 xsi:nil="true"/>
+          <ns:resultMessage>Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]:
+            WsSubjectLookup[subjectId=urn:collab:person:example.com:admin]
+
+            memberFilter: All, includeGroupDetail: false, actAsSubject: null
+            , params: Empty array
+            fieldName1: null
+            , scope: null, wsStemLookup: null
+            , stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null
+            , pointInTimeFrom: null, pointInTimeTo: null
+          </ns:resultMessage>
+          <ns:success>T</ns:success>
+        </ns:resultMetadata>
+        <ns:results xsi:type="ns:WsGetGroupsResult">
+          <ns:resultMetadata xsi:type="ns:WsResultMeta">
+            <ns:params xsi:nil="true"/>
+            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:resultCode2 xsi:nil="true"/>
+            <ns:resultMessage xsi:nil="true"/>
+            <ns:success>T</ns:success>
+          </ns:resultMetadata>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>system administrators with all privileges</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>sysadmingroup</ns:displayExtension>
+            <ns:displayName>etc:sysadmingroup</ns:displayName>
+            <ns:extension>sysadmingroup</ns:extension>
+            <ns:name>etc:sysadmingroup</ns:name>
+            <ns:uuid>2495447b2ca04dc494db0be5348f28fb</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep</ns:displayName>
+            <ns:extension>test_groep</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsSubject xsi:type="ns:WsSubject">
+            <ns:attributeValues xsi:nil="true"/>
+            <ns:id>urn:collab:person:example.com:admin</ns:id>
+            <ns:identifierLookup xsi:nil="true"/>
+            <ns:name>John Doe</ns:name>
+            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:sourceId>openconext-ldap</ns:sourceId>
+            <ns:success>T</ns:success>
+          </ns:wsSubject>
+        </ns:results>
+        <ns:subjectAttributeNames xsi:nil="true"/>
+      </ns:return>
+    </ns:getGroupsResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

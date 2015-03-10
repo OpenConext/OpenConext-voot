@@ -12,9 +12,6 @@ public class Group {
 
   @Override
   public String toString() {
-    return "Group{" +
-      "displayName='" + displayName + '\'' +
-      ", id='" + id + '\'' +
-      '}';
+    return String.format("Group{id='%s', displayName='%s'}", id, displayName);
   }
 }

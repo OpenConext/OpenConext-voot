@@ -1,10 +1,6 @@
 package voot.provider;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.ImmutableMap;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -12,16 +8,31 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
-import org.springframework.ws.client.WebServiceIOException;
+import org.springframework.util.StreamUtils;
 import org.springframework.ws.client.core.WebServiceTemplate;
 import org.springframework.ws.transport.http.HttpComponentsMessageSender;
-
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GetGroups;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GetGroupsResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.ObjectFactory;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
+import org.springframework.xml.transform.StringResult;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import voot.valueobject.Group;
+
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GrouperSoapClient implements Provider {
 
@@ -29,6 +40,13 @@ public class GrouperSoapClient implements Provider {
 
   private final WebServiceTemplate webServiceTemplate;
 
+  private final NamespaceContext grouperNameSpaceContext = new GrouperNameSpaceContext();
+
+  private final Pattern replacementPattern = Pattern.compile("\\[(.+?)\\]");
+
+  private final Charset charSet = Charset.forName("UTF-8");
+
+  private DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
   public GrouperSoapClient(Configuration configuration) {
 
@@ -37,13 +55,10 @@ public class GrouperSoapClient implements Provider {
     getCredentialsProvider(httpComponentsMessageSender).setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(configuration.credentials.username, configuration.credentials.password));
 
     webServiceTemplate = new WebServiceTemplate();
-    final Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-    marshaller.setSchema(new ClassPathResource("wsdl/GrouperService_v2_0.wsdl"));
-    marshaller.setPackagesToScan("edu.internet2.middleware.grouper.ws.soap_v2_2.xsd");
-    webServiceTemplate.setMarshaller(marshaller);
-    webServiceTemplate.setUnmarshaller(marshaller);
     webServiceTemplate.setMessageSender(httpComponentsMessageSender);
     webServiceTemplate.setDefaultUri(configuration.url);
+
+    factory.setNamespaceAware(true);
   }
 
   @SuppressWarnings("deprecation")
@@ -58,32 +73,48 @@ public class GrouperSoapClient implements Provider {
 
   @Override
   public List<Group> getMemberships(final String uid) {
-    final ObjectFactory objectFactory = new ObjectFactory();
-    final GetGroups request = new GetGroups();
-    request.setClientVersion(objectFactory.createGetGroupsClientVersion("2.0.0"));
+    ImmutableMap replacements = ImmutableMap.<String, String>of("subjectId", uid);
 
-    WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
-    wsSubjectLookup.setSubjectId(objectFactory.createWsSubjectLookupSubjectIdentifier(uid));
-
-    request.getSubjectLookups().add(wsSubjectLookup);
     try {
       LOG.debug("Querying grouper for uid/subjectId: {}", uid);
-      GetGroupsResponse response = (GetGroupsResponse) webServiceTemplate.marshalSendAndReceive(request);
+      String soap = replaceTokens("soap/GetGroups.xml", replacements);
+      StringResult result = new StringResult();
+      webServiceTemplate.sendSourceAndReceiveToResult(new StreamSource(new StringReader(soap)), result);
 
-      final List<Group> groups = response.getReturn().getValue().getResults().stream()
-        .filter(Objects::nonNull)
-        .map(wsGetGroupsResult ->
-            wsGetGroupsResult.getWsGroups().stream()
-            .filter(Objects::nonNull)
-            .map(wsGroup -> new Group(wsGroup.getDisplayName().getValue(), wsGroup.getName().getValue()))
-        )
-        .flatMap(l -> l).collect(Collectors.toList());
+      Document document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(result.toString())));
+
+      XPath xpath = XPathFactory.newInstance().newXPath();
+      xpath.setNamespaceContext(grouperNameSpaceContext);
+
+      NodeList nodes = (NodeList) xpath.evaluate("//ns:wsGroups", document, XPathConstants.NODESET);
+      List<Group> groups = new ArrayList<Group>();
+
+      for (int i = 0; i < nodes.getLength(); i++) {
+        Node item = nodes.item(i);
+        groups.add(new Group(xpath.evaluate("ns:description", item), xpath.evaluate("ns:name", item)));
+      }
+
       LOG.debug("Grouper result: {} groups.", groups.size());
       return groups;
 
-    } catch (WebServiceIOException exception) {
+    } catch (Exception exception) {
       LOG.warn("Failed to invoke grouper, cause: {}, returning empty result.", exception.getMessage());
       return Collections.emptyList();
     }
+  }
+
+  private String replaceTokens(String soapTemplate, Map<String, String> replacements) throws IOException {
+    String text = StreamUtils.copyToString(new ClassPathResource(soapTemplate).getInputStream(), charSet);
+    Matcher matcher = replacementPattern.matcher(text);
+    StringBuffer buffer = new StringBuffer();
+    while (matcher.find()) {
+      String replacement = replacements.get(matcher.group(1));
+      if (replacement != null) {
+        matcher.appendReplacement(buffer, "");
+        buffer.append(replacement);
+      }
+    }
+    matcher.appendTail(buffer);
+    return buffer.toString();
   }
 }

@@ -1,8 +1,8 @@
 package voot.provider;
 
-import java.util.List;
-
 import voot.valueobject.Group;
+
+import java.util.List;
 
 public class Voot1Client implements Provider {
 
