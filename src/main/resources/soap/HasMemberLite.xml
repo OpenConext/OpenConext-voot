@@ -1,0 +1,11 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <xsd:hasMemberLite>
+      <xsd:clientVersion>2.0.0</xsd:clientVersion>
+      <!-- We use the unique name of Grouper as the identifier within SURFconext -->
+      <xsd:groupName>[groupId]</xsd:groupName>
+      <xsd:subjectId>[subjectId]</xsd:subjectId>
+    </xsd:hasMemberLite>
+  </soapenv:Body>
+</soapenv:Envelope>

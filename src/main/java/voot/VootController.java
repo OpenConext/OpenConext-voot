@@ -14,6 +14,7 @@ import voot.valueobject.Group;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -29,37 +30,25 @@ public class VootController {
   }
 
   @RequestMapping(value = "/me/groups")
-  public List<Map<String, Object>> myGroups(final OAuth2Authentication authentication) {
+  public List<Group> myGroups(final OAuth2Authentication authentication) {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
-    LOG.debug("On behalf of uid {}, schacHomeOrg: {} ", authentication.getName(), schacHome);
+    LOG.debug("myGroups on behalf of uid {}, schacHomeOrg: {} ", authentication.getName(), schacHome);
     final List<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome);
 
     LOG.debug("Found groups: {}", myGroups);
 
-    return myGroups.stream()
-      .map(group -> ImmutableMap.<String, Object>of(
-        "id", group.id,
-        "displayName", group.displayName))
-      .collect(Collectors.toList());
+    return myGroups;
 
   }
-
-  @RequestMapping(value = "/groups")
-  public List<Map<String, Object>> allGroups() {
-    return ImmutableList.of(
-      ImmutableMap.of(
-        "id", "1234-5678",
-        "displayName", "UNINETT Systemavdelingen"),
-      ImmutableMap.of(
-        "id", "1234-1234",
-        "displayName", "UNINETT Tjenesteavdelingen")
-    );
-  }
-
 
   @RequestMapping(value = "/groups/{groupId}")
-  public Map<String, Object> specificGroup(@PathVariable final String groupId) {
-    return ImmutableMap.of("id", groupId, "displayName", "foo");
+  public Optional<Group> specificGroup(@PathVariable String groupId, final OAuth2Authentication authentication) {
+    String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
+    LOG.debug("groupById on behalf of uid {}, schacHomeOrg: {} ", authentication.getName(), schacHome);
+    final Optional<Group> group = externalGroupsService.getMyGroupById(authentication.getName(), groupId, schacHome);
+
+    LOG.debug("Found group: {}", group);
+    return group;
   }
 
 }

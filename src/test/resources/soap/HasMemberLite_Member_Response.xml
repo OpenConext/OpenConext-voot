@@ -1,0 +1,44 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+  <soapenv:Body>
+    <ns:hasMemberLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xsi:type="ns:WsHasMemberLiteResult" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
+          <ns:serverVersion>2.1.5</ns:serverVersion>
+        </ns:responseMetadata>
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true"/>
+          <ns:resultCode>IS_MEMBER</ns:resultCode>
+          <ns:resultCode2 xsi:nil="true"/>
+          <ns:resultMessage>Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=nl:surfnet:diensten:dit_is_de_team_naam], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=urn:collab:person:example.com:admin]
+
+            memberFilter: All, actAsSubject: null, fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+            ,params: null
+            ,pointInTimeFrom: null, pointInTimeTo: null</ns:resultMessage>
+          <ns:success>T</ns:success>
+        </ns:resultMetadata>
+        <ns:results xsi:nil="true"/>
+        <ns:subjectAttributeNames xsi:nil="true"/>
+        <ns:wsGroup xsi:type="ns:WsGroup">
+          <ns:description>Dit is de team description, kan lang zijn</ns:description>
+          <ns:detail xsi:nil="true"/>
+          <ns:displayExtension>Dit is de team naam</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Dit is de team naam</ns:displayName>
+          <ns:extension>dit_is_de_team_naam</ns:extension>
+          <ns:name>nl:surfnet:diensten:dit_is_de_team_naam</ns:name>
+          <ns:uuid>9ca152ceab584a54bb956f1173d08133</ns:uuid>
+        </ns:wsGroup>
+        <ns:wsSubject xsi:type="ns:WsSubject">
+          <ns:attributeValues xsi:nil="true"/>
+          <ns:id>urn:collab:person:example.com:admin</ns:id>
+          <ns:identifierLookup xsi:nil="true"/>
+          <ns:name>John Doe</ns:name>
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:sourceId>openconext-ldap</ns:sourceId>
+          <ns:success>T</ns:success>
+        </ns:wsSubject>
+      </ns:return>
+    </ns:hasMemberLiteResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

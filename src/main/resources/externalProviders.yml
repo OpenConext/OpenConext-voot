@@ -6,7 +6,7 @@ externalGroupProviders:
         username: "vootservice",
         secret: "secret"
       },
-      schacHomeOrganisation: "foo.com",
+      schacHomeOrganization: "foo.com",
       timeoutMillis: 2000
      }
   - {
@@ -16,6 +16,6 @@ externalGroupProviders:
         username: "gadget",
         secret: "gadget"
       },
-      schacHomeOrganisation: "surfnet.nl",
+      schacHomeOrganization: "surfnet.nl",
       timeoutMillis: 2000
      }

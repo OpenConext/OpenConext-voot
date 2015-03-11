@@ -3,22 +3,23 @@ package voot.provider;
 import voot.valueobject.Group;
 
 import java.util.List;
+import java.util.Optional;
 
-public class Voot1Client implements Provider {
-
-  private final Configuration configuration;
+public class Voot1Client extends AbstractProvider {
 
   public Voot1Client(Configuration configuration) {
-    this.configuration = configuration;
+    super(configuration);
   }
 
   @Override
-  public boolean shouldBeQueriedFor(String schacHomeOrganization) {
-    return false;
-  }
-
-  @Override
-  public List<Group> getMemberships(String uid) {
+  public List<Group> getGroupMemberships(String uid) {
     return null;
   }
+
+  @Override
+  public Optional<Group> getGroupMembership(String uid, String groupId) {
+    return null;
+  }
+
+
 }

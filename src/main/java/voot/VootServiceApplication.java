@@ -23,6 +23,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
+import voot.provider.GroupProviderType;
 import voot.provider.GrouperSoapClient;
 import voot.provider.Provider;
 import voot.provider.Voot1Client;
@@ -58,11 +59,13 @@ public class VootServiceApplication {
       String username = (String) rawCredentials.get("username");
       String secret = (String) rawCredentials.get("secret");
 
-      final Provider.Configuration configuration = new Provider.Configuration(url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization);
-      switch (type) {
-        case "voot1":
+      GroupProviderType groupProviderType = GroupProviderType.valueOf(type.toUpperCase());
+
+      final Provider.Configuration configuration = new Provider.Configuration(groupProviderType, url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization);
+      switch (groupProviderType) {
+        case VOOT1:
           return new Voot1Client(configuration);
-        case "grouper":
+        case GROUPER:
           return new GrouperSoapClient(configuration);
         default:
           throw new IllegalArgumentException("Unknown external provider-type: " + type);
