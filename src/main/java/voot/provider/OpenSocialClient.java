@@ -1,0 +1,40 @@
+package voot.provider;
+
+import org.springframework.http.ResponseEntity;
+import voot.valueobject.Group;
+import voot.valueobject.Membership;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+public class OpenSocialClient extends Voot2Client {
+
+  public OpenSocialClient(Configuration configuration) {
+    super(configuration);
+  }
+
+  @Override
+  protected List<Group> parseGroups(String response) {
+    List<Map<String, Object>> groups = (List) parseJson(response, Map.class).get("entry");
+    return groups.stream().map(map -> {
+      Object idHolder = map.get("id");
+      //deprecated Open Social protocol has compound ID
+      String id = idPrefix + (idHolder instanceof Map ? ((Map) idHolder).get("groupId") : idHolder);
+      return new Group(
+        id,
+        (String) map.get("title"),
+        (String) map.get("description"),
+        Membership.fromRole((String) map.getOrDefault("voot_membership_role", "member")));
+    }).collect(Collectors.toList());
+  }
+
+  @Override
+  protected Optional<Group> parseSingleGroup(String response) {
+    List<Group> groups = parseGroups(response);
+    return groups.isEmpty() ? Optional.empty() : Optional.of(groups.get(0));
+  }
+
+}

@@ -2,6 +2,7 @@ package voot.provider;
 
 import voot.valueobject.Group;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +25,7 @@ public interface Provider {
    */
   boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId);
 
-  List<Group> getGroupMemberships(String uid);
+  List<Group> getGroupMemberships(String uid) ;
 
   Optional<Group> getGroupMembership(String uid, String groupId);
 

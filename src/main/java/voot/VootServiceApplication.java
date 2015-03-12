@@ -19,10 +19,7 @@ import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
-import voot.provider.GroupProviderType;
-import voot.provider.GrouperSoapClient;
-import voot.provider.Provider;
-import voot.provider.Voot1Client;
+import voot.provider.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -65,8 +62,10 @@ public class VootServiceApplication {
 
       final Provider.Configuration configuration = new Provider.Configuration(groupProviderType, url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization);
       switch (groupProviderType) {
-        case VOOT1:
-          return new Voot1Client(configuration);
+        case VOOT2:
+          return new Voot2Client(configuration);
+        case OPEN_SOCIAL:
+          return new OpenSocialClient(configuration);
         case GROUPER:
           return new GrouperSoapClient(configuration);
         default:

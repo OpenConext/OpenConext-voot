@@ -22,10 +22,11 @@ public class AbstractProviderTest extends TestCase {
   }
 
   @Test
-  public void testShouldBeQueriedFor() throws Exception {
-    assertTrue(subject.shouldBeQueriedForMemberships("whatever.nl"));
-    AbstractProvider voot = new MockProvider(1L, false, GroupProviderType.VOOT1);
-    assertTrue(voot.shouldBeQueriedForMemberships(MockProvider.SCHAC_HOME_ORGANIZATION));
-    assertFalse(voot.shouldBeQueriedForMemberships("whatever.nl"));
+  public void testIsFullyQualifiedGroupName() {
+    assertTrue(AbstractProvider.isFullyQualifiedGroupName("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon"));
+    assertTrue(AbstractProvider.isFullyQualifiedGroupName("urn:collab:group:whatever:1"));
+    assertFalse(AbstractProvider.isFullyQualifiedGroupName("urn:collab:group::1"));
+    assertFalse(AbstractProvider.isFullyQualifiedGroupName("urn:collab:group:1:"));
   }
+
 }

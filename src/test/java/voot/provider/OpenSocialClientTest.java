@@ -15,18 +15,18 @@ import java.util.Optional;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.*;
 
-public class Voot1ClientTest {
+public class OpenSocialClientTest {
 
-  private String admin = "urn:collab:person:example.com:admin";
-  private Provider.Configuration configuration = new Provider.Configuration(GroupProviderType.VOOT1, "http://localhost:8889", new Provider.Configuration.Credentials("user", "password"), 2000, "example.org");
-  private Voot1Client subject = new Voot1Client(configuration);
+  private String admin = "urn:collab:person:example.org:admin";
+  private Provider.Configuration configuration = new Provider.Configuration(GroupProviderType.OPEN_SOCIAL, "http://localhost:8889", new Provider.Configuration.Credentials("user", "password"), 2000, "example.org");
+  private OpenSocialClient subject = new OpenSocialClient(configuration);
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(8889);
 
   @Test
   public void testGetMemberships() throws Exception {
-    stubCall("groups/admin", "json/surfnet_voot1_group_provider.json");
+    stubCall("groups/admin", "json/opensocial/open_social_groups.json");
     final List<Group> memberships = subject.getGroupMemberships(admin);
 
     assertGroups(memberships);
@@ -34,7 +34,7 @@ public class Voot1ClientTest {
 
   @Test
   public void testGetEmptyMemberships() throws Exception {
-    stubCall("groups/admin", "json/group_provider_empty.json");
+    stubCall("groups/admin", "json/opensocial/open_social_groups_empty.json");
     final List<Group> memberships = subject.getGroupMemberships(admin);
 
     assertTrue(memberships.isEmpty());
@@ -42,7 +42,7 @@ public class Voot1ClientTest {
 
   @Test
   public void testGetMembershipsDeprecatedCompoundId() throws Exception {
-    stubCall("groups/admin", "json/deprecated_compound_id_voot1_groups.json");
+    stubCall("groups/admin", "json/opensocial/open_social_deprecated_groups.json");
     final List<Group> memberships = subject.getGroupMemberships(admin);
 
     assertGroups(memberships);
@@ -50,7 +50,7 @@ public class Voot1ClientTest {
 
   @Test
   public void testGetSingleMembership() throws Exception {
-    stubCall("groups/admin/groupId", "json/surfnet_voot1_group_provider.json");
+    stubCall("groups/admin/groupId", "json/opensocial/open_social_groups_single.json");
     Optional<Group> group = subject.getGroupMembership(admin, "groupId");
 
     assertTrue(group.isPresent());
@@ -59,7 +59,7 @@ public class Voot1ClientTest {
 
   @Test
   public void testGetSingleMembershipDeprecatedCompoundId() throws Exception {
-    stubCall("groups/admin/groupId", "json/deprecated_compound_id_voot1_groups_single.json");
+    stubCall("groups/admin/groupId", "json/opensocial/open_social_deprecated_group.json");
     Optional<Group> group = subject.getGroupMembership(admin, "groupId");
 
     assertTrue(group.isPresent());
@@ -68,7 +68,7 @@ public class Voot1ClientTest {
 
   @Test
   public void testGetSingleMembershipEmpty() throws Exception {
-    stubCall("groups/admin/groupId", "json/group_provider_empty.json");
+    stubCall("groups/admin/groupId", "json/opensocial/open_social_groups_empty.json");
     Optional<Group> group = subject.getGroupMembership(admin, "groupId");
 
     assertFalse(group.isPresent());

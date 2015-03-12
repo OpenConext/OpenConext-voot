@@ -30,10 +30,8 @@ secure the application with SAML2.
 On its classpath, the application has an [application.properties](src/main/resources/application.properties) file that
 contains configuration defaults that are convenient when developing.
 
-When the application actually gets deployed to a meaningful platform, it is started with a config-option so that another
-properties file is loaded after the default one, overriding those default values. Example:
-
-`$ java -jar myproject.jar --spring.config.location=/etc/myapp.properties`
+When the application actually gets deployed to a meaningful platform, it is pre-provisioned with ansible and the application.properties depends on
+environment specific properties in the group_vars
 
 For details, see the [Spring Boot manual](http://docs.spring.io/spring-boot/docs/1.2.1.RELEASE/reference/htmlsingle/).
 
@@ -43,6 +41,6 @@ This application exposes a [VOOT2-compatible](http://openvoot.org/protocol/) HTT
 
 To answer queries, this application talks to other webservices downstream. Those are:
 
-- Any client [compatible with VOOT1](http://openvoot.org/v1/)
-- Grouper 1.6
-- SURFteams
+- Any client compatible with [VOOT2](http://openvoot.org/protocol/)
+- Any client compatible with [OpenSocial](http://opensocial.github.io/spec/trunk/Social-API-Server.xml#Groups-Service-GetGroups)
+- Grouper 1.6 (the persistent store behind SURFteams)

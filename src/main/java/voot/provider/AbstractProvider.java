@@ -15,6 +15,7 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,8 +23,8 @@ public abstract class AbstractProvider implements Provider {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractProvider.class);
 
-  protected static final Pattern groupPattern = Pattern.compile("^urn:collab:group:([^:]+):(.*)$");
-  protected static final Pattern personPattern = Pattern.compile("^urn:collab:person:([^:]+):(.*)$");
+  protected static final Pattern groupPattern = Pattern.compile("^urn:collab:group:([^:]+):(.+)$");
+  protected static final Pattern personPattern = Pattern.compile("^urn:collab:person:([^:]+):(.+)$");
 
   /*
    * We can't share the RestTemplate among Providers as we tie the BasicCredentialsProvider with the configured user / password
@@ -50,6 +51,7 @@ public abstract class AbstractProvider implements Provider {
 
   /**
    * Strip groupId, e.g. removing urn:collab:group:schacHomeOrganization:stripped-groupId and returning remaining stripped-groupId part
+   *
    * @param groupId the groupId
    * @return stripped groupId or groupId if not conform urn:collab:group format
    */
@@ -60,6 +62,7 @@ public abstract class AbstractProvider implements Provider {
 
   /**
    * Strip uid, e.g. removing urn:collab:person:schacHomeOrganization:stripped-uid and returning remaining stripped-ui part
+   *
    * @param uid the uid
    * @return stripped uid or uid if not conform urn:collab:person format
    */
@@ -67,6 +70,19 @@ public abstract class AbstractProvider implements Provider {
     Matcher m = personPattern.matcher(uid);
     return m.matches() ? m.group(2) : uid;
   }
+
+  public static boolean isFullyQualifiedGroupName(String groupId) {
+    return groupPattern.matcher(groupId).matches();
+  }
+
+  protected <T> T parseJson(String json, Class<T> t) {
+    try {
+      return objectMapper.readValue(json, t);
+    } catch (IOException e) {
+      throw new RuntimeException("Error parsing Json", e);
+    }
+  }
+
 
   private ClientHttpRequestFactory getRequestFactory() {
     HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();

@@ -2,6 +2,6 @@ package voot.provider;
 
 public enum GroupProviderType {
 
-  GROUPER, VOOT1
+  GROUPER, OPEN_SOCIAL, VOOT2
 
 }

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "id1",
+    "displayName": "display name 1",
+    "membership": {
+      "basic": "member"
+    },
+    "description": "description...1"
+  },
+  {
+    "id": "id2",
+    "displayName": "display name 2",
+    "membership": {
+      "basic": "member"
+    },
+    "description": "description...2"
+  }
+]

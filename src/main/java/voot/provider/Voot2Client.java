@@ -1,22 +1,24 @@
 package voot.provider;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import voot.valueobject.Group;
 import voot.valueobject.Membership;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class Voot1Client extends AbstractProvider {
+public class Voot2Client extends AbstractProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(GrouperSoapClient.class);
 
-  public Voot1Client(Configuration configuration) {
+  public Voot2Client(Configuration configuration) {
     super(configuration);
   }
 
@@ -36,10 +38,10 @@ public class Voot1Client extends AbstractProvider {
 
     uid = stripPersonUrnIdentifier(uid);
 
-    ResponseEntity<Map> response = restTemplate.getForEntity(String.format("%s/groups/{uid}", configuration.url), Map.class, uid);
+    ResponseEntity<String> response = restTemplate.getForEntity(String.format("%s/groups/{uid}", configuration.url), String.class, uid);
 
     if (response.getStatusCode().is2xxSuccessful()) {
-      return parseGroups((List<Map<String, Object>>) response.getBody().get("entry"));
+      return parseGroups(response.getBody());
     } else {
       LOG.error("Failed to invoke getGroupMemberships {} for {}, returning empty result.", response, configuration);
       return Collections.emptyList();
@@ -48,31 +50,38 @@ public class Voot1Client extends AbstractProvider {
   }
 
   @Override
-  public Optional<Group> getGroupMembership(String uid, String groupId) {
+  public Optional<Group> getGroupMembership(String uid, String groupId)  {
     LOG.debug("Querying getGroupMembership for subjectId: {} and configuration: {}", uid, configuration);
 
     uid = stripPersonUrnIdentifier(uid);
     groupId = stripGroupUrnIdentifier(groupId);
 
-    ResponseEntity<Map> response = restTemplate.getForEntity(String.format("%s/groups/{uid}/{groupId}", configuration.url), Map.class, uid, groupId);
+    ResponseEntity<String> response = restTemplate.getForEntity(String.format("%s/groups/{uid}/{groupId}", configuration.url), String.class, uid, groupId);
 
     if (response.getStatusCode().is2xxSuccessful()) {
-      List<Group> groups = parseGroups((List<Map<String, Object>>) response.getBody().get("entry"));
-      return groups.isEmpty() ? Optional.empty() : Optional.of(groups.get(0));
+      return parseSingleGroup(response.getBody());
     } else {
       LOG.error("Failed to invoke getGroupMemberships {} for {}, returning empty result.", response, configuration);
       return Optional.empty();
     }
   }
 
-  private List<Group> parseGroups(List<Map<String, Object>> groups) {
-    return groups.stream().map(m -> parseGroup(m)).collect(Collectors.toList());
+  protected List<Group> parseGroups(String response)  {
+    List<Map<String, Object>> maps = parseJson(response, List.class);
+    return maps.stream().map(item -> parseGroup(item)).collect(Collectors.toList());
   }
 
-  private Group parseGroup(Map<String, Object> map) {
-    Object idHolder = map.get("id");
-    String  id = idPrefix + (String) (idHolder instanceof Map ? ((Map) idHolder).get("groupId") : idHolder);
-    return new Group(id, (String) map.get("title"), (String) map.get("description"), Membership.fromRole((String) map.getOrDefault("voot_membership_role", "member")));
+  protected Optional<Group> parseSingleGroup(String response) {
+    Map<String, Object> map = parseJson(response, Map.class);
+    return Optional.of(parseGroup(map));
+  }
+
+  private Group parseGroup(Map<String, Object> item) {
+    return new Group(
+      idPrefix + item.get("id"),
+      (String) item.get("displayName"),
+      (String) item.get("description"),
+      item.containsKey("membership") ? Membership.fromRole((String) ((Map) item.get("membership")).get("basic")) : Membership.defaultMembership);
   }
 
 

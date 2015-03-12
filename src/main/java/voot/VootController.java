@@ -32,11 +32,11 @@ public class VootController {
   @RequestMapping(value = "/me/groups")
   public List<Group> myGroups(final OAuth2Authentication authentication) {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
-    LOG.debug("myGroups on behalf of uid {}, schacHomeOrg: {} ", authentication.getName(), schacHome);
+    LOG.debug("me/groups on behalf of uid {}, schacHomeOrg: {} ", authentication.getName(), schacHome);
+
     final List<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome);
 
-    LOG.debug("Found groups: {}", myGroups);
-
+    LOG.debug("me/groups result for uid {}: {}", authentication.getName(), myGroups);
     return myGroups;
 
   }
@@ -44,10 +44,11 @@ public class VootController {
   @RequestMapping(value = "/groups/{groupId}")
   public Group specificGroup(@PathVariable String groupId, final OAuth2Authentication authentication) {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
-    LOG.debug("groupById on behalf of uid {}, schacHomeOrg: {} ", authentication.getName(), schacHome);
+    LOG.debug("groups/{} on behalf of uid {}, schacHomeOrg: {} ", groupId, authentication.getName(), schacHome);
+
     final Optional<Group> group = externalGroupsService.getMyGroupById(authentication.getName(), groupId, schacHome);
 
-    LOG.debug("Found group: {}", group);
+    LOG.debug("groups/{} result for uid {}: {}", groupId, authentication.getName(), group);
 
     if (group.isPresent()) {
       return group.get();

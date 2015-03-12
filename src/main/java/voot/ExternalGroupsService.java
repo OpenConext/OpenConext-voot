@@ -1,6 +1,7 @@
 package voot;
 
 import com.google.common.base.Preconditions;
+import voot.provider.AbstractProvider;
 import voot.provider.Provider;
 import voot.valueobject.Group;
 
@@ -36,16 +37,15 @@ public class ExternalGroupsService {
   }
 
   public Optional<Group> getMyGroupById(String uid, String groupId, String schacHomeOrganization) {
+    if (!AbstractProvider.isFullyQualifiedGroupName(groupId)) {
+      throw new IllegalArgumentException(String.format("The groupId '%s' must be fully qualified (e.g. start with urn:collab:group:%s)", groupId, schacHomeOrganization));
+    }
     try {
       List<Optional<Group>> optionals = forkJoinPool.submit(() -> this.providers.parallelStream()
         .filter(provider -> provider.shouldBeQueriedForGroup(schacHomeOrganization, groupId))
         .map(provider -> provider.getGroupMembership(uid, groupId))
         .filter(optionalGroup -> optionalGroup.isPresent())
         .collect(Collectors.toList())).get();
-      /*
-       * If the groupId is unqualified (e.g. without urn:collab:group:etc) there is a theoretical chance
-       * that there are more then one group. Needs to be decided what we should do.
-       */
       return optionals.isEmpty() ? Optional.empty() : optionals.get(0);
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException("Unable to schedule querying of external group providers.", e);

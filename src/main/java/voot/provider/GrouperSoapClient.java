@@ -55,9 +55,9 @@ public class GrouperSoapClient extends AbstractProvider {
   public boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId) {
     Matcher matcher = groupPattern.matcher(groupId);
     /*
-     * For unqualified group names we query Grouper
+     * For unqualified group names we do NOT query Grouper. This is a design decision discussed with SURFnet
      */
-    return !matcher.matches() || matcher.group(1).equals(configuration.schacHomeOrganization);
+    return matcher.matches() && matcher.group(1).equals(configuration.schacHomeOrganization);
   }
 
   @Override
@@ -104,7 +104,7 @@ public class GrouperSoapClient extends AbstractProvider {
   private ResponseEntity<String> getGrouperResponse(String soap) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.TEXT_XML);
-    HttpEntity<String> entity = new HttpEntity<String>(soap, headers);
+    HttpEntity<String> entity = new HttpEntity(soap, headers);
 
     return restTemplate.exchange(configuration.url, HttpMethod.POST, entity, String.class);
   }
@@ -116,7 +116,7 @@ public class GrouperSoapClient extends AbstractProvider {
     xpath.setNamespaceContext(grouperNameSpaceContext);
 
     NodeList nodes = (NodeList) xpath.evaluate("//ns:wsGroups", document, XPathConstants.NODESET);
-    List<Group> groups = new ArrayList<Group>();
+    List<Group> groups = new ArrayList();
 
     for (int i = 0; i < nodes.getLength(); i++) {
       Node item = nodes.item(i);

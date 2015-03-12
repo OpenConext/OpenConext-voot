@@ -38,6 +38,18 @@ public class GrouperSoapClientTest {
   }
 
   @Test
+  public void testShouldBeQueriedFor() throws Exception {
+    assertTrue(subject.shouldBeQueriedForMemberships("surfnet.nl"));
+    assertTrue(subject.shouldBeQueriedForMemberships("whatever.org"));
+
+    assertFalse(subject.shouldBeQueriedForGroup("bla.org", "must.be.urn"));
+    assertFalse(subject.shouldBeQueriedForGroup("bla.org", "urn:collab:group:example.org:a"));
+
+    assertTrue(subject.shouldBeQueriedForGroup("bla.org", "urn:collab:group:surfnet.nl:a"));
+  }
+
+
+  @Test
   public void testGetMemberships() throws Exception {
     stubGrouperCall("soap/GetGroups_Success_Response.xml");
     final List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
