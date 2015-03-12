@@ -8,6 +8,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @ControllerAdvice
 public class ExceptionController {
+
   private final static Logger logger = LoggerFactory.getLogger(ExceptionController.class);
 
   @ExceptionHandler(Exception.class)

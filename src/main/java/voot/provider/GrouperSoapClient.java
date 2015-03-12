@@ -41,6 +41,8 @@ public class GrouperSoapClient extends AbstractProvider {
 
   private final String idPrefix;
 
+  private final Map<String, String> soapTemplates = new HashMap();
+
   public GrouperSoapClient(Configuration configuration) {
     super(configuration);
     this.idPrefix = String.format("urn:collab:group:%s:", configuration.schacHomeOrganization);
@@ -63,7 +65,7 @@ public class GrouperSoapClient extends AbstractProvider {
       return groups;
 
     } catch (Exception exception) {
-      LOG.error("Failed to invoke getGroupMemberships, cause: {}, returning empty result.", exception.getMessage());
+      LOG.error("Failed to invoke getGroupMemberships, returning empty result.", exception);
       return Collections.emptyList();
     }
   }
@@ -82,7 +84,7 @@ public class GrouperSoapClient extends AbstractProvider {
       LOG.debug("getGroupMembership result: {} group.", group);
       return group;
     } catch (Exception exception) {
-      LOG.warn("Failed to invoke grouper, cause: {}, returning empty result.", exception.getMessage());
+      LOG.error("Failed to invoke grouper, returning empty result.", exception);
       return Optional.empty();
     }
 
@@ -137,8 +139,12 @@ public class GrouperSoapClient extends AbstractProvider {
   }
 
   private String replaceTokens(String soapTemplate, Map<String, String> replacements) throws IOException {
-    String text = StreamUtils.copyToString(new ClassPathResource(soapTemplate).getInputStream(), charSet);
-    Matcher matcher = replacementPattern.matcher(text);
+    String xml = soapTemplates.get(soapTemplate);
+    if (xml == null) {
+      xml = StreamUtils.copyToString(new ClassPathResource(soapTemplate).getInputStream(), charSet);
+      soapTemplates.put(soapTemplate, xml);
+    }
+    Matcher matcher = replacementPattern.matcher(xml);
     StringBuffer buffer = new StringBuffer();
     while (matcher.find()) {
       String replacement = replacements.get(matcher.group(1));

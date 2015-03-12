@@ -42,13 +42,18 @@ public class VootController {
   }
 
   @RequestMapping(value = "/groups/{groupId}")
-  public Optional<Group> specificGroup(@PathVariable String groupId, final OAuth2Authentication authentication) {
+  public Group specificGroup(@PathVariable String groupId, final OAuth2Authentication authentication) {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
     LOG.debug("groupById on behalf of uid {}, schacHomeOrg: {} ", authentication.getName(), schacHome);
     final Optional<Group> group = externalGroupsService.getMyGroupById(authentication.getName(), groupId, schacHome);
 
     LOG.debug("Found group: {}", group);
-    return group;
+
+    if (group.isPresent()) {
+      return group.get();
+    } else {
+      throw new ResourceNotFoundException();
+    }
   }
 
 }
