@@ -1,10 +1,8 @@
 package voot.provider;
 
-import org.springframework.http.ResponseEntity;
 import voot.valueobject.Group;
 import voot.valueobject.Membership;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,7 +20,7 @@ public class OpenSocialClient extends Voot2Client {
     return groups.stream().map(map -> {
       Object idHolder = map.get("id");
       //deprecated Open Social protocol has compound ID
-      String id = idPrefix + (idHolder instanceof Map ? ((Map) idHolder).get("groupId") : idHolder);
+      String id = groupIdPrefix + (idHolder instanceof Map ? ((Map) idHolder).get("groupId") : idHolder);
       return new Group(
         id,
         (String) map.get("title"),

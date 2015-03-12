@@ -32,7 +32,7 @@ public abstract class AbstractProvider implements Provider {
    */
   protected final RestTemplate restTemplate;
   protected final Configuration configuration;
-  protected final String idPrefix;
+  protected final String groupIdPrefix;
 
   /*
    * ObjectMapper is thread-safe (http://wiki.fasterxml.com/JacksonFAQ)
@@ -45,7 +45,7 @@ public abstract class AbstractProvider implements Provider {
   public AbstractProvider(Configuration configuration) {
     this.configuration = configuration;
     this.restTemplate = new RestTemplate(getRequestFactory());
-    this.idPrefix = String.format("urn:collab:group:%s:", configuration.schacHomeOrganization);
+    this.groupIdPrefix = String.format("urn:collab:group:%s:", configuration.schacHomeOrganization);
     LOG.debug("Initializing {} {}", getClass(), configuration);
   }
 

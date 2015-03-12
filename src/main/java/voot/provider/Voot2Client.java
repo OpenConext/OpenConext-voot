@@ -1,13 +1,11 @@
 package voot.provider;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import voot.valueobject.Group;
 import voot.valueobject.Membership;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -72,13 +70,12 @@ public class Voot2Client extends AbstractProvider {
   }
 
   protected Optional<Group> parseSingleGroup(String response) {
-    Map<String, Object> map = parseJson(response, Map.class);
-    return Optional.of(parseGroup(map));
+    return Optional.of(parseGroup(parseJson(response, Map.class)));
   }
 
   private Group parseGroup(Map<String, Object> item) {
     return new Group(
-      idPrefix + item.get("id"),
+      groupIdPrefix + item.get("id"),
       (String) item.get("displayName"),
       (String) item.get("description"),
       item.containsKey("membership") ? Membership.fromRole((String) ((Map) item.get("membership")).get("basic")) : Membership.defaultMembership);
