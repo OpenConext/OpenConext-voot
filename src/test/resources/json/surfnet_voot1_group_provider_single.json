@@ -1,0 +1,13 @@
+{
+  "startIndex": 0,
+  "totalResults": 1,
+  "entry": [
+    {
+      "id": "etc:sysadmingroup",
+      "title": "sysadmingroup",
+      "description": "Super users",
+      "voot_membership_role": "admin"
+    }
+  ],
+  "itemsPerPage": 1
+}

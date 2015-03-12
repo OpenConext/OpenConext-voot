@@ -1,0 +1,25 @@
+{
+  "startIndex": 0,
+  "totalResults": 2,
+  "entry": [
+    {
+      "id": {
+        "groupId": "etc:sysadmingroup",
+        "type": "groupId"
+      },
+      "title": "sysadmingroup",
+      "description": "Super users",
+      "voot_membership_role": "admin"
+    },
+    {
+      "id": {
+        "groupId": "nl:surfnet:diensten:test",
+        "type": "groupId"
+      },
+      "title": "test title",
+      "description": "test description",
+      "voot_membership_role": "member"
+    }
+  ],
+  "itemsPerPage": 2
+}

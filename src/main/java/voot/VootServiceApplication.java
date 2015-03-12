@@ -1,10 +1,5 @@
 package voot;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -17,16 +12,23 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
+import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
-
 import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
 import voot.provider.GroupProviderType;
 import voot.provider.GrouperSoapClient;
 import voot.provider.Provider;
 import voot.provider.Voot1Client;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @SpringBootApplication()
 public class VootServiceApplication {
@@ -92,8 +94,9 @@ public class VootServiceApplication {
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
-      resources.resourceId(resourceId).tokenServices(tokenServices());
+      resources.resourceId(resourceId).tokenServices(tokenServices()).tokenExtractor(tokenExtractor());
     }
+
 
     private RemoteTokenServices tokenServices() {
       final RemoteTokenServices remoteTokenServices = new RemoteTokenServices();
@@ -106,6 +109,18 @@ public class VootServiceApplication {
       remoteTokenServices.setAccessTokenConverter(accessTokenConverter);
 
       return remoteTokenServices;
+    }
+
+    /*
+     * Voot service: explicitly deny other means of supplying oauth token than "bearer"
+     */
+    private TokenExtractor tokenExtractor() {
+      return new BearerTokenExtractor() {
+        protected String extractToken(HttpServletRequest request) {
+          // only check the header...
+          return extractHeaderToken(request);
+        }
+      };
     }
 
     @Override

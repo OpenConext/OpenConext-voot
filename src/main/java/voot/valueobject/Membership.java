@@ -14,4 +14,8 @@ public class Membership {
   public String toString() {
     return String.format("Membership{basic='%s'}", basic);
   }
+
+  public static Membership fromRole(String role) {
+    return new Membership(role);
+  }
 }

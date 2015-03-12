@@ -26,7 +26,7 @@ public class ExternalGroupsService {
   public List<Group> getMyGroups(String uid, String schacHomeOrganization) {
     try {
       return forkJoinPool.submit(() -> this.providers.parallelStream()
-        .filter(provider -> provider.shouldBeQueriedFor(schacHomeOrganization))
+        .filter(provider -> provider.shouldBeQueriedForMemberships(schacHomeOrganization))
         .map(provider -> provider.getGroupMemberships(uid))
         .flatMap(Collection::stream)
         .collect(Collectors.toList())).get();
@@ -36,8 +36,20 @@ public class ExternalGroupsService {
   }
 
   public Optional<Group> getMyGroupById(String uid, String groupId, String schacHomeOrganization) {
-    Optional<Provider> provider = this.providers.stream().filter(p -> p.getSchacHomeOrganization().equals(schacHomeOrganization)).findFirst();
-    return provider.map(p -> p.getGroupMembership(uid, groupId)).get();
+    try {
+      List<Optional<Group>> optionals = forkJoinPool.submit(() -> this.providers.parallelStream()
+        .filter(provider -> provider.shouldBeQueriedForGroup(schacHomeOrganization, groupId))
+        .map(provider -> provider.getGroupMembership(uid, groupId))
+        .filter(optionalGroup -> optionalGroup.isPresent())
+        .collect(Collectors.toList())).get();
+      /*
+       * If the groupId is unqualified (e.g. without urn:collab:group:etc) there is a theoretical chance
+       * that there are more then one group. Needs to be decided what we should do.
+       */
+      return optionals.isEmpty() ? Optional.empty() : optionals.get(0);
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException("Unable to schedule querying of external group providers.", e);
+    }
   }
 
 }

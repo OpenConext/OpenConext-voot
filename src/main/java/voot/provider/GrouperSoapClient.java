@@ -39,14 +39,25 @@ public class GrouperSoapClient extends AbstractProvider {
 
   private final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-  private final String idPrefix;
-
   private final Map<String, String> soapTemplates = new HashMap();
 
   public GrouperSoapClient(Configuration configuration) {
     super(configuration);
-    this.idPrefix = String.format("urn:collab:group:%s:", configuration.schacHomeOrganization);
     this.factory.setNamespaceAware(true);
+  }
+
+  @Override
+  public boolean shouldBeQueriedForMemberships(String schacHomeOrganization) {
+    return true;
+  }
+
+  @Override
+  public boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId) {
+    Matcher matcher = groupPattern.matcher(groupId);
+    /*
+     * For unqualified group names we query Grouper
+     */
+    return !matcher.matches() || matcher.group(1).equals(configuration.schacHomeOrganization);
   }
 
   @Override
@@ -95,7 +106,7 @@ public class GrouperSoapClient extends AbstractProvider {
     headers.setContentType(MediaType.TEXT_XML);
     HttpEntity<String> entity = new HttpEntity<String>(soap, headers);
 
-    return getRestTemplate().exchange(getConfiguration().url, HttpMethod.POST, entity, String.class);
+    return restTemplate.exchange(configuration.url, HttpMethod.POST, entity, String.class);
   }
 
   private List<Group> parseGroups(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
@@ -109,9 +120,16 @@ public class GrouperSoapClient extends AbstractProvider {
 
     for (int i = 0; i < nodes.getLength(); i++) {
       Node item = nodes.item(i);
-      groups.add(parseGroup(xpath, item));
+      if (nonNilNode(item)) {
+        groups.add(parseGroup(xpath, item));
+      }
     }
     return groups;
+  }
+
+  private boolean nonNilNode(Node node) {
+    Node attribute = node.getAttributes().getNamedItem("xsi:nil");
+    return attribute == null || !Boolean.valueOf(attribute.getNodeValue());
   }
 
   private Group parseGroup(XPath xpath, Node item) throws XPathExpressionException {
