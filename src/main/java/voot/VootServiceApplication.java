@@ -88,7 +88,7 @@ public class VootServiceApplication {
   }
 
   @Bean
-  public FilterRegistrationBean mockShibbolethFilter() {
+  public FilterRegistrationBean debugFilter() {
     FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
     filterRegistrationBean.setFilter(new DebugFilter());
     return filterRegistrationBean;
