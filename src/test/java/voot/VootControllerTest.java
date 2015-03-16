@@ -1,7 +1,6 @@
 package voot;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -13,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
+import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import voot.oauth.SchacHomeAuthentication;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,22 +27,33 @@ public class VootControllerTest {
   }
 
   @Mock
-  private OAuth2Authentication auth;
+  private OAuth2Request authRequest;
 
   @Mock
   private SchacHomeAuthentication userAuthentication;
+
+  @Mock
+  private OAuth2Authentication authentication;
+
+  @Mock
+  private OAuth2AuthenticationDetails authDetails;
 
   @Mock
   private ExternalGroupsService externalGroupsService;
 
   @Test
   public void testEmptyResult() throws Exception {
-    final String uid = "foo";
-    when(auth.getName()).thenReturn(uid);
-    when(auth.getUserAuthentication()).thenReturn(userAuthentication);
-    final String schacHome = "surfnet.nl";
+    String uid = "foo";
+    String schacHome = "surfnet.nl";
+
+    when(authentication.getName()).thenReturn(uid);
+    when(authentication.getUserAuthentication()).thenReturn(userAuthentication);
     when(userAuthentication.getSchacHomeAuthentication()).thenReturn(schacHome);
+    when(authentication.getDetails()).thenReturn(authDetails);
+    when(authDetails.getTokenValue()).thenReturn("token_value");
+    when(authentication.getOAuth2Request()).thenReturn(authRequest);
+
     when(externalGroupsService.getMyGroups(uid, schacHome)).thenReturn(Collections.emptyList());
-    assertNotNull(subject.myGroups(auth));
+    assertNotNull(subject.myGroups(authentication));
   }
 }
