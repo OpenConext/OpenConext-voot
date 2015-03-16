@@ -39,7 +39,7 @@ public class GrouperSoapClient extends AbstractProvider {
 
   private final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-  private final Map<String, String> soapTemplates = new HashMap();
+  private final Map<String, String> soapTemplates = new HashMap<>();
 
   public GrouperSoapClient(Configuration configuration) {
     super(configuration);
@@ -62,7 +62,7 @@ public class GrouperSoapClient extends AbstractProvider {
 
   @Override
   public List<Group> getGroupMemberships(final String uid) {
-    ImmutableMap replacements = ImmutableMap.<String, String>of("subjectId", uid);
+    Map<String, String> replacements = ImmutableMap.of("subjectId", uid);
 
     try {
       LOG.debug("Querying getGroupMemberships for subjectId: {}", uid);
@@ -84,7 +84,7 @@ public class GrouperSoapClient extends AbstractProvider {
   @Override
   public Optional<Group> getGroupMembership(String uid, String groupId) {
     groupId = stripGroupUrnIdentifier(groupId);
-    ImmutableMap replacements = ImmutableMap.<String, String>of("subjectId", uid, "groupId", groupId);
+    Map<String, String> replacements = ImmutableMap.of("subjectId", uid, "groupId", groupId);
     try {
       LOG.debug("Querying getGroupMembership API for subjectId: {}", uid);
       String soap = replaceTokens("soap/GetGroupsLite.xml", replacements);
@@ -104,7 +104,7 @@ public class GrouperSoapClient extends AbstractProvider {
   private ResponseEntity<String> getGrouperResponse(String soap) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.TEXT_XML);
-    HttpEntity<String> entity = new HttpEntity(soap, headers);
+    HttpEntity<String> entity = new HttpEntity<>(soap, headers);
 
     return restTemplate.exchange(configuration.url, HttpMethod.POST, entity, String.class);
   }
@@ -116,7 +116,7 @@ public class GrouperSoapClient extends AbstractProvider {
     xpath.setNamespaceContext(grouperNameSpaceContext);
 
     NodeList nodes = (NodeList) xpath.evaluate("//ns:wsGroups", document, XPathConstants.NODESET);
-    List<Group> groups = new ArrayList();
+    List<Group> groups = new ArrayList<>();
 
     for (int i = 0; i < nodes.getLength(); i++) {
       Node item = nodes.item(i);
