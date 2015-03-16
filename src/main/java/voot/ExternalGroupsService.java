@@ -21,7 +21,7 @@ public class ExternalGroupsService {
   public ExternalGroupsService(List<Provider> providers) {
     Preconditions.checkArgument(providers.size() > 0, "No clients configured");
     this.providers = providers;
-    forkJoinPool = new ForkJoinPool(providers.size() * 20); // we're I/O bound.
+    this.forkJoinPool = new ForkJoinPool(providers.size() * 20); // we're I/O bound.
   }
 
   public List<Group> getMyGroups(String uid, String schacHomeOrganization) {

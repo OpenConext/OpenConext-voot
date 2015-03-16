@@ -56,8 +56,7 @@ public abstract class AbstractProvider implements Provider {
    * @return stripped groupId or groupId if not conform urn:collab:group format
    */
   public String stripGroupUrnIdentifier(String groupId) {
-    Matcher m = groupPattern.matcher(groupId);
-    return m.matches() ? m.group(2) : groupId;
+    return getIdFromRegExp(groupPattern, groupId);
   }
 
   /**
@@ -67,8 +66,7 @@ public abstract class AbstractProvider implements Provider {
    * @return stripped uid or uid if not conform urn:collab:person format
    */
   public String stripPersonUrnIdentifier(String uid) {
-    Matcher m = personPattern.matcher(uid);
-    return m.matches() ? m.group(2) : uid;
+    return getIdFromRegExp(personPattern, uid);
   }
 
   public static boolean isFullyQualifiedGroupName(String groupId) {
@@ -81,6 +79,11 @@ public abstract class AbstractProvider implements Provider {
     } catch (IOException e) {
       throw new RuntimeException("Error parsing Json", e);
     }
+  }
+
+  private String getIdFromRegExp(Pattern pattern, String id) {
+    Matcher m = pattern.matcher(id);
+    return m.matches() ? m.group(2) : id;
   }
 
 

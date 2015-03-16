@@ -27,7 +27,7 @@ public class Voot2Client extends AbstractProvider {
 
   @Override
   public boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId) {
-    return configuration.schacHomeOrganization.equals(schacHomeOrganization);
+    return shouldBeQueriedForMemberships(schacHomeOrganization);
   }
 
   @Override

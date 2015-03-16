@@ -30,11 +30,6 @@
   </properties>
 
   <dependencies>
-    <!--<dependency>-->
-      <!--<groupId>org.springframework.ws</groupId>-->
-      <!--<artifactId>spring-ws-core</artifactId>-->
-      <!--<version>${spring-ws-core.version}</version>-->
-    <!--</dependency>-->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
