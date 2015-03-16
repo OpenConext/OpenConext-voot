@@ -32,7 +32,7 @@ public class Voot2Client extends AbstractProvider {
 
   @Override
   public List<Group> getGroupMemberships(String uid) {
-    LOG.debug("Querying getGroupMemberships for subjectId: {} and configuration: {}", uid, configuration);
+    LOG.info("Querying getGroupMemberships for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
 
     uid = stripPersonUrnIdentifier(uid);
 
@@ -49,7 +49,7 @@ public class Voot2Client extends AbstractProvider {
 
   @Override
   public Optional<Group> getGroupMembership(String uid, String groupId)  {
-    LOG.debug("Querying getGroupMembership for subjectId: {} and configuration: {}", uid, configuration);
+    LOG.debug("Querying getGroupMembership for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
 
     uid = stripPersonUrnIdentifier(uid);
     groupId = stripGroupUrnIdentifier(groupId);

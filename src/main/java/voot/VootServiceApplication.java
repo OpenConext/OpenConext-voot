@@ -87,13 +87,6 @@ public class VootServiceApplication {
     return new ExternalGroupsService(groupClients);
   }
 
-  @Bean
-  public FilterRegistrationBean debugFilter() {
-    FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-    filterRegistrationBean.setFilter(new DebugFilter());
-    return filterRegistrationBean;
-  }
-
   @Configuration
   @EnableResourceServer
   protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
@@ -114,7 +107,6 @@ public class VootServiceApplication {
     public void configure(ResourceServerSecurityConfigurer resources) {
       resources.resourceId(resourceId).tokenServices(tokenServices()).tokenExtractor(tokenExtractor());
     }
-
 
     private RemoteTokenServices tokenServices() {
       final RemoteTokenServices remoteTokenServices = new RemoteTokenServices();
