@@ -1,15 +1,20 @@
 package voot;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,22 +27,13 @@ import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConv
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
+
 import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
-import voot.provider.*;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URI;
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import voot.provider.GroupProviderType;
+import voot.provider.GrouperSoapClient;
+import voot.provider.OpenSocialClient;
+import voot.provider.Provider;
+import voot.provider.Voot2Client;
 
 @SpringBootApplication()
 public class VootServiceApplication {
@@ -91,6 +87,8 @@ public class VootServiceApplication {
   @EnableResourceServer
   protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceServerConfiguration.class);
+
     @Value("${vootservice.oauthResourceId}")
     private String resourceId;
 
@@ -102,6 +100,9 @@ public class VootServiceApplication {
 
     @Value("${oauth.checkToken.secret}")
     private String checkTokenSecret;
+
+    @Value("${vootservice.requiredScopes}")
+    private String spaceDelimitedRequiredScopes;
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
@@ -135,11 +136,17 @@ public class VootServiceApplication {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
+      final List<String> requiredScopes = Arrays.asList(spaceDelimitedRequiredScopes.split(" "));
+
+      final String hasScopeArgs = requiredScopes.stream()
+        .map(str -> "'" + str + "'")
+        .collect(Collectors.joining(","));
+      LOG.debug("Will require the following approved scopes when handling requests: {}", hasScopeArgs);
       http
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
         .and()
         .authorizeRequests()
-        .antMatchers("/**").access("#oauth2.hasScope('read')");
+        .antMatchers("/**").access("#oauth2.hasScope(" + hasScopeArgs + ")");
     }
 
   }
