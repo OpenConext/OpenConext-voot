@@ -143,7 +143,7 @@ public class VootServiceApplication {
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
         .and()
         .authorizeRequests()
-        .antMatchers("/**").access("#oauth2.hasScope(" + hasScopeArgs + ")");
+        .antMatchers("/me/**", "groups/**", "internal/**").access("#oauth2.hasScope(" + hasScopeArgs + ")");
     }
 
   }
