@@ -1,20 +1,19 @@
 package voot;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import voot.oauth.SchacHomeAuthentication;
+
+import java.util.Collections;
+
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VootControllerTest {

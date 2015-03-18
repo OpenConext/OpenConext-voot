@@ -1,9 +1,9 @@
 package voot.oauth;
 
-import java.util.Map;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
+
+import java.util.Map;
 
 
 public class SchacHomeAwareUserAuthenticationConverter extends DefaultUserAuthenticationConverter {
@@ -12,10 +12,12 @@ public class SchacHomeAwareUserAuthenticationConverter extends DefaultUserAuthen
 
   @Override
   public Authentication extractAuthentication(final Map<String, ?> authenticationAttributes) {
-    final Authentication authentication = super.extractAuthentication(authenticationAttributes);
-    String schacHomeOrg = (String) authenticationAttributes.get(SCHAC_HOME_KEY);
-    SchacHomeAuthentication schacHomeAuthentication = new DefaultSchacHomeAuthentication(schacHomeOrg,
+    Authentication authentication = super.extractAuthentication(authenticationAttributes);
+    /*
+     * Client credentials grant type does not contain an username
+     */
+    return authentication == null ? authentication : new SchacHomeAuthentication((String) authenticationAttributes.get(SCHAC_HOME_KEY),
       authentication.getPrincipal(), authentication.getCredentials(), authentication.getAuthorities());
-    return schacHomeAuthentication;
   }
+
 }

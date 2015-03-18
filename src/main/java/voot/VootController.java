@@ -1,7 +1,5 @@
 package voot;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import voot.oauth.SchacHomeAuthentication;
+import voot.provider.AbstractProvider;
 import voot.valueobject.Group;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 public class VootController {
@@ -45,7 +42,7 @@ public class VootController {
 
   }
 
-  @RequestMapping(value = "/groups/{groupId}")
+  @RequestMapping(value = "/groups/{groupId:.+}")
   public Group specificGroup(@PathVariable String groupId, final OAuth2Authentication authentication) {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
@@ -57,6 +54,24 @@ public class VootController {
 
     LOG.debug("groups/{} result for uid {}: {}", groupId, authentication.getName(), group);
 
+    return groupOrElse(group);
+  }
+
+  @RequestMapping(value = "/internal/groups/{userId:.+}/{groupId:.+}")
+  public Group internalSpecificGroup(@PathVariable String userId, @PathVariable String groupId, final OAuth2Authentication authentication) {
+    String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
+    String clientId = authentication.getOAuth2Request().getClientId();
+
+    LOG.info("internal/groups/{} for uid {}, accessToken: {}, clientId {}", groupId, userId, accessToken, clientId);
+
+    final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId, AbstractProvider.stripGroupUrnIdentifier(groupId));
+
+    LOG.debug("groups/{} result for uid {}: {}", groupId, authentication.getName(), group);
+
+    return groupOrElse(group);
+  }
+
+  private Group groupOrElse(Optional<Group> group) {
     if (group.isPresent()) {
       return group.get();
     } else {

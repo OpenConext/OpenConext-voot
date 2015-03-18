@@ -55,7 +55,7 @@ public abstract class AbstractProvider implements Provider {
    * @param groupId the groupId
    * @return stripped groupId or groupId if not conform urn:collab:group format
    */
-  public String stripGroupUrnIdentifier(String groupId) {
+  public static String stripGroupUrnIdentifier(String groupId) {
     return getIdFromRegExp(groupPattern, groupId);
   }
 
@@ -65,7 +65,7 @@ public abstract class AbstractProvider implements Provider {
    * @param uid the uid
    * @return stripped uid or uid if not conform urn:collab:person format
    */
-  public String stripPersonUrnIdentifier(String uid) {
+  public static String stripPersonUrnIdentifier(String uid) {
     return getIdFromRegExp(personPattern, uid);
   }
 
@@ -81,7 +81,7 @@ public abstract class AbstractProvider implements Provider {
     }
   }
 
-  private String getIdFromRegExp(Pattern pattern, String id) {
+  private static String getIdFromRegExp(Pattern pattern, String id) {
     Matcher m = pattern.matcher(id);
     return m.matches() ? m.group(2) : id;
   }

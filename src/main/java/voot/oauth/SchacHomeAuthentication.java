@@ -1,9 +1,22 @@
 package voot.oauth;
 
-import org.springframework.security.core.Authentication;
+import java.util.Collection;
+import java.util.Map;
 
-public interface SchacHomeAuthentication extends Authentication {
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 
-  String getSchacHomeAuthentication();
+public class SchacHomeAuthentication extends UsernamePasswordAuthenticationToken {
+
+  private final String schacHomeOrganization;
+
+  public SchacHomeAuthentication(String schacHomeOrganization, Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities) {
+    super(principal, credentials, authorities);
+    this.schacHomeOrganization = schacHomeOrganization;
+  }
+
+  public String getSchacHomeAuthentication() {
+    return schacHomeOrganization;
+  }
 
 }
