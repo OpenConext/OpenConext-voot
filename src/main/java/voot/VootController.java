@@ -33,7 +33,7 @@ public class VootController {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    LOG.info("me/groups on behalf of uid {}, schacHomeOrg: {}, accessToken: {}, clientId {}", authentication.getName(), schacHome, accessToken, clientId);
+    LOG.info("me/groups on behalf of uid: {}, schacHomeOrg: {}, accessToken: {}, clientId: {}", authentication.getName(), schacHome, accessToken, clientId);
 
     final List<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome);
 
