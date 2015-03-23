@@ -1,6 +1,8 @@
 package voot;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.BlockJUnit4ClassRunner;
 import voot.provider.GroupProviderType;
 import voot.provider.Provider;
 import voot.valueobject.Group;
@@ -8,7 +10,8 @@ import voot.valueobject.Group;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ExternalGroupsServiceTest {
 
@@ -33,14 +36,6 @@ public class ExternalGroupsServiceTest {
     ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
     final List<Group> foo = externalGroupsService.getMyGroups("foo", "example.com");
     assertTrue(foo.size() == 5);
-  }
-
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetMyGroupByIdWithoutFullyQualifiedGroupId() throws Exception {
-    List<Provider> providers = Arrays.asList(new MockProvider(200L, false, GroupProviderType.VOOT2));
-    ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
-    externalGroupsService.getMyGroupById("admin", "not:fully:qualified", "example.com");
   }
 
   @Test

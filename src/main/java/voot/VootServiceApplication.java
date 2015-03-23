@@ -120,7 +120,7 @@ public class VootServiceApplication {
     }
 
     /*
-     * Voot service: explicitly deny other means of supplying oauth token than "bearer"
+     * Voot Service: explicitly deny other means of supplying oauth token than "bearer"
      */
     private TokenExtractor tokenExtractor() {
       return new BearerTokenExtractor() {
@@ -135,15 +135,15 @@ public class VootServiceApplication {
     public void configure(HttpSecurity http) throws Exception {
       final List<String> requiredScopes = Arrays.asList(spaceDelimitedRequiredScopes.split(" "));
 
-      final String hasScopeArgs = requiredScopes.stream()
-        .map(str -> "'" + str + "'")
-        .collect(Collectors.joining(","));
+      final String hasScopeArgs = requiredScopes.stream().
+        map(str -> "'" + str + "'").
+        collect(Collectors.joining(","));
       LOG.debug("Will require the following approved scopes when handling requests: {}", hasScopeArgs);
-      http
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
-        .and()
-        .authorizeRequests()
-        .antMatchers("/me/**", "groups/**", "internal/**").access("#oauth2.hasScope(" + hasScopeArgs + ")");
+      http.
+        sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).
+        and().
+        authorizeRequests().
+        antMatchers("/me/**", "groups/**", "internal/**").access("#oauth2.hasScope(" + hasScopeArgs + ")");
     }
 
   }

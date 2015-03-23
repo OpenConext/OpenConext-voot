@@ -26,6 +26,13 @@ public class VootControllerTest {
   @Before
   public void before() {
     subject = new VootController(externalGroupsService);
+
+    when(authentication.getName()).thenReturn(uid);
+    when(authentication.getUserAuthentication()).thenReturn(userAuthentication);
+    when(userAuthentication.getSchacHomeAuthentication()).thenReturn(schacHome);
+    when(authentication.getDetails()).thenReturn(authDetails);
+    when(authDetails.getTokenValue()).thenReturn("token_value");
+    when(authentication.getOAuth2Request()).thenReturn(authRequest);
   }
 
   @Mock
@@ -45,13 +52,6 @@ public class VootControllerTest {
 
   @Test
   public void testEmptyResult() throws Exception {
-    when(authentication.getName()).thenReturn(uid);
-    when(authentication.getUserAuthentication()).thenReturn(userAuthentication);
-    when(userAuthentication.getSchacHomeAuthentication()).thenReturn(schacHome);
-    when(authentication.getDetails()).thenReturn(authDetails);
-    when(authDetails.getTokenValue()).thenReturn("token_value");
-    when(authentication.getOAuth2Request()).thenReturn(authRequest);
-
     when(externalGroupsService.getMyGroups(uid, schacHome)).thenReturn(Collections.emptyList());
     assertTrue(subject.myGroups(authentication).isEmpty());
   }
@@ -60,23 +60,12 @@ public class VootControllerTest {
   public void testResourceNotFound() throws Exception {
     String groupId = "urn:collab:group:" + schacHome + ":test:group";
 
-    when(authentication.getUserAuthentication()).thenReturn(null);
-    when(authentication.getDetails()).thenReturn(authDetails);
-    when(authDetails.getTokenValue()).thenReturn("token_value");
-    when(authentication.getOAuth2Request()).thenReturn(authRequest);
-
     when(externalGroupsService.getMyGroupById(uid, groupId, schacHome)).thenReturn(Optional.empty());
-    subject.internalSpecificGroup(uid, groupId, authentication);
+    subject.specificGroup(groupId, authentication);
   }
 
   @Test(expected = AccessDeniedException.class)
   public void testAccessDeniedException() throws Exception {
-    String groupId = "urn:collab:group:" + schacHome + ":test:group";
-
-    when(authentication.getUserAuthentication()).thenReturn(null);
-    when(authentication.getDetails()).thenReturn(userAuthentication);
-
-    when(externalGroupsService.getMyGroupById(uid, groupId, schacHome)).thenReturn(Optional.empty());
-    subject.internalSpecificGroup(uid, groupId, authentication);
+    subject.internalSpecificGroup(uid, "", authentication);
   }
 }

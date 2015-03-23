@@ -8,12 +8,12 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;
 import voot.provider.AbstractProvider;
 import voot.valueobject.Group;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class VootController {
@@ -59,14 +59,14 @@ public class VootController {
 
   @RequestMapping(value = "/internal/groups/{userId:.+}/{groupId:.+}")
   public Group internalSpecificGroup(@PathVariable String userId, @PathVariable String groupId, final OAuth2Authentication authentication) {
-    if (authentication.getUserAuthentication() != null) {
-      throw new AccessDeniedException();
-    }
-
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
     LOG.info("internal/groups/{} for uid {}, accessToken: {}, clientId {}", groupId, userId, accessToken, clientId);
+
+    if (!(authentication.getUserAuthentication() instanceof ClientCredentialsAuthentication)) {
+      throw new AccessDeniedException(String.format("ClientCredentials grant type required. ClientId is %s", clientId));
+    }
 
     String schacHome = AbstractProvider.getSchacHomeFromGroupUrn(groupId);
     final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId, schacHome);
