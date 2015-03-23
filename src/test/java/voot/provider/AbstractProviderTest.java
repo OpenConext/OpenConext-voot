@@ -2,23 +2,24 @@ package voot.provider;
 
 import junit.framework.TestCase;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.BlockJUnit4ClassRunner;
 import voot.MockProvider;
 
+@RunWith(value=BlockJUnit4ClassRunner.class)
 public class AbstractProviderTest extends TestCase {
-
-  private final AbstractProvider subject = new MockProvider(1L, false, GroupProviderType.GROUPER);
 
   @Test
   public void testStripGroupUrnIdentifier() throws Exception {
-    assertTrue(subject.stripGroupUrnIdentifier("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon").equals("nl:surfnet:diensten:apachecon"));
-    assertTrue(subject.stripGroupUrnIdentifier("urn:collab:group:example!org:remainder").equals("remainder"));
-    assertTrue(subject.stripGroupUrnIdentifier("example.com").equals("example.com"));
+    assertTrue(AbstractProvider.stripGroupUrnIdentifier("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon").equals("nl:surfnet:diensten:apachecon"));
+    assertTrue(AbstractProvider.stripGroupUrnIdentifier("urn:collab:group:example!org:remainder").equals("remainder"));
+    assertTrue(AbstractProvider.stripGroupUrnIdentifier("example.com").equals("example.com"));
   }
 
   @Test
   public void testStripPersonUrnIdentifier() throws Exception {
-    assertTrue(subject.stripPersonUrnIdentifier("urn:collab:person:example.com:admin").equals("admin"));
-    assertTrue(subject.stripPersonUrnIdentifier("admin").equals("admin"));
+    assertTrue(AbstractProvider.stripPersonUrnIdentifier("urn:collab:person:example.com:admin").equals("admin"));
+    assertTrue(AbstractProvider.stripPersonUrnIdentifier("admin").equals("admin"));
   }
 
   @Test
@@ -29,4 +30,14 @@ public class AbstractProviderTest extends TestCase {
     assertFalse(AbstractProvider.isFullyQualifiedGroupName("urn:collab:group:1:"));
   }
 
+  @Test
+  public void testGetSchacHomeFromGroupUrn() {
+    assertTrue(AbstractProvider.getSchacHomeFromGroupUrn("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon").equals("surfteams.nl"));
+    assertTrue(AbstractProvider.getSchacHomeFromGroupUrn("urn:collab:group:example!org:remainder").equals("example!org"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetSchacHomeFromGroupUrnIllegal() {
+    AbstractProvider.getSchacHomeFromGroupUrn("surfteams.nl");
+  }
 }

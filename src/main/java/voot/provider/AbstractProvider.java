@@ -69,6 +69,15 @@ public abstract class AbstractProvider implements Provider {
     return getIdFromRegExp(personPattern, uid);
   }
 
+  public static String getSchacHomeFromGroupUrn(String groupId) {
+    Matcher m = groupPattern.matcher(groupId);
+    if(m.matches()) {
+      return m.group(1);
+    } else {
+      throw new IllegalArgumentException(String.format("The groupId '%s' must be fully qualified (e.g. start with urn:collab:group:)", groupId));
+    }
+  }
+
   public static boolean isFullyQualifiedGroupName(String groupId) {
     return groupPattern.matcher(groupId).matches();
   }
@@ -85,7 +94,6 @@ public abstract class AbstractProvider implements Provider {
     Matcher m = pattern.matcher(id);
     return m.matches() ? m.group(2) : id;
   }
-
 
   private ClientHttpRequestFactory getRequestFactory() {
     HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();

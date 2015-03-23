@@ -87,7 +87,7 @@ public class GrouperSoapClient extends AbstractProvider {
     Map<String, String> replacements = ImmutableMap.of("subjectId", uid, "groupId", groupId);
     try {
       LOG.debug("Querying getGroupMembership API for subjectId: {}", uid);
-      String soap = replaceTokens("soap/GetGroupsLite.xml", replacements);
+      String soap = replaceTokens("soap/HasMemberLite.xml", replacements);
 
       ResponseEntity<String> response = getGrouperResponse(soap);
 

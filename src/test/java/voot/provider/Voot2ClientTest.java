@@ -53,7 +53,6 @@ public class Voot2ClientTest {
     Optional<Group> group = subject.getGroupMembership(admin, "groupId");
 
     assertTrue(group.isPresent());
-    //assertAdminGroup(group.get());
   }
 
   private void stubCall(String queryPart, String responseFile) throws IOException {

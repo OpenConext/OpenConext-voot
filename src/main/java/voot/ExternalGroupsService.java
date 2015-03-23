@@ -37,9 +37,6 @@ public class ExternalGroupsService {
   }
 
   public Optional<Group> getMyGroupById(String uid, String groupId, String schacHomeOrganization) {
-    if (!AbstractProvider.isFullyQualifiedGroupName(groupId)) {
-      throw new IllegalArgumentException(String.format("The groupId '%s' must be fully qualified (e.g. start with urn:collab:group:%s)", groupId, schacHomeOrganization));
-    }
     try {
       List<Optional<Group>> optionals = forkJoinPool.submit(() -> this.providers.parallelStream()
         .filter(provider -> provider.shouldBeQueriedForGroup(schacHomeOrganization, groupId))

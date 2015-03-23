@@ -59,12 +59,17 @@ public class VootController {
 
   @RequestMapping(value = "/internal/groups/{userId:.+}/{groupId:.+}")
   public Group internalSpecificGroup(@PathVariable String userId, @PathVariable String groupId, final OAuth2Authentication authentication) {
+    if (authentication.getUserAuthentication() != null) {
+      throw new AccessDeniedException();
+    }
+
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
     LOG.info("internal/groups/{} for uid {}, accessToken: {}, clientId {}", groupId, userId, accessToken, clientId);
 
-    final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId, AbstractProvider.stripGroupUrnIdentifier(groupId));
+    String schacHome = AbstractProvider.getSchacHomeFromGroupUrn(groupId);
+    final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId, schacHome);
 
     LOG.debug("groups/{} result for uid {}: {}", groupId, authentication.getName(), group);
 

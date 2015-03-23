@@ -11,14 +11,17 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import voot.oauth.SchacHomeAuthentication;
 
 import java.util.Collections;
+import java.util.Optional;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VootControllerTest {
 
   private VootController subject;
+  private String uid = "foo";
+  private String schacHome = "surfnet.nl";
 
   @Before
   public void before() {
@@ -42,9 +45,6 @@ public class VootControllerTest {
 
   @Test
   public void testEmptyResult() throws Exception {
-    String uid = "foo";
-    String schacHome = "surfnet.nl";
-
     when(authentication.getName()).thenReturn(uid);
     when(authentication.getUserAuthentication()).thenReturn(userAuthentication);
     when(userAuthentication.getSchacHomeAuthentication()).thenReturn(schacHome);
@@ -53,6 +53,30 @@ public class VootControllerTest {
     when(authentication.getOAuth2Request()).thenReturn(authRequest);
 
     when(externalGroupsService.getMyGroups(uid, schacHome)).thenReturn(Collections.emptyList());
-    assertNotNull(subject.myGroups(authentication));
+    assertTrue(subject.myGroups(authentication).isEmpty());
+  }
+
+  @Test(expected = ResourceNotFoundException.class)
+  public void testResourceNotFound() throws Exception {
+    String groupId = "urn:collab:group:" + schacHome + ":test:group";
+
+    when(authentication.getUserAuthentication()).thenReturn(null);
+    when(authentication.getDetails()).thenReturn(authDetails);
+    when(authDetails.getTokenValue()).thenReturn("token_value");
+    when(authentication.getOAuth2Request()).thenReturn(authRequest);
+
+    when(externalGroupsService.getMyGroupById(uid, groupId, schacHome)).thenReturn(Optional.empty());
+    subject.internalSpecificGroup(uid, groupId, authentication);
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void testAccessDeniedException() throws Exception {
+    String groupId = "urn:collab:group:" + schacHome + ":test:group";
+
+    when(authentication.getUserAuthentication()).thenReturn(null);
+    when(authentication.getDetails()).thenReturn(userAuthentication);
+
+    when(externalGroupsService.getMyGroupById(uid, groupId, schacHome)).thenReturn(Optional.empty());
+    subject.internalSpecificGroup(uid, groupId, authentication);
   }
 }
