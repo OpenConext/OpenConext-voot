@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class OpenSocialClientTest {
 
   private String admin = "urn:collab:person:example.org:admin";
-  private Provider.Configuration configuration = new Provider.Configuration(GroupProviderType.OPEN_SOCIAL, "http://localhost:8889", new Provider.Configuration.Credentials("user", "password"), 2000, "example.org");
+  private Provider.Configuration configuration = new Provider.Configuration(GroupProviderType.OPEN_SOCIAL, "http://localhost:8889", new Provider.Configuration.Credentials("user", "password"), 2000, "example.org", "Example");
   private OpenSocialClient subject = new OpenSocialClient(configuration);
 
   @Rule

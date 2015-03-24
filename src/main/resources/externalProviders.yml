@@ -7,6 +7,7 @@ externalGroupProviders:
         secret: "secret"
       },
       schacHomeOrganization: "foo.com",
+      name: "Foo",
       timeoutMillis: 2000
      }
   - {
@@ -17,5 +18,6 @@ externalGroupProviders:
         secret: "gadget"
       },
       schacHomeOrganization: "surfnet.nl",
+      name: "SURFteams",
       timeoutMillis: 2000
      }

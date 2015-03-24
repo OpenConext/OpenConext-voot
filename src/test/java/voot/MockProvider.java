@@ -22,7 +22,7 @@ public class MockProvider extends AbstractProvider {
   private final boolean simulateTimeout;
 
   public MockProvider(Long timeoutMillis, boolean simulateTimeout, GroupProviderType type) {
-    super(new Provider.Configuration(type, "url", new Provider.Configuration.Credentials("user", "password"), 2000, SCHAC_HOME_ORGANIZATION));
+    super(new Provider.Configuration(type, "url", new Provider.Configuration.Credentials("user", "password"), 2000, SCHAC_HOME_ORGANIZATION, "example"));
     this.timeoutMillis = timeoutMillis;
     this.simulateTimeout = simulateTimeout;
   }
@@ -58,6 +58,6 @@ public class MockProvider extends AbstractProvider {
   }
 
   private Group defaultGroup(String id) {
-    return new Group(id, "came from" + this.toString(), "description", Membership.defaultMembership);
+    return new Group(id, "came from" + this.toString(), "description", SCHAC_HOME_ORGANIZATION,Membership.defaultMembership);
   }
 }

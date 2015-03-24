@@ -62,7 +62,7 @@ public class VootController {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    LOG.info("internal/groups/{} for uid {}, accessToken: {}, clientId {}", groupId, userId, accessToken, clientId);
+    LOG.info("internal/groups/{} for uid: {}, groupId: {}, accessToken: {}, clientId {}", userId, groupId, accessToken, clientId);
 
     if (!(authentication.getUserAuthentication() instanceof ClientCredentialsAuthentication)) {
       throw new AccessDeniedException(String.format("ClientCredentials grant type required. ClientId is %s", clientId));

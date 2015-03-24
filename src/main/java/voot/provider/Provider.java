@@ -36,13 +36,15 @@ public interface Provider {
     public final Credentials credentials;
     public final Integer timeOutMillis;
     public final String schacHomeOrganization;
+    public final String name;
 
-    public Configuration(GroupProviderType type, String url, Credentials credentials, Integer timeOutMillis, String schacHomeOrganization) {
+    public Configuration(GroupProviderType type, String url, Credentials credentials, Integer timeOutMillis, String schacHomeOrganization, String name) {
       this.type = type;
       this.url = url;
       this.credentials = credentials;
       this.timeOutMillis = timeOutMillis;
       this.schacHomeOrganization = schacHomeOrganization;
+      this.name = name;
     }
 
     @Override

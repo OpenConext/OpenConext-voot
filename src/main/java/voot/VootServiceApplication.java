@@ -57,6 +57,7 @@ public class VootServiceApplication {
       final String type = (String) entryMap.get("type");
       final String url = (String) entryMap.get("url");
       final String schacHomeOrganization = (String) entryMap.get("schacHomeOrganization");
+      final String name = (String) entryMap.get("name");
       final Integer timeoutMillis = (Integer) entryMap.get("timeoutMillis");
 
       final Map<String, Object> rawCredentials = (Map<String, Object>) entryMap.get("credentials");
@@ -65,7 +66,7 @@ public class VootServiceApplication {
 
       GroupProviderType groupProviderType = GroupProviderType.valueOf(type.toUpperCase());
 
-      final Provider.Configuration configuration = new Provider.Configuration(groupProviderType, url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization);
+      final Provider.Configuration configuration = new Provider.Configuration(groupProviderType, url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization, name);
       switch (groupProviderType) {
         case VOOT2:
           return new Voot2Client(configuration);

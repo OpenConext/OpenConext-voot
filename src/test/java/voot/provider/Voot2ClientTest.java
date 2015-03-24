@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class Voot2ClientTest {
 
   private String admin = "urn:collab:person:example.org:admin";
-  private Provider.Configuration configuration = new Provider.Configuration(GroupProviderType.VOOT2, "http://localhost:8889", new Provider.Configuration.Credentials("user", "password"), 2000, "example.org");
+  private Provider.Configuration configuration = new Provider.Configuration(GroupProviderType.VOOT2, "http://localhost:8889", new Provider.Configuration.Credentials("user", "password"), 2000, "example.org", "example");
   private Voot2Client subject = new Voot2Client(configuration);
 
   @Rule
