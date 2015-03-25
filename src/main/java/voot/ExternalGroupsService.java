@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ExternalGroupsService {
@@ -25,15 +26,13 @@ public class ExternalGroupsService {
   }
 
   public List<Group> getMyGroups(String uid, String schacHomeOrganization) {
-    try {
-      return forkJoinPool.submit(() -> this.providers.parallelStream()
-        .filter(provider -> provider.shouldBeQueriedForMemberships(schacHomeOrganization))
-        .map(provider -> provider.getGroupMemberships(uid))
-        .flatMap(Collection::stream)
-        .collect(Collectors.toList())).get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("Unable to schedule querying of external group providers.", e);
-    }
+    Predicate<Provider> providerFilter = provider -> provider.shouldBeQueriedForMemberships(schacHomeOrganization);
+    return doGetGroups(uid, providerFilter);
+  }
+
+  public List<Group> getMyExternalGroups(String uid, String schacHomeOrganization) {
+    Predicate<Provider> providerFilter = provider -> provider.isExternalGroupProvider() && provider.shouldBeQueriedForMemberships(schacHomeOrganization);
+    return doGetGroups(uid, providerFilter);
   }
 
   public Optional<Group> getMyGroupById(String uid, String groupId, String schacHomeOrganization) {
@@ -44,6 +43,20 @@ public class ExternalGroupsService {
         .filter(optionalGroup -> optionalGroup.isPresent())
         .collect(Collectors.toList())).get();
       return optionals.isEmpty() ? Optional.empty() : optionals.get(0);
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException("Unable to schedule querying of external group providers.", e);
+    }
+  }
+
+  private List<Group> doGetGroups(String uid, Predicate<Provider> providerFilter) {
+    try {
+      return forkJoinPool.submit(() -> {
+        return this.providers.parallelStream()
+          .filter(providerFilter)
+          .map(provider -> provider.getGroupMemberships(uid))
+          .flatMap(Collection::stream)
+          .collect(Collectors.toList());
+      }).get();
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException("Unable to schedule querying of external group providers.", e);
     }

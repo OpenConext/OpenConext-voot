@@ -25,7 +25,7 @@ public class OpenSocialClient extends Voot2Client {
         id,
         (String) map.get("title"),
         (String) map.get("description"),
-        configuration.schacHomeOrganization,
+        configuration.name,
         Membership.fromRole((String) map.getOrDefault("voot_membership_role", "member")));
     }).collect(Collectors.toList());
   }

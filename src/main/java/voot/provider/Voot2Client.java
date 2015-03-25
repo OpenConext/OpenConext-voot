@@ -78,7 +78,7 @@ public class Voot2Client extends AbstractProvider {
       groupIdPrefix + item.get("id"),
       (String) item.get("displayName"),
       (String) item.get("description"),
-      configuration.schacHomeOrganization,
+      configuration.name,
       item.containsKey("membership") ? Membership.fromRole((String) ((Map) item.get("membership")).get("basic")) : Membership.defaultMembership);
   }
 

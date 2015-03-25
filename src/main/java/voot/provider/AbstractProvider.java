@@ -49,6 +49,11 @@ public abstract class AbstractProvider implements Provider {
     LOG.debug("Initializing {} {}", getClass(), configuration);
   }
 
+  @Override
+  public boolean isExternalGroupProvider() {
+    return !configuration.type.equals(GroupProviderType.GROUPER);
+  }
+
   /**
    * Strip groupId, e.g. removing urn:collab:group:schacHomeOrganization:stripped-groupId and returning remaining stripped-groupId part
    *
@@ -70,12 +75,11 @@ public abstract class AbstractProvider implements Provider {
   }
 
   public static String getSchacHomeFromGroupUrn(String groupId) {
-    Matcher m = groupPattern.matcher(groupId);
-    if(m.matches()) {
-      return m.group(1);
-    } else {
-      throw new IllegalArgumentException(String.format("The groupId '%s' must be fully qualified (e.g. start with urn:collab:group:)", groupId));
-    }
+    return getSchacHomeFromRegExp(groupPattern, groupId);
+  }
+
+  public static String getSchacHomeFromPersonUrn(String personId) {
+    return getSchacHomeFromRegExp(personPattern, personId);
   }
 
   public static boolean isFullyQualifiedGroupName(String groupId) {
@@ -93,6 +97,15 @@ public abstract class AbstractProvider implements Provider {
   private static String getIdFromRegExp(Pattern pattern, String id) {
     Matcher m = pattern.matcher(id);
     return m.matches() ? m.group(2) : id;
+  }
+
+  private static String getSchacHomeFromRegExp(Pattern pattern, String id) {
+    Matcher m = pattern.matcher(id);
+    if (m.matches()) {
+      return m.group(1);
+    } else {
+      throw new IllegalArgumentException(String.format("The id '%s' must be fully qualified (e.g. start with %s)", id, pattern.pattern()));
+    }
   }
 
   private ClientHttpRequestFactory getRequestFactory() {

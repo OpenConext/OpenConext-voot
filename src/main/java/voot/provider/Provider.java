@@ -25,6 +25,12 @@ public interface Provider {
    */
   boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId);
 
+  /**
+   *
+   * @return true if this Provider is external (e.g. not Grouper)
+   */
+  boolean isExternalGroupProvider();
+
   List<Group> getGroupMemberships(String uid) ;
 
   Optional<Group> getGroupMembership(String uid, String groupId);

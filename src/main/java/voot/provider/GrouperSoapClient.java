@@ -137,7 +137,7 @@ public class GrouperSoapClient extends AbstractProvider {
       groupIdPrefix + xpath.evaluate("ns:name", item),
       xpath.evaluate("ns:displayExtension", item),
       xpath.evaluate("ns:description", item),
-      configuration.schacHomeOrganization,
+      configuration.name,
       //Grouper does not hand out the membership, but for consistency with the other VOOT providers we default to
       Membership.defaultMembership);
   }

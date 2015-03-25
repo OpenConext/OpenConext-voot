@@ -62,7 +62,7 @@ public class VootController {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    LOG.info("internal/groups/{} for uid: {}, groupId: {}, accessToken: {}, clientId {}", userId, groupId, accessToken, clientId);
+    LOG.info("internal/groups/{}/{}, accessToken: {}, clientId {}", userId, groupId, accessToken, clientId);
 
     if (!(authentication.getUserAuthentication() instanceof ClientCredentialsAuthentication)) {
       throw new AccessDeniedException(String.format("ClientCredentials grant type required. ClientId is %s", clientId));
@@ -71,9 +71,28 @@ public class VootController {
     String schacHome = AbstractProvider.getSchacHomeFromGroupUrn(groupId);
     final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId, schacHome);
 
-    LOG.debug("groups/{} result for uid {}: {}", groupId, authentication.getName(), group);
+    LOG.debug("groups/{} result: {}", groupId, group);
 
     return groupOrElse(group);
+  }
+
+  @RequestMapping(value = "/internal/external-groups/{userId:.+}")
+  public List<Group> externalGroups(@PathVariable String userId, final OAuth2Authentication authentication) {
+    String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
+    String clientId = authentication.getOAuth2Request().getClientId();
+
+    LOG.info("internal/external-groups/{}, accessToken: {}, clientId {}", userId, accessToken, clientId);
+
+    if (!(authentication.getUserAuthentication() instanceof ClientCredentialsAuthentication)) {
+      throw new AccessDeniedException(String.format("ClientCredentials grant type required. ClientId is %s", clientId));
+    }
+
+    String schacHome = AbstractProvider.getSchacHomeFromPersonUrn(userId);
+    final List<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome);
+
+    LOG.debug("internal/external-groups/{} result: {}", userId, groups);
+
+    return groups;
   }
 
   private Group groupOrElse(Optional<Group> group) {

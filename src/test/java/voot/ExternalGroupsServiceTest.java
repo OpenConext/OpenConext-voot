@@ -44,7 +44,14 @@ public class ExternalGroupsServiceTest {
     ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
     Optional<Group> group = externalGroupsService.getMyGroupById("admin", "urn:collab:group:example.com:admin-team", "example.com");
     assertEquals("urn:collab:group:example.com:admin-team", group.get().id);
+  }
 
+  @Test
+  public void testGetMyExtenalGroups() throws Exception {
+    List<Provider> providers = Arrays.asList(new MockProvider(200L, false, GroupProviderType.VOOT2),new MockProvider(200L, false, GroupProviderType.GROUPER));
+    ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
+    List<Group> groups = externalGroupsService.getMyExternalGroups("admin", "example.com");
+    assertEquals(1, groups.size());
   }
 
 }

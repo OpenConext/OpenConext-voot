@@ -38,4 +38,15 @@ public class AbstractProviderTest extends TestCase {
   public void testGetSchacHomeFromGroupUrnIllegal() {
     AbstractProvider.getSchacHomeFromGroupUrn("surfteams.nl");
   }
+
+  @Test
+  public void testGetSchacHomeFromPersonUrn() {
+    assertTrue(AbstractProvider.getSchacHomeFromGroupUrn("urn:collab:person:example.com:some:admin").equals("example.com"));
+    assertTrue(AbstractProvider.getSchacHomeFromGroupUrn("urn:collab:person:example!org:remainder").equals("example!org"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetSchacHomeFromPersonrnIllegal() {
+    AbstractProvider.getSchacHomeFromGroupUrn("example.org");
+  }
 }
