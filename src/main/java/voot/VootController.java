@@ -54,7 +54,7 @@ public class VootController {
 
     LOG.debug("groups/{} result for uid {}: {}", groupId, authentication.getName(), group);
 
-    return groupOrElse(group);
+    return group.orElseThrow(ResourceNotFoundException::new);
   }
 
   @RequestMapping(value = "/internal/groups/{userId:.+}/{groupId:.+}")
@@ -64,16 +64,14 @@ public class VootController {
 
     LOG.info("internal/groups/{}/{}, accessToken: {}, clientId {}", userId, groupId, accessToken, clientId);
 
-    if (!(authentication.getUserAuthentication() instanceof ClientCredentialsAuthentication)) {
-      throw new AccessDeniedException(String.format("ClientCredentials grant type required. ClientId is %s", clientId));
-    }
+    assertClientCredentialsClient(authentication, clientId);
 
     String schacHome = AbstractProvider.getSchacHomeFromGroupUrn(groupId);
     final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId, schacHome);
 
     LOG.debug("groups/{} result: {}", groupId, group);
 
-    return groupOrElse(group);
+    return group.orElseThrow(ResourceNotFoundException::new);
   }
 
   @RequestMapping(value = "/internal/external-groups/{userId:.+}")
@@ -83,9 +81,7 @@ public class VootController {
 
     LOG.info("internal/external-groups/{}, accessToken: {}, clientId {}", userId, accessToken, clientId);
 
-    if (!(authentication.getUserAuthentication() instanceof ClientCredentialsAuthentication)) {
-      throw new AccessDeniedException(String.format("ClientCredentials grant type required. ClientId is %s", clientId));
-    }
+    assertClientCredentialsClient(authentication, clientId);
 
     String schacHome = AbstractProvider.getSchacHomeFromPersonUrn(userId);
     final List<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome);
@@ -95,12 +91,11 @@ public class VootController {
     return groups;
   }
 
-  private Group groupOrElse(Optional<Group> group) {
-    if (group.isPresent()) {
-      return group.get();
-    } else {
-      throw new ResourceNotFoundException();
+  private void assertClientCredentialsClient(OAuth2Authentication authentication, String clientId) {
+    if (!(authentication.getUserAuthentication() instanceof ClientCredentialsAuthentication)) {
+      throw new AccessDeniedException(String.format("ClientCredentials grant type required. ClientId is %s", clientId));
     }
   }
+
 
 }

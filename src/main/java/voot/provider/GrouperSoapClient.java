@@ -173,6 +173,8 @@ public class GrouperSoapClient extends AbstractProvider {
       }
     }
     matcher.appendTail(buffer);
-    return buffer.toString();
+    String result = buffer.toString();
+    return result;
+
   }
 }
