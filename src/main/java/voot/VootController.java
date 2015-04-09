@@ -42,8 +42,8 @@ public class VootController {
 
   }
 
-  @RequestMapping(value = "/groups/{groupId:.+}")
-  public Group specificGroup(@PathVariable String groupId, final OAuth2Authentication authentication) {
+  @RequestMapping(value = "/me/groups/{groupId:.+}")
+  public Group specificGroupMembership(@PathVariable String groupId, final OAuth2Authentication authentication) {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();

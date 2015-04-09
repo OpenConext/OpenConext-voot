@@ -61,7 +61,7 @@ public class VootControllerTest {
     String groupId = "urn:collab:group:" + schacHome + ":test:group";
 
     when(externalGroupsService.getMyGroupById(uid, groupId, schacHome)).thenReturn(Optional.empty());
-    subject.specificGroup(groupId, authentication);
+    subject.specificGroupMembership(groupId, authentication);
   }
 
   @Test(expected = AccessDeniedException.class)
