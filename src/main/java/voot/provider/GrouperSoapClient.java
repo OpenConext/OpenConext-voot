@@ -76,7 +76,7 @@ public class GrouperSoapClient extends AbstractProvider {
       return groups;
 
     } catch (Exception exception) {
-      LOG.error("Failed to invoke getGroupMemberships, returning empty result.", exception);
+      LOG.warn("Failed to invoke getGroupMemberships, returning empty result.", exception);
       return Collections.emptyList();
     }
   }
@@ -95,7 +95,7 @@ public class GrouperSoapClient extends AbstractProvider {
       LOG.debug("getGroupMembership result: {} group.", group);
       return group;
     } catch (Exception exception) {
-      LOG.error("Failed to invoke grouper, returning empty result.", exception);
+      LOG.warn("Failed to invoke grouper, returning empty result.", exception);
       return Optional.empty();
     }
 
