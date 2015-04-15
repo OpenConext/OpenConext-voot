@@ -44,3 +44,20 @@ To answer queries, this application talks to other webservices downstream. Those
 - Any client compatible with [VOOT2](http://openvoot.org/protocol/)
 - Any client compatible with [OpenSocial](http://opensocial.github.io/spec/trunk/Social-API-Server.xml#Groups-Service-GetGroups)
 - Grouper 1.6 (the persistent store behind SURFteams)
+
+# Testing
+
+To test the VOOT endpoint the authz-playground can be used. The implementation exposes two endpoints secured by Authorization Code:
+
+https://voot.test2.surfconext.nl/me/groups
+https://voot.test2.surfconext.nl/me/groups/${fully qualified group name}
+
+Two additional endpoints are implemented for internal use. They are secured by Client Credentials:
+
+https://voot.test2.surfconext.nl/internal/external-groups/${fully qualified person urn}
+https://voot.test2.surfconext.nl/internal/groups/${fully qualified person urn}/${fully qualified group name}
+
+The first internal endpoint is used by SURFteams to fetch all external (e.g. no grouper) teams. The second one is used by internal
+applications that need to verify the membership of a person in a specific group. EngineBlock uses this endpoint to check the GroupVO
+authorization.
+
