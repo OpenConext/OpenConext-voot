@@ -74,6 +74,23 @@ public class VootController {
     return group.orElseThrow(ResourceNotFoundException::new);
   }
 
+  @RequestMapping(value = "/internal/groups/{userId:.+}")
+  public List<Group> internalGroups(@PathVariable String userId, final OAuth2Authentication authentication) {
+    String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
+    String clientId = authentication.getOAuth2Request().getClientId();
+
+    LOG.info("internal/groups/{}, accessToken: {}, clientId {}", userId, accessToken, clientId);
+
+    assertClientCredentialsClient(authentication, clientId);
+
+    String schacHome = AbstractProvider.getSchacHomeFromPersonUrn(userId);
+    final List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome);
+
+    LOG.debug("groups/{} result: {}", userId, myGroups);
+
+    return myGroups;
+  }
+
   @RequestMapping(value = "/internal/external-groups/{userId:.+}")
   public List<Group> externalGroups(@PathVariable String userId, final OAuth2Authentication authentication) {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
