@@ -86,7 +86,7 @@ public class VootController {
     String schacHome = AbstractProvider.getSchacHomeFromPersonUrn(userId);
     final List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome);
 
-    LOG.debug("groups/{} result: {}", userId, myGroups);
+    LOG.debug("internal/groups/{} result: {}", userId, myGroups);
 
     return myGroups;
   }
