@@ -110,6 +110,8 @@ public class GrouperSoapClient extends AbstractProvider {
   }
 
   private List<Group> parseGroups(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
+    LOG.debug("result from Grouper: {} .", response);
+
     Document document = factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.getBody().getBytes()));
 
     XPath xpath = XPathFactory.newInstance().newXPath();
