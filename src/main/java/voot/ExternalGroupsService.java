@@ -49,7 +49,7 @@ public class ExternalGroupsService {
           try {
             return provider.getGroupMembership(uid, groupId);
           } catch (RuntimeException e) {
-            LOG.debug("Provider {} threw exception: {} ", provider, e);
+            LOG.warn("Provider {} threw exception: {} ", provider, e);
             return Optional.<Group> empty();
           }
         })
@@ -70,6 +70,7 @@ public class ExternalGroupsService {
             try {
               return provider.getGroupMemberships(uid);
             } catch (RuntimeException e) {
+              LOG.warn("Provider {} threw exception: {} ", provider, e);
               return Collections.<Group>emptyList();
             }
           })
