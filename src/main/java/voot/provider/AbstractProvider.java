@@ -118,4 +118,8 @@ public abstract class AbstractProvider implements Provider {
     return new HttpComponentsClientHttpRequestFactory(httpClient);
   }
 
+  @Override
+  public String toString() {
+    return String.format("Provider with configuration: %s", this.configuration);
+  }
 }
