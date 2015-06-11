@@ -1,19 +1,25 @@
 package voot;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
 import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;
-import voot.provider.AbstractProvider;
+import voot.util.UrnUtils;
 import voot.valueobject.Group;
-
-import java.util.*;
 
 @RestController
 public class VootController {
@@ -43,13 +49,15 @@ public class VootController {
   }
 
   @RequestMapping(value = "/me/groups/{groupId:.+}")
-  public Group specificGroupMembership(@PathVariable String groupId, final OAuth2Authentication authentication) {
+  public Group specificGroupMembership(@PathVariable final String groupId, final OAuth2Authentication authentication) throws MalformedGroupUrnException{
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
     LOG.info("groups/{} on behalf of uid {}, schacHomeOrg: {}, accessToken: {}, clientId {}", groupId, authentication.getName(), schacHome, accessToken, clientId);
-
+    if (! UrnUtils.isFullyQualifiedGroupName(groupId)) {
+      throw new MalformedGroupUrnException(groupId);
+    }
     final Optional<Group> group = externalGroupsService.getMyGroupById(authentication.getName(), groupId, schacHome);
 
     LOG.debug("groups/{} result for uid {}: {}", groupId, authentication.getName(), group);
@@ -58,7 +66,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/internal/groups/{userId:.+}/{groupId:.+}")
-  public Group internalSpecificGroup(@PathVariable String userId, @PathVariable String groupId, final OAuth2Authentication authentication) {
+  public Group internalSpecificGroup(@PathVariable final String userId, @PathVariable final String groupId, final OAuth2Authentication authentication) throws MalformedGroupUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -66,8 +74,11 @@ public class VootController {
 
     assertClientCredentialsClient(authentication, clientId);
 
-    String schacHome = AbstractProvider.getSchacHomeFromGroupUrn(groupId);
-    final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId, schacHome);
+    Optional<String> schacHome = UrnUtils.getSchacHomeFromGroupUrn(groupId);
+    if (!schacHome.isPresent()) {
+      throw new MalformedGroupUrnException(groupId);
+    }
+    final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId, schacHome.get());
 
     LOG.debug("groups/{} result: {}", groupId, group);
 
@@ -75,7 +86,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/internal/groups/{userId:.+}")
-  public List<Group> internalGroups(@PathVariable String userId, final OAuth2Authentication authentication) {
+  public List<Group> internalGroups(@PathVariable String userId, final OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -83,8 +94,11 @@ public class VootController {
 
     assertClientCredentialsClient(authentication, clientId);
 
-    String schacHome = AbstractProvider.getSchacHomeFromPersonUrn(userId);
-    final List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome);
+    Optional<String> schacHome = UrnUtils.getSchacHomeFromPersonUrn(userId);
+    if (!schacHome.isPresent()) {
+      throw new MalformedPersonUrnException(userId);
+    }
+    final List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome.get());
 
     LOG.debug("internal/groups/{} result: {}", userId, myGroups);
 
@@ -92,7 +106,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/internal/external-groups/{userId:.+}")
-  public List<Group> externalGroups(@PathVariable String userId, final OAuth2Authentication authentication) {
+  public List<Group> externalGroups(@PathVariable String userId, final OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -100,8 +114,11 @@ public class VootController {
 
     assertClientCredentialsClient(authentication, clientId);
 
-    String schacHome = AbstractProvider.getSchacHomeFromPersonUrn(userId);
-    final List<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome);
+    Optional<String> schacHome = UrnUtils.getSchacHomeFromPersonUrn(userId);
+    if (!schacHome.isPresent()) {
+      throw new MalformedPersonUrnException(userId);
+    }
+    final List<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome.get());
 
     LOG.debug("internal/external-groups/{} result: {}", userId, groups);
 
@@ -114,5 +131,33 @@ public class VootController {
     }
   }
 
+  @ExceptionHandler(MalformedUrnException.class)
+  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  public ModelMap handleMalformedPersonUrnException(MalformedUrnException exception) {
+    ModelMap model = new ModelMap();
+    model.put("error", exception.getMessage());
+    return model;
+  }
 
+  public static abstract class MalformedUrnException extends Exception {
+    public MalformedUrnException(String message) {
+      super(message);
+    }
+  }
+
+  public static class MalformedPersonUrnException extends MalformedUrnException {
+    private static final String MESSAGE_FORMAT = "%s is not a valid person-urn. Values must adhere to regexp: %s";
+
+    public MalformedPersonUrnException(String incorrectValue) {
+      super(String.format(MESSAGE_FORMAT, incorrectValue, UrnUtils.URN_COLLAB_PERSON_REGEXP));
+    }
+  }
+
+  public static class MalformedGroupUrnException extends MalformedUrnException {
+    private static final String MESSAGE_FORMAT = "%s is not a valid group-urn. Values must adhere to regexp: %s";
+
+    public MalformedGroupUrnException(String incorrectValue) {
+      super(String.format(MESSAGE_FORMAT, incorrectValue, UrnUtils.URN_COLLAB_GROUP_REGEXP));
+    }
+  }
 }

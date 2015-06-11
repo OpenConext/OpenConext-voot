@@ -20,7 +20,7 @@ public interface Provider {
    * Tells us if it is worthwhile calling this client when returning a single specified group for an user
    *
    * @param schacHomeOrganization the end-user's schacHomeOrg
-   * @param groupId the group being requested (can be fully qualified persistent name or the unqualified Institution name)
+   * @param groupId the group being requested (must be fully qualified persistent name or the unqualified Institution name)
    * @return true if this Provider can return groups for the specified schacHomeOrganization
    */
   boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId);
@@ -31,8 +31,19 @@ public interface Provider {
    */
   boolean isExternalGroupProvider();
 
+  /**
+   *
+   * @param uid the fully qualified uid
+   * @return
+   */
   List<Group> getGroupMemberships(String uid) ;
 
+  /**
+   *
+   * @param uid the fully qualified uid
+   * @param groupId the fully qualified uid groupId
+   * @return
+   */
   Optional<Group> getGroupMembership(String uid, String groupId);
 
   static class Configuration {
@@ -73,6 +84,4 @@ public interface Provider {
     }
 
   }
-
-
 }

@@ -1,16 +1,18 @@
 package voot.provider;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import voot.valueobject.Group;
-import voot.valueobject.Membership;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+
+import voot.util.UrnUtils;
+import voot.valueobject.Group;
+import voot.valueobject.Membership;
 
 public class Voot2Client extends AbstractProvider {
 
@@ -31,12 +33,14 @@ public class Voot2Client extends AbstractProvider {
   }
 
   @Override
-  public List<Group> getGroupMemberships(String uid) {
-    LOG.info("Querying getGroupMemberships for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
+  public List<Group> getGroupMemberships(final String uid) {
+    LOG.debug("Querying getGroupMemberships for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
 
-    uid = stripPersonUrnIdentifier(uid);
-
-    ResponseEntity<String> response = restTemplate.getForEntity(String.format("%s/groups/{uid}", configuration.url), String.class, uid);
+    final Optional<String> localUid = UrnUtils.extractLocalUid(uid);
+    if (!localUid.isPresent()) {
+      throw new IllegalArgumentException("Unable to extract local uid from " + uid);
+    }
+    ResponseEntity<String> response = restTemplate.getForEntity(String.format("%s/groups/{uid}", configuration.url), String.class, localUid.get());
 
     if (response.getStatusCode().is2xxSuccessful()) {
       return parseGroups(response.getBody());
@@ -48,13 +52,21 @@ public class Voot2Client extends AbstractProvider {
   }
 
   @Override
-  public Optional<Group> getGroupMembership(String uid, String groupId)  {
+  public Optional<Group> getGroupMembership(final String uid, final String groupId) {
     LOG.debug("Querying getGroupMembership for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
 
-    uid = stripPersonUrnIdentifier(uid);
-    groupId = stripGroupUrnIdentifier(groupId);
+    final Optional<String> localUid = UrnUtils.extractLocalUid(uid);
+    if (!localUid.isPresent()) {
+      throw new IllegalArgumentException("Unable to extract local uid from: " + uid);
+    }
 
-    ResponseEntity<String> response = restTemplate.getForEntity(String.format("%s/groups/{uid}/{groupId}", configuration.url), String.class, uid, groupId);
+    final Optional<String> localGroupId = UrnUtils.extractLocalGroupId(groupId);
+    if (!localGroupId.isPresent()) {
+      throw new IllegalArgumentException("Unable to extract local group id from:" + groupId);
+    }
+
+
+    ResponseEntity<String> response = restTemplate.getForEntity(String.format("%s/groups/{uid}/{groupId}", configuration.url), String.class, localUid.get(), localGroupId.get());
 
     if (response.getStatusCode().is2xxSuccessful()) {
       return parseSingleGroup(response.getBody());
@@ -64,11 +76,13 @@ public class Voot2Client extends AbstractProvider {
     }
   }
 
-  protected List<Group> parseGroups(String response)  {
+  @SuppressWarnings("unchecked")
+  protected List<Group> parseGroups(String response) {
     List<Map<String, Object>> maps = parseJson(response, List.class);
-    return maps.stream().map(item -> parseGroup(item)).collect(Collectors.toList());
+    return maps.stream().map(this::parseGroup).collect(Collectors.toList());
   }
 
+  @SuppressWarnings("unchecked")
   protected Optional<Group> parseSingleGroup(String response) {
     return Optional.of(parseGroup(parseJson(response, Map.class)));
   }
