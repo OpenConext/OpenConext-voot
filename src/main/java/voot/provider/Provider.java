@@ -1,10 +1,9 @@
 package voot.provider;
 
-import voot.valueobject.Group;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+import voot.valueobject.Group;
 
 public interface Provider {
 
@@ -34,7 +33,6 @@ public interface Provider {
   /**
    *
    * @param uid the fully qualified uid
-   * @return
    */
   List<Group> getGroupMemberships(String uid) ;
 
@@ -42,11 +40,11 @@ public interface Provider {
    *
    * @param uid the fully qualified uid
    * @param groupId the fully qualified uid groupId
-   * @return
+   * @return the Group membership info if the user is indeed a member of the group, the empty Optional otherwise.
    */
   Optional<Group> getGroupMembership(String uid, String groupId);
 
-  static class Configuration {
+  class Configuration {
 
     public final GroupProviderType type;
     public final String url;
