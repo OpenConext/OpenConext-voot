@@ -8,10 +8,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class OpenSocialClient extends Voot2Client {
+public class OpenSocialClient extends Voot2Provider {
 
   public OpenSocialClient(Configuration configuration) {
     super(configuration);
+    allMembershipsUrlTemplate = "%s/groups/{uid}";
+    specificMembershipTemplate = "%s/groups/{uid}/{groupId}";
   }
 
   @Override

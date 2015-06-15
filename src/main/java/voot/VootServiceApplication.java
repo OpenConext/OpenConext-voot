@@ -5,9 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
@@ -20,6 +18,7 @@ import org.springframework.security.oauth2.provider.authentication.BearerTokenEx
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
@@ -30,7 +29,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @SpringBootApplication()
@@ -56,7 +54,7 @@ public class VootServiceApplication {
 
     final List<Provider> groupClients = externalGroupProviders.stream().map(entryMap -> {
       final String type = (String) entryMap.get("type");
-      final String url = (String) entryMap.get("url");
+      final String url = StringUtils.trimTrailingCharacter((String) entryMap.get("url"), '/');
       final String schacHomeOrganization = (String) entryMap.get("schacHomeOrganization");
       final String name = (String) entryMap.get("name");
       final Integer timeoutMillis = (Integer) entryMap.get("timeoutMillis");
@@ -70,7 +68,7 @@ public class VootServiceApplication {
       final Provider.Configuration configuration = new Provider.Configuration(groupProviderType, url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization, name);
       switch (groupProviderType) {
         case VOOT2:
-          return new Voot2Client(configuration);
+          return new Voot2Provider(configuration);
         case OPEN_SOCIAL:
           return new OpenSocialClient(configuration);
         case GROUPER:

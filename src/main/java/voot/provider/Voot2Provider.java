@@ -14,12 +14,16 @@ import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Membership;
 
-public class Voot2Client extends AbstractProvider {
+public class Voot2Provider extends AbstractProvider {
 
-  private static final Logger LOG = LoggerFactory.getLogger(GrouperSoapClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Voot2Provider.class);
+  protected String allMembershipsUrlTemplate;
+  protected String specificMembershipTemplate;
 
-  public Voot2Client(Configuration configuration) {
+  public Voot2Provider(Configuration configuration) {
     super(configuration);
+    allMembershipsUrlTemplate = "%s/user/{uid}/groups";
+    specificMembershipTemplate = "%s/user/{uid}/groups/{groupId}";
   }
 
   @Override
@@ -40,7 +44,7 @@ public class Voot2Client extends AbstractProvider {
     if (!localUid.isPresent()) {
       throw new IllegalArgumentException("Unable to extract local uid from " + uid);
     }
-    ResponseEntity<String> response = restTemplate.getForEntity(String.format("%s/groups/{uid}", configuration.url), String.class, localUid.get());
+    ResponseEntity<String> response = restTemplate.getForEntity(String.format(allMembershipsUrlTemplate, configuration.url), String.class, localUid.get());
 
     if (response.getStatusCode().is2xxSuccessful()) {
       return parseGroups(response.getBody());
@@ -65,8 +69,9 @@ public class Voot2Client extends AbstractProvider {
       throw new IllegalArgumentException("Unable to extract local group id from:" + groupId);
     }
 
-
-    ResponseEntity<String> response = restTemplate.getForEntity(String.format("%s/groups/{uid}/{groupId}", configuration.url), String.class, localUid.get(), localGroupId.get());
+    final String url = String.format(specificMembershipTemplate, configuration.url);
+    LOG.debug("Invoking {} on provider {}", url, this);
+    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class, localUid.get(), localGroupId.get());
 
     if (response.getStatusCode().is2xxSuccessful()) {
       return parseSingleGroup(response.getBody());

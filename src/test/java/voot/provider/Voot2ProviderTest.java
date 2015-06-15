@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import voot.provider.Provider.Configuration;
 import voot.valueobject.Group;
 
-public class Voot2ClientTest {
+public class Voot2ProviderTest {
 
   private static final String UID = "admin";
   private static final String GROUP_ID = "nl:surfnet:diensten:apachecon";
@@ -27,7 +27,7 @@ public class Voot2ClientTest {
   private static final String GROUP_URN = "urn:collab:group:surfteams.nl:" + GROUP_ID;
 
   private Configuration configuration = new Configuration(GroupProviderType.VOOT2, "http://localhost:8889", new Configuration.Credentials("user", "password"), 2000, "example.org", "example");
-  private Voot2Client subject = new Voot2Client(configuration);
+  private Voot2Provider subject = new Voot2Provider(configuration);
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(8889);
@@ -41,23 +41,22 @@ public class Voot2ClientTest {
 
   @Test
   public void testGetMemberships() throws Exception {
-    stubCall("groups/" + UID, "json/voot2/voot2_groups.json");
+    stubCall("user/" + UID + "/groups", "json/voot2/voot2_groups.json");
     final List<Group> groups = subject.getGroupMemberships(USER_URN);
     assertTrue(groups.size() > 0);
   }
 
   @Test
   public void testGetEmptyMemberships() throws Exception {
-    stubCall("groups/" + UID, "json/voot2/voot2_groups_empty.json");
+    stubCall("user/" + UID + "/groups", "json/voot2/voot2_groups_empty.json");
     final List<Group> memberships = subject.getGroupMemberships(USER_URN);
 
     assertTrue(memberships.isEmpty());
   }
 
   @Test
-  public void testGetSingleMembership() throws Exception {
-
-    stubCall("groups/" + UID + "/" + GROUP_ID, "json/voot2/voot2_group.json");
+  public void testGetSpecificMembership() throws Exception {
+    stubCall("user/" + UID + "/groups/" + GROUP_ID, "json/voot2/voot2_group.json");
     Optional<Group> group = subject.getGroupMembership(USER_URN, GROUP_URN);
 
     assertTrue(group.isPresent());

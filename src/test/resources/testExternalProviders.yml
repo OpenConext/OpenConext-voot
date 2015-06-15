@@ -1,0 +1,12 @@
+externalGroupProviders:
+  - {
+      type: "voot2",
+      url: "http://localhost:23232/",
+      credentials: {
+        username: "foo",
+        secret: "bar"
+      },
+      schacHomeOrganization: "surfteams.nl",
+      name: "Foo",
+      timeoutMillis: 1000
+     }
