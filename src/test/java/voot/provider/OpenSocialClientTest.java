@@ -5,6 +5,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
+
+import voot.provider.Provider.Configuration;
 import voot.valueobject.Group;
 
 import java.io.IOException;
@@ -18,7 +20,12 @@ import static org.junit.Assert.*;
 public class OpenSocialClientTest {
 
   private String admin = "urn:collab:person:example.org:admin";
-  private Provider.Configuration configuration = new Provider.Configuration(GroupProviderType.OPEN_SOCIAL, "http://localhost:8889", new Provider.Configuration.Credentials("user", "password"), 2000, "example.org", "Example");
+  private static final String UID = "admin";
+  private static final String GROUP_ID = "nl:surfnet:diensten:apachecon";
+  private static final String USER_URN = "urn:collab:person:example.org:" + UID;
+  private static final String GROUP_URN = "urn:collab:group:surfteams.nl:" + GROUP_ID;
+
+  private Configuration configuration = new Configuration(GroupProviderType.OPEN_SOCIAL, "http://localhost:8889", new Configuration.Credentials("user", "password"), 2000, "example.org", "Example");
   private OpenSocialClient subject = new OpenSocialClient(configuration);
 
   @Rule
@@ -26,16 +33,16 @@ public class OpenSocialClientTest {
 
   @Test
   public void testGetMemberships() throws Exception {
-    stubCall("groups/admin", "json/opensocial/open_social_groups.json");
-    final List<Group> memberships = subject.getGroupMemberships(admin);
+    stubCall("groups/" + UID, "json/opensocial/open_social_groups.json");
+    final List<Group> memberships = subject.getGroupMemberships(USER_URN);
 
     assertGroups(memberships);
   }
 
   @Test
   public void testGetEmptyMemberships() throws Exception {
-    stubCall("groups/admin", "json/opensocial/open_social_groups_empty.json");
-    final List<Group> memberships = subject.getGroupMemberships(admin);
+    stubCall("groups/" + UID, "json/opensocial/open_social_groups_empty.json");
+    final List<Group> memberships = subject.getGroupMemberships(USER_URN);
 
     assertTrue(memberships.isEmpty());
   }
@@ -43,15 +50,14 @@ public class OpenSocialClientTest {
   @Test
   public void testGetMembershipsDeprecatedCompoundId() throws Exception {
     stubCall("groups/admin", "json/opensocial/open_social_deprecated_groups.json");
-    final List<Group> memberships = subject.getGroupMemberships(admin);
-
+    final List<Group> memberships = subject.getGroupMemberships(USER_URN);
     assertGroups(memberships);
   }
 
   @Test
   public void testGetSingleMembership() throws Exception {
-    stubCall("groups/admin/groupId", "json/opensocial/open_social_groups_single.json");
-    Optional<Group> group = subject.getGroupMembership(admin, "groupId");
+    stubCall("groups/" + UID + "/" + GROUP_ID, "json/opensocial/open_social_groups_single.json");
+    Optional<Group> group = subject.getGroupMembership(admin, GROUP_URN);
 
     assertTrue(group.isPresent());
     assertAdminGroup(group.get());
@@ -59,8 +65,8 @@ public class OpenSocialClientTest {
 
   @Test
   public void testGetSingleMembershipDeprecatedCompoundId() throws Exception {
-    stubCall("groups/admin/groupId", "json/opensocial/open_social_deprecated_group.json");
-    Optional<Group> group = subject.getGroupMembership(admin, "groupId");
+    stubCall("groups/" + UID + "/" + GROUP_ID, "json/opensocial/open_social_deprecated_group.json");
+    Optional<Group> group = subject.getGroupMembership(admin, GROUP_URN);
 
     assertTrue(group.isPresent());
     assertAdminGroup(group.get());
@@ -68,8 +74,8 @@ public class OpenSocialClientTest {
 
   @Test
   public void testGetSingleMembershipEmpty() throws Exception {
-    stubCall("groups/admin/groupId", "json/opensocial/open_social_groups_empty.json");
-    Optional<Group> group = subject.getGroupMembership(admin, "groupId");
+    stubCall("groups/" + UID + "/" + GROUP_ID, "json/opensocial/open_social_groups_empty.json");
+    Optional<Group> group = subject.getGroupMembership(admin, GROUP_URN);
 
     assertFalse(group.isPresent());
   }

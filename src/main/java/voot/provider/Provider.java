@@ -1,10 +1,9 @@
 package voot.provider;
 
-import voot.valueobject.Group;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+import voot.valueobject.Group;
 
 public interface Provider {
 
@@ -20,7 +19,7 @@ public interface Provider {
    * Tells us if it is worthwhile calling this client when returning a single specified group for an user
    *
    * @param schacHomeOrganization the end-user's schacHomeOrg
-   * @param groupId the group being requested (can be fully qualified persistent name or the unqualified Institution name)
+   * @param groupId the group being requested (must be fully qualified persistent name or the unqualified Institution name)
    * @return true if this Provider can return groups for the specified schacHomeOrganization
    */
   boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId);
@@ -31,11 +30,21 @@ public interface Provider {
    */
   boolean isExternalGroupProvider();
 
+  /**
+   *
+   * @param uid the fully qualified uid
+   */
   List<Group> getGroupMemberships(String uid) ;
 
+  /**
+   *
+   * @param uid the fully qualified uid
+   * @param groupId the fully qualified uid groupId
+   * @return the Group membership info if the user is indeed a member of the group, the empty Optional otherwise.
+   */
   Optional<Group> getGroupMembership(String uid, String groupId);
 
-  static class Configuration {
+  class Configuration {
 
     public final GroupProviderType type;
     public final String url;
@@ -73,6 +82,4 @@ public interface Provider {
     }
 
   }
-
-
 }

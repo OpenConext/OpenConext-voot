@@ -1,8 +1,7 @@
 package voot.provider;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.config.RequestConfig;
@@ -15,16 +14,13 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class AbstractProvider implements Provider {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractProvider.class);
-
-  protected static final Pattern groupPattern = Pattern.compile("^urn:collab:group:([^:]+):(.+)$");
-  protected static final Pattern personPattern = Pattern.compile("^urn:collab:person:([^:]+):(.+)$");
 
   /*
    * We can't share the RestTemplate among Providers as we tie the BasicCredentialsProvider with the configured user / password
@@ -54,57 +50,11 @@ public abstract class AbstractProvider implements Provider {
     return !configuration.type.equals(GroupProviderType.GROUPER);
   }
 
-  /**
-   * Strip groupId, e.g. removing urn:collab:group:schacHomeOrganization:stripped-groupId and returning remaining stripped-groupId part
-   *
-   * @param groupId the groupId
-   * @return stripped groupId or groupId if not conform urn:collab:group format
-   */
-  public static String stripGroupUrnIdentifier(String groupId) {
-    return getIdFromRegExp(groupPattern, groupId);
-  }
-
-  /**
-   * Strip uid, e.g. removing urn:collab:person:schacHomeOrganization:stripped-uid and returning remaining stripped-ui part
-   *
-   * @param uid the uid
-   * @return stripped uid or uid if not conform urn:collab:person format
-   */
-  public static String stripPersonUrnIdentifier(String uid) {
-    return getIdFromRegExp(personPattern, uid);
-  }
-
-  public static String getSchacHomeFromGroupUrn(String groupId) {
-    return getSchacHomeFromRegExp(groupPattern, groupId);
-  }
-
-  public static String getSchacHomeFromPersonUrn(String personId) {
-    return getSchacHomeFromRegExp(personPattern, personId);
-  }
-
-  public static boolean isFullyQualifiedGroupName(String groupId) {
-    return groupPattern.matcher(groupId).matches();
-  }
-
   protected <T> T parseJson(String json, Class<T> t) {
     try {
       return objectMapper.readValue(json, t);
     } catch (IOException e) {
       throw new RuntimeException("Error parsing Json", e);
-    }
-  }
-
-  private static String getIdFromRegExp(Pattern pattern, String id) {
-    Matcher m = pattern.matcher(id);
-    return m.matches() ? m.group(2) : id;
-  }
-
-  private static String getSchacHomeFromRegExp(Pattern pattern, String id) {
-    Matcher m = pattern.matcher(id);
-    if (m.matches()) {
-      return m.group(1);
-    } else {
-      throw new IllegalArgumentException(String.format("The id '%s' must be fully qualified (e.g. start with %s)", id, pattern.pattern()));
     }
   }
 
@@ -118,4 +68,8 @@ public abstract class AbstractProvider implements Provider {
     return new HttpComponentsClientHttpRequestFactory(httpClient);
   }
 
+  @Override
+  public String toString() {
+    return String.format("Provider with configuration: %s", this.configuration);
+  }
 }

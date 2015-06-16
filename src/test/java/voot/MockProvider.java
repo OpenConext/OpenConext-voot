@@ -18,13 +18,15 @@ public class MockProvider extends AbstractProvider {
   private static final Logger LOG = LoggerFactory.getLogger(MockProvider.class);
   public static final String SCHAC_HOME_ORGANIZATION = "example.org";
 
-  private final Long timeoutMillis;
-  private final boolean simulateTimeout;
+  public enum SimulationMode {Success, Timeout, Error };
 
-  public MockProvider(Long timeoutMillis, boolean simulateTimeout, GroupProviderType type) {
+  private final Long timeoutMillis;
+  private final SimulationMode simulationMode;
+
+  public MockProvider(Long timeoutMillis, SimulationMode simulationMode, GroupProviderType type) {
     super(new Provider.Configuration(type, "url", new Provider.Configuration.Credentials("user", "password"), 2000, SCHAC_HOME_ORGANIZATION, "example"));
     this.timeoutMillis = timeoutMillis;
-    this.simulateTimeout = simulateTimeout;
+    this.simulationMode = simulationMode;
   }
 
   @Override
@@ -39,17 +41,21 @@ public class MockProvider extends AbstractProvider {
 
   @Override
   public List<Group> getGroupMemberships(String uid) {
-    if (simulateTimeout) {
-      try {
-        Thread.sleep(timeoutMillis);
-      } catch (InterruptedException e) {
-      }
-      LOG.debug("timed out");
-      return Collections.emptyList();
-    } else {
-      LOG.debug("got result");
-      return Arrays.asList(defaultGroup("id"));
+    switch (this.simulationMode) {
+      case Timeout:
+        try {
+          Thread.sleep(timeoutMillis);
+        } catch (InterruptedException e) {
+        }
+        LOG.debug("timed out");
+        return Collections.emptyList();
+      case Error:
+        throw new RuntimeException("failed!");
+      default: // Success
+        LOG.debug("got result");
+        return Arrays.asList(defaultGroup("id"));
     }
+
   }
 
   @Override

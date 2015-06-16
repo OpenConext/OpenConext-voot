@@ -10,6 +10,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Membership;
 
@@ -53,7 +55,7 @@ public class GrouperSoapClient extends AbstractProvider {
 
   @Override
   public boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId) {
-    Matcher matcher = groupPattern.matcher(groupId);
+    Matcher matcher = UrnUtils.GROUP_PATTERN.matcher(groupId);
     /*
      * For unqualified group names we do NOT query Grouper. This is a design decision discussed with SURFnet
      */
@@ -82,9 +84,12 @@ public class GrouperSoapClient extends AbstractProvider {
   }
 
   @Override
-  public Optional<Group> getGroupMembership(String uid, String groupId) {
-    groupId = stripGroupUrnIdentifier(groupId);
-    Map<String, String> replacements = ImmutableMap.of("subjectId", uid, "groupId", groupId);
+  public Optional<Group> getGroupMembership(final String uid, final String groupId) {
+    final Optional<String> localGroupId = UrnUtils.extractLocalGroupId(groupId);
+    if (!localGroupId.isPresent()) {
+      throw new IllegalArgumentException("Unable to infer localgroupId from " + groupId);
+    }
+    Map<String, String> replacements = ImmutableMap.of("subjectId", uid, "groupId", localGroupId.get());
     try {
       LOG.debug("Querying getGroupMembership API for subjectId: {}", uid);
       String soap = replaceTokens("soap/HasMemberLite.xml", replacements);
@@ -110,6 +115,8 @@ public class GrouperSoapClient extends AbstractProvider {
   }
 
   private List<Group> parseGroups(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
+    LOG.debug("result from Grouper: {} .", response);
+
     Document document = factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.getBody().getBytes()));
 
     XPath xpath = XPathFactory.newInstance().newXPath();
@@ -173,8 +180,7 @@ public class GrouperSoapClient extends AbstractProvider {
       }
     }
     matcher.appendTail(buffer);
-    String result = buffer.toString();
-    return result;
+    return buffer.toString();
 
   }
 }

@@ -1,11 +1,12 @@
 package voot;
 
 import com.google.common.base.Preconditions;
-import voot.provider.AbstractProvider;
+
 import voot.provider.Provider;
 import voot.valueobject.Group;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -13,7 +14,12 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ExternalGroupsService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ExternalGroupsService.class);
 
   private final List<Provider> providers;
   private final ForkJoinPool forkJoinPool;
@@ -39,8 +45,15 @@ public class ExternalGroupsService {
     try {
       List<Optional<Group>> optionals = forkJoinPool.submit(() -> this.providers.parallelStream()
         .filter(provider -> provider.shouldBeQueriedForGroup(schacHomeOrganization, groupId))
-        .map(provider -> provider.getGroupMembership(uid, groupId))
-        .filter(optionalGroup -> optionalGroup.isPresent())
+        .map(provider -> {
+          try {
+            return provider.getGroupMembership(uid, groupId);
+          } catch (RuntimeException e) {
+            LOG.warn("Provider {} threw exception: {} ", provider, e);
+            return Optional.<Group> empty();
+          }
+        })
+        .filter(Optional::isPresent)
         .collect(Collectors.toList())).get();
       return optionals.isEmpty() ? Optional.empty() : optionals.get(0);
     } catch (InterruptedException | ExecutionException e) {
@@ -53,7 +66,14 @@ public class ExternalGroupsService {
       return forkJoinPool.submit(() -> {
         return this.providers.parallelStream()
           .filter(providerFilter)
-          .map(provider -> provider.getGroupMemberships(uid))
+          .map(provider -> {
+            try {
+              return provider.getGroupMemberships(uid);
+            } catch (RuntimeException e) {
+              LOG.warn("Provider {} threw exception: {} ", provider, e);
+              return Collections.<Group>emptyList();
+            }
+          })
           .flatMap(Collection::stream)
           .collect(Collectors.toList());
       }).get();
