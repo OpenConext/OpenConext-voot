@@ -1,6 +1,7 @@
 package voot.provider;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -59,11 +60,12 @@ public abstract class AbstractProvider implements Provider {
   }
 
   private ClientHttpRequestFactory getRequestFactory() {
-    HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+    HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().evictExpiredConnections().evictIdleConnections(10l, TimeUnit.SECONDS);
     BasicCredentialsProvider basicCredentialsProvider = new BasicCredentialsProvider();
     basicCredentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(configuration.credentials.username, configuration.credentials.password));
     httpClientBuilder.setDefaultCredentialsProvider(basicCredentialsProvider);
     httpClientBuilder.setDefaultRequestConfig(RequestConfig.custom().setConnectionRequestTimeout(configuration.timeOutMillis).setConnectTimeout(configuration.timeOutMillis).setSocketTimeout(configuration.timeOutMillis).build());
+
     CloseableHttpClient httpClient = httpClientBuilder.build();
     return new HttpComponentsClientHttpRequestFactory(httpClient);
   }
