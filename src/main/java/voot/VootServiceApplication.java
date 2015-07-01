@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
+import voot.oauth.CachedRemoteTokenServices;
 import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
 import voot.provider.*;
 
@@ -107,7 +108,7 @@ public class VootServiceApplication {
     }
 
     private RemoteTokenServices tokenServices() {
-      final RemoteTokenServices remoteTokenServices = new RemoteTokenServices();
+      final RemoteTokenServices remoteTokenServices = new CachedRemoteTokenServices(1000 * 60 * 5,1000 * 60 * 5);
       remoteTokenServices.setCheckTokenEndpointUrl(checkTokenEndpointUrl);
       remoteTokenServices.setClientId(checkTokenClientId);
       remoteTokenServices.setClientSecret(checkTokenSecret);
