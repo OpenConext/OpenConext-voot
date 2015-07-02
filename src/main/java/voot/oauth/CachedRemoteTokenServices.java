@@ -36,11 +36,14 @@ public class CachedRemoteTokenServices extends RemoteTokenServices {
     CachedOAuth2Authentication cachedAuthentication = authentications.get(accessToken);
     long now = System.currentTimeMillis();
     if (cachedAuthentication != null && cachedAuthentication.timestamp + duration > now) {
+      LOG.debug("Returning OAuth2Authentication from cache {}", cachedAuthentication.authentication);
       return cachedAuthentication.authentication;
     }
     OAuth2Authentication oAuth2Authentication = super.loadAuthentication(accessToken);
     //will not happen, but just to ensure this does not cause memory problems
-    if (authentications.size() < 10000) {
+    int size = authentications.size();
+    if (size < 10000) {
+      LOG.debug("Putting OAuth2Authentication in cache {} current size: {}", oAuth2Authentication, size + 1);
       authentications.put(accessToken, new CachedOAuth2Authentication(now, oAuth2Authentication));
     }
     return oAuth2Authentication;

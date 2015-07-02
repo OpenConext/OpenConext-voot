@@ -39,7 +39,7 @@ public class VootController {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    LOG.info("me/groups on behalf of uid: {}, schacHomeOrg: {}, accessToken: {}, clientId: {}", authentication.getName(), schacHome, accessToken, clientId);
+    LOG.debug("me/groups on behalf of uid: {}, schacHomeOrg: {}, accessToken: {}, clientId: {}", authentication.getName(), schacHome, accessToken, clientId);
 
     final List<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome);
 
@@ -54,7 +54,7 @@ public class VootController {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    LOG.info("groups/{} on behalf of uid {}, schacHomeOrg: {}, accessToken: {}, clientId {}", groupId, authentication.getName(), schacHome, accessToken, clientId);
+    LOG.debug("groups/{} on behalf of uid {}, schacHomeOrg: {}, accessToken: {}, clientId {}", groupId, authentication.getName(), schacHome, accessToken, clientId);
     if (! UrnUtils.isFullyQualifiedGroupName(groupId)) {
       throw new MalformedGroupUrnException(groupId);
     }
@@ -70,7 +70,7 @@ public class VootController {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    LOG.info("internal/groups/{}/{}, accessToken: {}, clientId {}", userId, groupId, accessToken, clientId);
+    LOG.debug("internal/groups/{}/{}, accessToken: {}, clientId {}", userId, groupId, accessToken, clientId);
 
     assertClientCredentialsClient(authentication, clientId);
 
@@ -90,7 +90,7 @@ public class VootController {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    LOG.info("internal/groups/{}, accessToken: {}, clientId {}", userId, accessToken, clientId);
+    LOG.debug("internal/groups/{}, accessToken: {}, clientId {}", userId, accessToken, clientId);
 
     assertClientCredentialsClient(authentication, clientId);
 
@@ -110,7 +110,7 @@ public class VootController {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    LOG.info("internal/external-groups/{}, accessToken: {}, clientId {}", userId, accessToken, clientId);
+    LOG.debug("internal/external-groups/{}, accessToken: {}, clientId {}", userId, accessToken, clientId);
 
     assertClientCredentialsClient(authentication, clientId);
 
