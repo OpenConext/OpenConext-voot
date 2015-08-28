@@ -49,13 +49,17 @@ To answer queries, this application talks to other webservices downstream. Those
 
 To test the VOOT endpoint the authz-playground can be used. The implementation exposes two endpoints secured by Authorization Code:
 
+```
 https://voot.example.org/me/groups
 https://voot.example.org/me/groups/${fully qualified group name}
+```
 
 Two additional endpoints are implemented for internal use. They are secured by Client Credentials:
 
+```
 https://voot.example.org/internal/external-groups/${fully qualified person urn}
 https://voot.example.org/internal/groups/${fully qualified person urn}/${fully qualified group name}
+```
 
 The first internal endpoint is used by OpenConext Teams to fetch all external (e.g. no grouper) teams. The second one is used by internal
 applications that need to verify the membership of a person in a specific group. EngineBlock uses this endpoint to check the GroupVO
