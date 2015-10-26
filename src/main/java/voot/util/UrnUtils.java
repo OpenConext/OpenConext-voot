@@ -17,9 +17,9 @@ public class UrnUtils {
 
   /**
    * Strip groupId, e.g. removing urn:collab:group:schacHomeOrganization:stripped-groupId and returning remaining stripped-groupId part
+   *
    * @param groupId the id that should addhere to {@value #URN_COLLAB_GROUP_REGEXP}
    * @return the stripped value or the empty Optional when stripping did not succeeed
-
    */
   public static Optional<String> extractLocalGroupId(final String groupId) {
     return getIdFromRegExp(GROUP_PATTERN, groupId);
@@ -27,6 +27,7 @@ public class UrnUtils {
 
   /**
    * Strip uid, e.g. removing urn:collab:person:schacHomeOrganization:stripped-uid and returning remaining stripped-ui part
+   *
    * @param uid the uid that should addhere to {@value #URN_COLLAB_PERSON_REGEXP}
    * @return the stripped value or the empty Optional when stripping did not succeeed
    */
@@ -48,18 +49,11 @@ public class UrnUtils {
 
   private static Optional<String> getIdFromRegExp(Pattern pattern, final String id) {
     Matcher m = pattern.matcher(id);
-    if (m.matches()) {
-      return Optional.of(m.group(2));
-    }
-    return Optional.empty();
+    return m.matches() ? Optional.of(m.group(2)) : Optional.empty();
   }
 
   private static Optional<String> getSchacHomeFromRegExp(Pattern pattern, String id) {
     Matcher m = pattern.matcher(id);
-    if (m.matches()) {
-      return Optional.of(m.group(1));
-    } else {
-      return Optional.empty();
-    }
+    return m.matches() ? Optional.of(m.group(1)) : Optional.empty();
   }
 }

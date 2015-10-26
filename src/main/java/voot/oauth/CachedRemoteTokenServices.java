@@ -13,22 +13,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static java.util.concurrent.Executors.newScheduledThreadPool;
 
 public class CachedRemoteTokenServices extends RemoteTokenServices {
 
   private static final Logger LOG = LoggerFactory.getLogger(CachedRemoteTokenServices.class);
 
-  private final long duration;
-
   private final Map<String, CachedOAuth2Authentication> authentications = new ConcurrentHashMap<>();
 
-  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+  private final long duration;
 
   public CachedRemoteTokenServices(long durationMilliseconds, long expiryIntervalCheckMilliseconds) {
     Assert.isTrue(durationMilliseconds > 0 && durationMilliseconds < 1000 * 60 * 61);
     Assert.isTrue(expiryIntervalCheckMilliseconds > 0 && expiryIntervalCheckMilliseconds < 1000 * 60 * 61);
     this.duration = durationMilliseconds;
-    scheduler.scheduleAtFixedRate(() -> clearExpiredAuthentications(), 0, expiryIntervalCheckMilliseconds, TimeUnit.MILLISECONDS);
+    newScheduledThreadPool(1).scheduleAtFixedRate(() -> clearExpiredAuthentications(), 0, expiryIntervalCheckMilliseconds, TimeUnit.MILLISECONDS);
   }
 
   @Override
