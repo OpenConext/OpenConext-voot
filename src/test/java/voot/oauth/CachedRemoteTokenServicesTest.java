@@ -27,6 +27,7 @@ public class CachedRemoteTokenServicesTest {
     map.put("client_id", "test");
     map.put("authorities", "admin");
     map.put("user_name", "admin");
+    @SuppressWarnings("unchecked")
     ResponseEntity<Map> response = new ResponseEntity(map, HttpStatus.OK);
 
     when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(Map.class))).thenReturn(response);

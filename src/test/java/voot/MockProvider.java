@@ -18,13 +18,13 @@ public class MockProvider extends AbstractProvider {
   private static final Logger LOG = LoggerFactory.getLogger(MockProvider.class);
   public static final String SCHAC_HOME_ORGANIZATION = "example.org";
 
-  public enum SimulationMode {Success, Timeout, Error };
+  public enum SimulationMode {Success, Timeout, Error }
 
   private final Long timeoutMillis;
   private final SimulationMode simulationMode;
 
   public MockProvider(Long timeoutMillis, SimulationMode simulationMode, GroupProviderType type) {
-    super(new Provider.Configuration(type, "url", new Provider.Configuration.Credentials("user", "password"), 2000, SCHAC_HOME_ORGANIZATION, "example"));
+    super(new Provider.Configuration(type, "https://localhost/some/path", new Provider.Configuration.Credentials("user", "password"), 2000, SCHAC_HOME_ORGANIZATION, "example"));
     this.timeoutMillis = timeoutMillis;
     this.simulationMode = simulationMode;
   }
@@ -53,7 +53,7 @@ public class MockProvider extends AbstractProvider {
         throw new RuntimeException("failed!");
       default: // Success
         LOG.debug("got result");
-        return Arrays.asList(defaultGroup("id"));
+        return Collections.singletonList(defaultGroup("id"));
     }
 
   }

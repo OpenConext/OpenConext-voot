@@ -8,6 +8,7 @@ public class ClientCredentialsAuthentication extends AbstractAuthenticationToken
 
   private String clientId;
 
+  @SuppressWarnings("unchecked")
   public ClientCredentialsAuthentication(String clientId) {
     super(Collections.EMPTY_LIST);
     this.clientId = clientId;

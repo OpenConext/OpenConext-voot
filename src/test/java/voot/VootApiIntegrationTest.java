@@ -4,6 +4,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,6 +27,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = VootServiceApplication.class)
@@ -97,11 +100,13 @@ public class VootApiIntegrationTest {
     final String stubUrl = String.format(MEMBERSHIP_URL_TEMPLATE, LOCAL_UID, localGroupUrn);
     final String responseJson = "{\"foo\": \"bar\"}";
     LOG.debug("Stubbing response from a vootprovider at URL: {}", stubUrl);
-    vootProviderMock.stubFor(get(urlMatching(stubUrl)).willReturn(
-      aResponse().
-        withStatus(200).
-        withHeader("Content-type", "application/json").
-        withBody(responseJson)
+    vootProviderMock.stubFor(get(urlMatching(stubUrl))
+      //ensure the PreemptiveAuthenticationHttpComponentsClientHttpRequestFactory prevents an unnecessary call
+      .withHeader("Authorization", equalTo("Basic " + Base64.encodeBase64String("foo:bar".getBytes())))
+      .willReturn(aResponse()
+          .withStatus(200)
+          .withHeader("Content-type", "application/json")
+        .withBody(responseJson)
     ));
     final ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(oauthHeaders), String.class);
     assertTrue("status must be 200 OK", HttpStatus.OK.equals(entity.getStatusCode()));

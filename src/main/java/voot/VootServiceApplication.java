@@ -59,7 +59,7 @@ public class VootServiceApplication {
       final String schacHomeOrganization = (String) entryMap.get("schacHomeOrganization");
       final String name = (String) entryMap.get("name");
       final Integer timeoutMillis = (Integer) entryMap.get("timeoutMillis");
-
+      @SuppressWarnings("unchecked")
       final Map<String, Object> rawCredentials = (Map<String, Object>) entryMap.get("credentials");
       String username = (String) rawCredentials.get("username");
       String secret = (String) rawCredentials.get("secret");

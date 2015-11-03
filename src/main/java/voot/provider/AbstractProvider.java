@@ -1,8 +1,8 @@
 package voot.provider;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.config.RequestConfig;
@@ -12,12 +12,11 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractProvider implements Provider {
 
@@ -41,7 +40,11 @@ public abstract class AbstractProvider implements Provider {
 
   public AbstractProvider(Configuration configuration) {
     this.configuration = configuration;
-    this.restTemplate = new RestTemplate(getRequestFactory());
+    try {
+      this.restTemplate = new RestTemplate(getRequestFactory());
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
     this.groupIdPrefix = String.format("urn:collab:group:%s:", configuration.schacHomeOrganization);
     LOG.debug("Initializing {} {}", getClass(), configuration);
   }
@@ -59,7 +62,7 @@ public abstract class AbstractProvider implements Provider {
     }
   }
 
-  private ClientHttpRequestFactory getRequestFactory() {
+  private ClientHttpRequestFactory getRequestFactory() throws MalformedURLException {
     HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().evictExpiredConnections().evictIdleConnections(10l, TimeUnit.SECONDS);
     BasicCredentialsProvider basicCredentialsProvider = new BasicCredentialsProvider();
     basicCredentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(configuration.credentials.username, configuration.credentials.password));
@@ -67,7 +70,7 @@ public abstract class AbstractProvider implements Provider {
     httpClientBuilder.setDefaultRequestConfig(RequestConfig.custom().setConnectionRequestTimeout(configuration.timeOutMillis).setConnectTimeout(configuration.timeOutMillis).setSocketTimeout(configuration.timeOutMillis).build());
 
     CloseableHttpClient httpClient = httpClientBuilder.build();
-    return new HttpComponentsClientHttpRequestFactory(httpClient);
+    return new PreemptiveAuthenticationHttpComponentsClientHttpRequestFactory(httpClient, configuration.url);
   }
 
   @Override
