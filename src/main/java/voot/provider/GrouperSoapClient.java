@@ -54,15 +54,6 @@ public class GrouperSoapClient extends AbstractProvider {
   }
 
   @Override
-  public boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId) {
-    Matcher matcher = UrnUtils.GROUP_PATTERN.matcher(groupId);
-    /*
-     * For unqualified group names we do NOT query Grouper. This is a design decision discussed with SURFnet
-     */
-    return matcher.matches() && matcher.group(1).equals(configuration.schacHomeOrganization);
-  }
-
-  @Override
   public List<Group> getGroupMemberships(final String uid) {
     Map<String, String> replacements = ImmutableMap.of("subjectId", uid);
 

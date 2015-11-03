@@ -58,7 +58,7 @@ public class VootController {
     if (! UrnUtils.isFullyQualifiedGroupName(groupId)) {
       throw new MalformedGroupUrnException(groupId);
     }
-    final Optional<Group> group = externalGroupsService.getMyGroupById(authentication.getName(), groupId, schacHome);
+    final Optional<Group> group = externalGroupsService.getMyGroupById(authentication.getName(), groupId);
 
     LOG.debug("groups/{} result for uid {}: {}", groupId, authentication.getName(), group);
 
@@ -78,7 +78,7 @@ public class VootController {
     if (!schacHome.isPresent()) {
       throw new MalformedGroupUrnException(groupId);
     }
-    final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId, schacHome.get());
+    final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId);
 
     LOG.debug("groups/{} result: {}", groupId, group);
 

@@ -55,7 +55,7 @@ public class ExternalGroupsServiceTest {
   public void testGetMyGroupById() throws Exception {
     List<Provider> providers = Collections.singletonList(new MockProvider(200L, MockProvider.SimulationMode.Success, GroupProviderType.VOOT2));
     ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
-    Optional<Group> group = externalGroupsService.getMyGroupById("admin", "urn:collab:group:example.com:admin-team", "example.com");
+    Optional<Group> group = externalGroupsService.getMyGroupById("admin", "urn:collab:group:example.com:admin-team");
     assertEquals("urn:collab:group:example.com:admin-team", group.get().id);
   }
 

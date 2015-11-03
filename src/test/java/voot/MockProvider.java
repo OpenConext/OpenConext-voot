@@ -35,7 +35,7 @@ public class MockProvider extends AbstractProvider {
   }
 
   @Override
-  public boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId) {
+  public boolean shouldBeQueriedForGroup(String groupId) {
     return true;
   }
 

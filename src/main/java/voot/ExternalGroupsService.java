@@ -41,10 +41,10 @@ public class ExternalGroupsService {
     return doGetGroups(uid, providerFilter);
   }
 
-  public Optional<Group> getMyGroupById(String uid, String groupId, String schacHomeOrganization) {
+  public Optional<Group> getMyGroupById(String uid, String groupId) {
     try {
       List<Optional<Group>> optionals = forkJoinPool.submit(() -> this.providers.parallelStream()
-        .filter(provider -> provider.shouldBeQueriedForGroup(schacHomeOrganization, groupId))
+        .filter(provider -> provider.shouldBeQueriedForGroup(groupId))
         .map(provider -> {
           try {
             return provider.getGroupMembership(uid, groupId);

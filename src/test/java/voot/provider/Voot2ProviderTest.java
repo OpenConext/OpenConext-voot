@@ -1,23 +1,21 @@
 package voot.provider;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.StreamUtils;
+import voot.provider.Provider.Configuration;
+import voot.valueobject.Group;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.StreamUtils;
-
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-
-import voot.provider.Provider.Configuration;
-import voot.valueobject.Group;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class Voot2ProviderTest {
 
@@ -33,10 +31,18 @@ public class Voot2ProviderTest {
   public WireMockRule wireMockRule = new WireMockRule(8889);
 
   @Test
-  public void testShouldBeQueriedFor() throws Exception {
+  public void testShouldBeQueriedForMemberships() throws Exception {
     assertTrue(subject.shouldBeQueriedForMemberships("example.org"));
-    assertTrue(subject.shouldBeQueriedForGroup("example.org", "does.not.matter"));
-    assertFalse(subject.shouldBeQueriedForGroup("bla.com", null));
+    assertFalse(subject.shouldBeQueriedForMemberships("no.org"));
+  }
+
+  @Test
+  public void testShouldBeQueriedForGroup() throws Exception {
+    assertFalse(subject.shouldBeQueriedForGroup("no.urn"));
+    assertFalse(subject.shouldBeQueriedForGroup("urn:collab:group:diffent.schac:group:name"));
+
+    assertTrue(subject.shouldBeQueriedForGroup("urn:collab:group:" + configuration.schacHomeOrganization + ":group:name"));
+
   }
 
   @Test

@@ -30,7 +30,7 @@ public class PreemptiveAuthenticationHttpComponentsClientHttpRequestFactory exte
 
   private HttpContext initHttpContext(String url) throws MalformedURLException {
     URL parsedUrl = new URL(url);
-    HttpHost targetHost = new HttpHost(parsedUrl.getHost(),parsedUrl.getPort(),parsedUrl.getProtocol());
+    HttpHost targetHost = new HttpHost(parsedUrl.getHost(), parsedUrl.getPort(), parsedUrl.getProtocol());
     AuthCache authCache = new BasicAuthCache();
     BasicScheme basicAuth = new BasicScheme();
     authCache.put(targetHost, basicAuth);

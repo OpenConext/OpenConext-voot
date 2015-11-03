@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class GrouperSoapClientTest {
 
@@ -42,10 +43,10 @@ public class GrouperSoapClientTest {
     assertTrue(subject.shouldBeQueriedForMemberships("surfnet.nl"));
     assertTrue(subject.shouldBeQueriedForMemberships("whatever.org"));
 
-    assertFalse(subject.shouldBeQueriedForGroup("bla.org", "must.be.urn"));
-    assertFalse(subject.shouldBeQueriedForGroup("bla.org", "urn:collab:group:example.org:a"));
+    assertFalse(subject.shouldBeQueriedForGroup("must.be.urn"));
+    assertFalse(subject.shouldBeQueriedForGroup("urn:collab:group:example.org:a"));
 
-    assertTrue(subject.shouldBeQueriedForGroup("bla.org", "urn:collab:group:surfnet.nl:a"));
+    assertTrue(subject.shouldBeQueriedForGroup("urn:collab:group:" + subject.configuration.schacHomeOrganization + ":a"));
   }
 
 

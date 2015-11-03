@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -28,12 +29,7 @@ public class Voot2Provider extends AbstractProvider {
 
   @Override
   public boolean shouldBeQueriedForMemberships(String schacHomeOrganization) {
-    return configuration.schacHomeOrganization.equals(schacHomeOrganization);
-  }
-
-  @Override
-  public boolean shouldBeQueriedForGroup(String schacHomeOrganization, String groupId) {
-    return shouldBeQueriedForMemberships(schacHomeOrganization);
+    return configuration.schacHomeOrganization.equalsIgnoreCase(schacHomeOrganization);
   }
 
   @Override

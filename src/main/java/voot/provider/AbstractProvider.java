@@ -13,10 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import voot.util.UrnUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 
 public abstract class AbstractProvider implements Provider {
 
@@ -52,6 +54,15 @@ public abstract class AbstractProvider implements Provider {
   @Override
   public boolean isExternalGroupProvider() {
     return !configuration.type.equals(GroupProviderType.GROUPER);
+  }
+
+  @Override
+  public boolean shouldBeQueriedForGroup(String groupId) {
+    Matcher matcher = UrnUtils.GROUP_PATTERN.matcher(groupId);
+    /*
+     * For unqualified group names we do NOT query External Group Providers. This is a design decision discussed with SURFnet
+     */
+    return matcher.matches() && matcher.group(1).equals(configuration.schacHomeOrganization);
   }
 
   protected <T> T parseJson(String json, Class<T> t) {
