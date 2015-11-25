@@ -5,20 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.util.Assert;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 
-public class CachedRemoteTokenServices extends RemoteTokenServices {
+public class CachedRemoteTokenServices extends OidcRemoteTokenServices {
 
   private static final Logger LOG = LoggerFactory.getLogger(CachedRemoteTokenServices.class);
 
@@ -26,7 +21,8 @@ public class CachedRemoteTokenServices extends RemoteTokenServices {
 
   private final long duration;
 
-  public CachedRemoteTokenServices(long durationMilliseconds, long expiryIntervalCheckMilliseconds) {
+  public CachedRemoteTokenServices(String checkTokenEndpointUrl, String clientId, String clientSecret, long durationMilliseconds, long expiryIntervalCheckMilliseconds) {
+    super(checkTokenEndpointUrl, clientId, clientSecret);
     Assert.isTrue(durationMilliseconds > 0 && durationMilliseconds < 1000 * 60 * 61);
     Assert.isTrue(expiryIntervalCheckMilliseconds > 0 && expiryIntervalCheckMilliseconds < 1000 * 60 * 61);
     this.duration = durationMilliseconds;
