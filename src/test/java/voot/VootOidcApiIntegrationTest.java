@@ -3,6 +3,7 @@ package voot;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StreamUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
@@ -27,15 +29,15 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = VootServiceApplication.class)
 @WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oidc.checkToken.endpoint.url=http://localhost:12121/introspect"}, randomPort = true)
-public class VootApiIntegrationTest {
+public class VootOidcApiIntegrationTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(VootApiIntegrationTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(VootOidcApiIntegrationTest.class);
 
   private static final String SPECIFIC_MEMBERSHIP_URL_TEMPLATE = "/me/groups/%s";
   private static final String MEMBERSHIP_URL_TEMPLATE = "/user/%s/groups/%s";
   public static final Integer MOCK_AUTHORIZATION_SERVER_PORT = 12121;
   public static final Integer MOCK_VOOT_PROVIDER_PORT = 23232;
-  private static final String TOKEN_VALUE = "TOKEN_VALUE";
+
   private static final String SCHAC_HOME = "surfteams.nl";
   private static final String LOCAL_UID = "admin";
 
@@ -54,6 +56,19 @@ public class VootApiIntegrationTest {
 
   @Before
   public void before() throws Exception {
+    oauthHeaders = new HttpHeaders();
+    oauthHeaders.add("Accept", MediaType.APPLICATION_JSON_VALUE);
+    oauthHeaders.add("Authorization", "Bearer " + getAccessToken());
+
+    stubOAuthCheckToken();
+
+  }
+
+  protected String getAccessToken() {
+    return "TOKEN_VALUE";
+  }
+
+  protected void stubOAuthCheckToken() throws IOException {
     InputStream inputStream = new ClassPathResource("json/oidc/introspect.success.json").getInputStream();
     String json = StreamUtils.copyToString(inputStream, Charset.forName("UTF-8"));
     authorizationServerMock.stubFor(get(urlPathEqualTo("/introspect")).willReturn(
@@ -62,11 +77,6 @@ public class VootApiIntegrationTest {
         withHeader("Content-type", "application/json").
         withBody(json)
     ));
-
-    oauthHeaders = new HttpHeaders();
-    oauthHeaders.add("Accept", MediaType.APPLICATION_JSON_VALUE);
-    oauthHeaders.add("Authorization", "Bearer " + TOKEN_VALUE);
-
   }
 
   @Test

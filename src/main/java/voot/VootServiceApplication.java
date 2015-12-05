@@ -134,7 +134,7 @@ public class VootServiceApplication {
       authzResourceServerTokenServices.setClientSecret(authzCheckTokenSecret);
 
       final DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
-      accessTokenConverter.setUserTokenConverter(new SchacHomeAwareUserAuthenticationConverter());
+      accessTokenConverter.setUserTokenConverter(new AuthzSchacHomeAwareUserAuthenticationConverter());
       authzResourceServerTokenServices.setAccessTokenConverter(accessTokenConverter);
       return authzResourceServerTokenServices;
     }

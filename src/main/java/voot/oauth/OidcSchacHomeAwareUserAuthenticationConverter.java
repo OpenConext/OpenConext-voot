@@ -15,7 +15,7 @@ import java.util.Set;
 import static java.util.Collections.singleton;
 
 
-public class SchacHomeAwareUserAuthenticationConverter extends DefaultUserAuthenticationConverter {
+public class OidcSchacHomeAwareUserAuthenticationConverter extends DefaultUserAuthenticationConverter {
 
   private static final String SCHAC_HOME_KEY = "schac_home";
   private static final String CLIENT_ID = "client_id";

@@ -13,7 +13,6 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -42,7 +41,7 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
 
     this.restTemplate = new RestTemplate();
     accessTokenConverter = new DefaultAccessTokenConverter();
-    ((DefaultAccessTokenConverter) accessTokenConverter).setUserTokenConverter(new SchacHomeAwareUserAuthenticationConverter());
+    ((DefaultAccessTokenConverter) accessTokenConverter).setUserTokenConverter(new OidcSchacHomeAwareUserAuthenticationConverter());
 
   }
 
