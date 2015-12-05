@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = VootServiceApplication.class)
-@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oauth.checkToken.endpoint.url=http://localhost:12121/introspect"}, randomPort = true)
+@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oidc.checkToken.endpoint.url=http://localhost:12121/introspect"}, randomPort = true)
 public class VootApiIntegrationTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(VootApiIntegrationTest.class);
