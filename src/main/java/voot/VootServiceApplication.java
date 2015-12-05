@@ -17,12 +17,10 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
-import voot.oauth.CachedRemoteTokenServices;
-import voot.oauth.SchacHomeAwareUserAuthenticationConverter;
+import voot.oauth.*;
 import voot.provider.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.joining;
 
 @SpringBootApplication()
 public class VootServiceApplication {
@@ -90,34 +90,53 @@ public class VootServiceApplication {
     @Value("${vootservice.oauthResourceId}")
     private String resourceId;
 
-    @Value("${oauth.checkToken.endpoint.url}")
-    private String checkTokenEndpointUrl;
+    @Value("${authz.checkToken.endpoint.url}")
+    private String authzCheckTokenEndpointUrl;
 
-    @Value("${oauth.checkToken.clientId}")
-    private String checkTokenClientId;
+    @Value("${authz.checkToken.clientId}")
+    private String authzCheckTokenClientId;
 
-    @Value("${oauth.checkToken.secret}")
-    private String checkTokenSecret;
+    @Value("${authz.checkToken.secret}")
+    private String authzCheckTokenSecret;
+
+    @Value("${oidc.checkToken.endpoint.url}")
+    private String oidcCheckTokenEndpointUrl;
+
+    @Value("${oidc.checkToken.clientId}")
+    private String oidcCheckTokenClientId;
+
+    @Value("${oidc.checkToken.secret}")
+    private String oidcCheckTokenSecret;
 
     @Value("${vootservice.requiredScopes}")
     private String spaceDelimitedRequiredScopes;
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
-      resources.resourceId(resourceId).tokenServices(tokenServices()).tokenExtractor(tokenExtractor());
+      resources.resourceId(resourceId).tokenServices(resourceServerTokenServices()).tokenExtractor(tokenExtractor());
     }
 
-    private RemoteTokenServices tokenServices() {
-      final RemoteTokenServices remoteTokenServices = new CachedRemoteTokenServices(1000 * 60 * 5,1000 * 60 * 5);
-      remoteTokenServices.setCheckTokenEndpointUrl(checkTokenEndpointUrl);
-      remoteTokenServices.setClientId(checkTokenClientId);
-      remoteTokenServices.setClientSecret(checkTokenSecret);
+    private DecisionResourceServerTokenServices resourceServerTokenServices() {
+      CompositeDecisionResourceServerTokenServices tokenServices = new CompositeDecisionResourceServerTokenServices(
+        Arrays.asList(oidcResourceServerTokenServices(), authzResourceServerTokenServices())
+      );
+      return new CachedRemoteTokenServices(tokenServices, 1000 * 60 * 5, 1000 * 60 * 5);
+    }
+
+    private DecisionResourceServerTokenServices oidcResourceServerTokenServices() {
+      return new OidcRemoteTokenServices(oidcCheckTokenEndpointUrl, oidcCheckTokenClientId, oidcCheckTokenSecret);
+    }
+
+    private DecisionResourceServerTokenServices authzResourceServerTokenServices() {
+      AuthzResourceServerTokenServices authzResourceServerTokenServices = new AuthzResourceServerTokenServices();
+      authzResourceServerTokenServices.setCheckTokenEndpointUrl(authzCheckTokenEndpointUrl);
+      authzResourceServerTokenServices.setClientId(authzCheckTokenClientId);
+      authzResourceServerTokenServices.setClientSecret(authzCheckTokenSecret);
 
       final DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
       accessTokenConverter.setUserTokenConverter(new SchacHomeAwareUserAuthenticationConverter());
-      remoteTokenServices.setAccessTokenConverter(accessTokenConverter);
-
-      return remoteTokenServices;
+      authzResourceServerTokenServices.setAccessTokenConverter(accessTokenConverter);
+      return authzResourceServerTokenServices;
     }
 
     /*
@@ -138,7 +157,7 @@ public class VootServiceApplication {
 
       final String hasScopeArgs = requiredScopes.stream().
         map(str -> "'" + str + "'").
-        collect(Collectors.joining(","));
+        collect(joining(","));
       LOG.debug("Will require the following approved scopes when handling requests: {}", hasScopeArgs);
       http.
         sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).

@@ -1,9 +1,6 @@
 package voot;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.Assert.assertTrue;
-
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Rule;
@@ -15,24 +12,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.StreamUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = VootServiceApplication.class)
-@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oauth.checkToken.endpoint.url=http://localhost:12121/oauth/check_token"}, randomPort = true)
+@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oidc.checkToken.endpoint.url=http://localhost:12121/introspect"}, randomPort = true)
 public class VootApiIntegrationTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(VootApiIntegrationTest.class);
@@ -42,16 +36,16 @@ public class VootApiIntegrationTest {
   public static final Integer MOCK_AUTHORIZATION_SERVER_PORT = 12121;
   public static final Integer MOCK_VOOT_PROVIDER_PORT = 23232;
   private static final String TOKEN_VALUE = "TOKEN_VALUE";
-  private static final String CLIENT_ID = "test_client_id";
   private static final String SCHAC_HOME = "surfteams.nl";
   private static final String LOCAL_UID = "admin";
-  private static final String UID = "urn:collab:person:" + SCHAC_HOME + ":" + LOCAL_UID;
+
+  private TestRestTemplate client = new TestRestTemplate();
 
   @Rule
-  public WireMockRule authorizationServerMock = new WireMockRule(wireMockConfig().port(MOCK_AUTHORIZATION_SERVER_PORT));
+  public WireMockRule authorizationServerMock = new WireMockRule(MOCK_AUTHORIZATION_SERVER_PORT);
 
   @Rule
-  public WireMockRule vootProviderMock = new WireMockRule(wireMockConfig().port(MOCK_VOOT_PROVIDER_PORT));
+  public WireMockRule vootProviderMock = new WireMockRule(MOCK_VOOT_PROVIDER_PORT);
 
   @Value("${local.server.port}")
   int port;
@@ -60,22 +54,9 @@ public class VootApiIntegrationTest {
 
   @Before
   public void before() throws Exception {
-    client = new TestRestTemplate();
-
-    final ImmutableList<String> scopes = ImmutableList.of("read", "groups");
-    final ImmutableMap<Object, Object> checkTokenAttrs = ImmutableMap.builder().
-      put("authenticatingAuthority", "my-university").
-      put("user_name", UID).
-      put("scope", scopes).
-      put("schacHomeOrganization", SCHAC_HOME).
-      put("exp", 3600).
-      put("authorities", ImmutableList.of("ROLE_USER")).
-      put("goo", "noo").
-      put("client_id", CLIENT_ID).build();
-
-    final String json = new ObjectMapper().writeValueAsString(checkTokenAttrs);
-
-    authorizationServerMock.stubFor(post(urlMatching("/oauth/check_token")).willReturn(
+    InputStream inputStream = new ClassPathResource("json/oidc/introspect.success.json").getInputStream();
+    String json = StreamUtils.copyToString(inputStream, Charset.forName("UTF-8"));
+    authorizationServerMock.stubFor(get(urlPathEqualTo("/introspect")).willReturn(
       aResponse().
         withStatus(200).
         withHeader("Content-type", "application/json").
@@ -88,26 +69,26 @@ public class VootApiIntegrationTest {
 
   }
 
-  private TestRestTemplate client;
-
   @Test
   public void testSingleMembershipPositiveResult() {
     final String localGroupUrn = "nl:surfnet:diensten:apachecon";
     final String groupUrn = "urn:collab:group:" + SCHAC_HOME + ":" + localGroupUrn;
     final String url = "http://localhost:" + port + String.format(SPECIFIC_MEMBERSHIP_URL_TEMPLATE, groupUrn);
-    // stub a response from the voot-provider that should be queried by the voot-implementation we are testing
 
+    // stub a response from the voot-provider that should be queried by the voot-implementation we are testing
     final String stubUrl = String.format(MEMBERSHIP_URL_TEMPLATE, LOCAL_UID, localGroupUrn);
+
+    // this is defined in the testExternalProviders.yml
     final String responseJson = "{\"foo\": \"bar\"}";
     LOG.debug("Stubbing response from a vootprovider at URL: {}", stubUrl);
     vootProviderMock.stubFor(get(urlMatching(stubUrl))
       //ensure the PreemptiveAuthenticationHttpComponentsClientHttpRequestFactory prevents an unnecessary call
       .withHeader("Authorization", equalTo("Basic " + Base64.encodeBase64String("foo:bar".getBytes())))
       .willReturn(aResponse()
-          .withStatus(200)
-          .withHeader("Content-type", "application/json")
+        .withStatus(200)
+        .withHeader("Content-type", "application/json")
         .withBody(responseJson)
-    ));
+      ));
     final ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(oauthHeaders), String.class);
     assertTrue("status must be 200 OK", HttpStatus.OK.equals(entity.getStatusCode()));
   }
