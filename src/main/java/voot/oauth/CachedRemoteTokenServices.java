@@ -3,6 +3,7 @@ package voot.oauth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.util.Assert;
@@ -13,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 
-public class CachedRemoteTokenServices extends OidcRemoteTokenServices {
+public class CachedRemoteTokenServices implements DecisionResourceServerTokenServices {
 
   private static final Logger LOG = LoggerFactory.getLogger(CachedRemoteTokenServices.class);
 
@@ -21,12 +22,14 @@ public class CachedRemoteTokenServices extends OidcRemoteTokenServices {
 
   private final long duration;
 
-  public CachedRemoteTokenServices(String checkTokenEndpointUrl, String clientId, String clientSecret, long durationMilliseconds, long expiryIntervalCheckMilliseconds) {
-    super(checkTokenEndpointUrl, clientId, clientSecret);
+  private final DecisionResourceServerTokenServices tokenServices;
+
+  public CachedRemoteTokenServices(DecisionResourceServerTokenServices tokenServices, long durationMilliseconds, long expiryIntervalCheckMilliseconds) {
+    this.tokenServices = tokenServices;
     Assert.isTrue(durationMilliseconds > 0 && durationMilliseconds < 1000 * 60 * 61);
     Assert.isTrue(expiryIntervalCheckMilliseconds > 0 && expiryIntervalCheckMilliseconds < 1000 * 60 * 61);
     this.duration = durationMilliseconds;
-    newScheduledThreadPool(1).scheduleAtFixedRate(() -> clearExpiredAuthentications(), 0, expiryIntervalCheckMilliseconds, TimeUnit.MILLISECONDS);
+    newScheduledThreadPool(1).scheduleAtFixedRate(this::clearExpiredAuthentications, 0, expiryIntervalCheckMilliseconds, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -37,7 +40,7 @@ public class CachedRemoteTokenServices extends OidcRemoteTokenServices {
       LOG.debug("Returning OAuth2Authentication from cache {}", cachedAuthentication.authentication);
       return cachedAuthentication.authentication;
     }
-    OAuth2Authentication oAuth2Authentication = super.loadAuthentication(accessToken);
+    OAuth2Authentication oAuth2Authentication = tokenServices.loadAuthentication(accessToken);
     //will not happen, but just to ensure this does not cause memory problems
     int size = authentications.size();
     if (size < 10000) {
@@ -45,6 +48,11 @@ public class CachedRemoteTokenServices extends OidcRemoteTokenServices {
       authentications.put(accessToken, new CachedOAuth2Authentication(now, oAuth2Authentication));
     }
     return oAuth2Authentication;
+  }
+
+  @Override
+  public OAuth2AccessToken readAccessToken(String accessToken) {
+    return tokenServices.readAccessToken(accessToken);
   }
 
   private void clearExpiredAuthentications() {
@@ -55,6 +63,11 @@ public class CachedRemoteTokenServices extends OidcRemoteTokenServices {
         authentications.remove(accessToken);
       }
     });
+  }
+
+  @Override
+  public boolean canHandle(String accessToken) {
+    return tokenServices.canHandle(accessToken);
   }
 
   private class CachedOAuth2Authentication {

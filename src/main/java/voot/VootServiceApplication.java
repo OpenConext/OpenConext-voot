@@ -16,11 +16,12 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
-import voot.oauth.OidcRemoteTokenServices;
+import voot.oauth.*;
 import voot.provider.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -90,14 +91,23 @@ public class VootServiceApplication {
     @Value("${vootservice.oauthResourceId}")
     private String resourceId;
 
-    @Value("${oauth.checkToken.endpoint.url}")
-    private String checkTokenEndpointUrl;
+    @Value("${authz.checkToken.endpoint.url}")
+    private String authzCheckTokenEndpointUrl;
 
-    @Value("${oauth.checkToken.clientId}")
-    private String checkTokenClientId;
+    @Value("${authz.checkToken.clientId}")
+    private String authzCheckTokenClientId;
 
-    @Value("${oauth.checkToken.secret}")
-    private String checkTokenSecret;
+    @Value("${authz.checkToken.secret}")
+    private String authzCheckTokenSecret;
+
+    @Value("${oidc.checkToken.endpoint.url}")
+    private String oidcCheckTokenEndpointUrl;
+
+    @Value("${oidc.checkToken.clientId}")
+    private String oidcCheckTokenClientId;
+
+    @Value("${oidc.checkToken.secret}")
+    private String oidcCheckTokenSecret;
 
     @Value("${vootservice.requiredScopes}")
     private String spaceDelimitedRequiredScopes;
@@ -107,9 +117,27 @@ public class VootServiceApplication {
       resources.resourceId(resourceId).tokenServices(resourceServerTokenServices()).tokenExtractor(tokenExtractor());
     }
 
-    private ResourceServerTokenServices resourceServerTokenServices() {
-      OidcRemoteTokenServices remoteTokenServices = new OidcRemoteTokenServices(checkTokenEndpointUrl, checkTokenClientId, checkTokenSecret);
-      return remoteTokenServices;
+    private DecisionResourceServerTokenServices resourceServerTokenServices() {
+      CompositeDecisionResourceServerTokenServices tokenServices = new CompositeDecisionResourceServerTokenServices(
+        Arrays.asList(oidcResourceServerTokenServices(), authzResourceServerTokenServices())
+      );
+      return new CachedRemoteTokenServices(tokenServices,1000 * 60 * 5,1000 * 60 * 5);
+    }
+
+    private DecisionResourceServerTokenServices oidcResourceServerTokenServices() {
+      return new OidcRemoteTokenServices(oidcCheckTokenEndpointUrl, oidcCheckTokenClientId, oidcCheckTokenSecret);
+    }
+
+    private DecisionResourceServerTokenServices authzResourceServerTokenServices() {
+      AuthzResourceServerTokenServices authzResourceServerTokenServices = new AuthzResourceServerTokenServices();
+      authzResourceServerTokenServices.setCheckTokenEndpointUrl(authzCheckTokenEndpointUrl);
+      authzResourceServerTokenServices.setClientId(authzCheckTokenClientId);
+      authzResourceServerTokenServices.setClientSecret(authzCheckTokenSecret);
+
+      final DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
+      accessTokenConverter.setUserTokenConverter(new SchacHomeAwareUserAuthenticationConverter());
+      authzResourceServerTokenServices.setAccessTokenConverter(accessTokenConverter);
+      return authzResourceServerTokenServices;
     }
 
     /*

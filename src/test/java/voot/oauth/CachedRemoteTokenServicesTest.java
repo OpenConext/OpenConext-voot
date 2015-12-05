@@ -24,9 +24,11 @@ public class CachedRemoteTokenServicesTest {
 
   @Test
   public void testLoadAuthentication() throws Exception {
-    CachedRemoteTokenServices remoteTokenServices = new CachedRemoteTokenServices("http://dummy", "clientId", "secret", 200, 150);
+    OidcRemoteTokenServices tokenServices = new OidcRemoteTokenServices("http://dummy", "clientId", "secret");
     RestTemplate restTemplate = mock(RestTemplate.class);
-    remoteTokenServices.setRestTemplate(restTemplate);
+    tokenServices.setRestTemplate(restTemplate);
+
+    CachedRemoteTokenServices remoteTokenServices = new CachedRemoteTokenServices(tokenServices, 200, 150);
 
     InputStream inputStream = new ClassPathResource("json/oidc/introspect.success.json").getInputStream();
 
