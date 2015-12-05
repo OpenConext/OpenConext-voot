@@ -17,7 +17,6 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -121,7 +120,7 @@ public class VootServiceApplication {
       CompositeDecisionResourceServerTokenServices tokenServices = new CompositeDecisionResourceServerTokenServices(
         Arrays.asList(oidcResourceServerTokenServices(), authzResourceServerTokenServices())
       );
-      return new CachedRemoteTokenServices(tokenServices,1000 * 60 * 5,1000 * 60 * 5);
+      return new CachedRemoteTokenServices(tokenServices, 1000 * 60 * 5, 1000 * 60 * 5);
     }
 
     private DecisionResourceServerTokenServices oidcResourceServerTokenServices() {
