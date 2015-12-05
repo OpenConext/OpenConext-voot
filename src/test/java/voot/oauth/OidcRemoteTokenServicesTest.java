@@ -9,20 +9,21 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class OidcRemoteTokenServicesTest {
 
-  private ResourceServerTokenServices subject = new OidcRemoteTokenServices("http://localhost:8889/introspect", "clientId", "secret");
+  private DecisionResourceServerTokenServices subject = new OidcRemoteTokenServices("http://localhost:8889/introspect", "clientId", "secret");
 
   private String unspecifiedNameId = "urn:collab:person:example.com:admin";
   private String clientId = "https@//oidc.localhost.surfconext.nl";
@@ -59,6 +60,13 @@ public class OidcRemoteTokenServicesTest {
   @Test(expected = InvalidTokenException.class)
   public void testLoadAuthenticationError() throws Exception {
     introspect("json/oidc/introspect.error.json");
+  }
+
+  @Test
+  public void testCanHandle() {
+    for (int i = 0; i < 100; i++) {
+      assertFalse(subject.canHandle(UUID.randomUUID().toString()));
+    }
   }
 
   private void assertAuthentication(OAuth2Authentication oAuth2Authentication, Authentication authentication) {

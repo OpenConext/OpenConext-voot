@@ -23,7 +23,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
 
-public class OidcRemoteTokenServices implements ResourceServerTokenServices {
+public class OidcRemoteTokenServices implements DecisionResourceServerTokenServices {
 
   private static Logger LOG = LoggerFactory.getLogger(OidcRemoteTokenServices.class);
 
@@ -93,4 +93,9 @@ public class OidcRemoteTokenServices implements ResourceServerTokenServices {
     return headers;
   }
 
+  @Override
+  public boolean canHandle(String accessToken) {
+    //we don't do UUIDs
+    return !uuidPattern.matcher(accessToken).matches();
+  }
 }
