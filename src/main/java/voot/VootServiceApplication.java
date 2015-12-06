@@ -111,6 +111,12 @@ public class VootServiceApplication {
     @Value("${vootservice.requiredScopes}")
     private String spaceDelimitedRequiredScopes;
 
+    @Value("${checkToken.cache}")
+    private boolean checkTokenCache;
+
+    @Value("${checkToken.cache.duration.milliSeconds}")
+    private int checkTokenCacheDurationMilliseconds;
+
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
       resources.resourceId(resourceId).tokenServices(resourceServerTokenServices()).tokenExtractor(tokenExtractor());
@@ -120,7 +126,9 @@ public class VootServiceApplication {
       CompositeDecisionResourceServerTokenServices tokenServices = new CompositeDecisionResourceServerTokenServices(
         Arrays.asList(oidcResourceServerTokenServices(), authzResourceServerTokenServices())
       );
-      return new CachedRemoteTokenServices(tokenServices, 1000 * 60 * 5, 1000 * 60 * 5);
+      return checkTokenCache ?
+        new CachedRemoteTokenServices(tokenServices, checkTokenCacheDurationMilliseconds, checkTokenCacheDurationMilliseconds) :
+        tokenServices;
     }
 
     private DecisionResourceServerTokenServices oidcResourceServerTokenServices() {

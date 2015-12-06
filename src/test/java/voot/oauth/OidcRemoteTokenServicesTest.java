@@ -20,6 +20,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class OidcRemoteTokenServicesTest {
 
@@ -70,6 +71,8 @@ public class OidcRemoteTokenServicesTest {
   }
 
   private void assertAuthentication(OAuth2Authentication oAuth2Authentication, Authentication authentication) {
+    assertTrue(oAuth2Authentication.isAuthenticated());
+
     Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
     assertEquals(1, authorities.size());
     assertEquals("ROLE_USER", authorities.iterator().next().getAuthority());

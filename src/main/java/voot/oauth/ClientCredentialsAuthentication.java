@@ -15,6 +15,7 @@ public class ClientCredentialsAuthentication extends AbstractAuthenticationToken
   public ClientCredentialsAuthentication(String clientId, Collection<? extends GrantedAuthority> authorities) {
     super(authorities);
     this.clientId = clientId;
+    super.setAuthenticated(true); // must use super, as we override
   }
 
   @Override

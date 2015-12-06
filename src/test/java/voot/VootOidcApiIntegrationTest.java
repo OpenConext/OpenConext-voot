@@ -1,5 +1,6 @@
 package voot;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
@@ -28,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = VootServiceApplication.class)
-@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oidc.checkToken.endpoint.url=http://localhost:12121/introspect"}, randomPort = true)
+@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oidc.checkToken.endpoint.url=http://localhost:12121/introspect", "checkToken.cache=false"}, randomPort = true)
 public class VootOidcApiIntegrationTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(VootOidcApiIntegrationTest.class);
@@ -60,7 +61,7 @@ public class VootOidcApiIntegrationTest {
     oauthHeaders.add("Accept", MediaType.APPLICATION_JSON_VALUE);
     oauthHeaders.add("Authorization", "Bearer " + getAccessToken());
 
-    stubOAuthCheckToken();
+    stubOAuthCheckTokenUser();
 
   }
 
@@ -68,8 +69,16 @@ public class VootOidcApiIntegrationTest {
     return "TOKEN_VALUE";
   }
 
-  protected void stubOAuthCheckToken() throws IOException {
-    InputStream inputStream = new ClassPathResource("json/oidc/introspect.success.json").getInputStream();
+  protected void stubOAuthCheckTokenUser() throws IOException {
+    doStubOAuthCheckToken("json/oidc/introspect.success.json");
+  }
+
+  protected void stubOAuthCheckTokenClientCredentials() throws IOException {
+    doStubOAuthCheckToken("json/oidc/introspect.client_credentials.json");
+  }
+
+  private void doStubOAuthCheckToken(String path) throws IOException {
+    InputStream inputStream = new ClassPathResource(path).getInputStream();
     String json = StreamUtils.copyToString(inputStream, Charset.forName("UTF-8"));
     authorizationServerMock.stubFor(get(urlPathEqualTo("/introspect")).willReturn(
       aResponse().
@@ -81,15 +90,19 @@ public class VootOidcApiIntegrationTest {
 
   @Test
   public void testSingleMembershipPositiveResult() {
-    final String localGroupUrn = "nl:surfnet:diensten:apachecon";
-    final String groupUrn = "urn:collab:group:" + SCHAC_HOME + ":" + localGroupUrn;
-    final String url = "http://localhost:" + port + String.format(SPECIFIC_MEMBERSHIP_URL_TEMPLATE, groupUrn);
+    String localGroupUrn = "nl:surfnet:diensten:apachecon";
+    String groupUrn = "urn:collab:group:" + SCHAC_HOME + ":" + localGroupUrn;
+    String url = "http://localhost:" + port + String.format(SPECIFIC_MEMBERSHIP_URL_TEMPLATE, groupUrn);
 
     // stub a response from the voot-provider that should be queried by the voot-implementation we are testing
-    final String stubUrl = String.format(MEMBERSHIP_URL_TEMPLATE, LOCAL_UID, localGroupUrn);
+    String stubUrl = String.format(MEMBERSHIP_URL_TEMPLATE, LOCAL_UID, localGroupUrn);
 
+    doExchange(url, stubUrl);
+  }
+
+  protected void doExchange(String url, String stubUrl) {
     // this is defined in the testExternalProviders.yml
-    final String responseJson = "{\"foo\": \"bar\"}";
+    String responseJson = "{\"foo\": \"bar\"}";
     LOG.debug("Stubbing response from a vootprovider at URL: {}", stubUrl);
     vootProviderMock.stubFor(get(urlMatching(stubUrl))
       //ensure the PreemptiveAuthenticationHttpComponentsClientHttpRequestFactory prevents an unnecessary call
@@ -104,10 +117,24 @@ public class VootOidcApiIntegrationTest {
   }
 
   @Test
+  public void testWithClientCredentials() throws IOException {
+    //override the stub for and see if we can do a call with ClientCredentials access token
+    stubOAuthCheckTokenClientCredentials();
+
+    String personUrn = "urn:collab:person:" + SCHAC_HOME + ":" + LOCAL_UID;
+    String url = "http://localhost:" + port + String.format("/internal/groups/%s", personUrn);
+
+    // stub a response from the voot-provider that should be queried by the voot-implementation we are testing
+    String stubUrl = "/user/"+LOCAL_UID+"/groups";
+
+    doExchange(url, stubUrl);
+  }
+
+  @Test
   public void testSingleMembershipIllegalGroupUrn() {
-    final String illegalGroupUrn = "foo";
-    final String url = "http://localhost:" + port + String.format(SPECIFIC_MEMBERSHIP_URL_TEMPLATE, illegalGroupUrn);
-    final ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(oauthHeaders), String.class);
+     String illegalGroupUrn = "foo";
+     String url = "http://localhost:" + port + String.format(SPECIFIC_MEMBERSHIP_URL_TEMPLATE, illegalGroupUrn);
+     ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(oauthHeaders), String.class);
     // status must be 400 and error message meaningful
 
     assertTrue("status must be 400", HttpStatus.BAD_REQUEST.equals(entity.getStatusCode()));
