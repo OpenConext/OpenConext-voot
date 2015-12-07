@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
@@ -20,7 +21,10 @@ import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConv
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
+import voot.authz.AuthzResourceServerTokenServices;
+import voot.authz.AuthzSchacHomeAwareUserAuthenticationConverter;
 import voot.oauth.*;
+import voot.oidc.OidcRemoteTokenServices;
 import voot.provider.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -83,6 +87,7 @@ public class VootServiceApplication {
 
   @Configuration
   @EnableResourceServer
+  @EnableWebSecurity
   protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResourceServerConfiguration.class);
@@ -167,11 +172,15 @@ public class VootServiceApplication {
         map(str -> "'" + str + "'").
         collect(joining(","));
       LOG.debug("Will require the following approved scopes when handling requests: {}", hasScopeArgs);
+
       http.
         sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).
         and().
         authorizeRequests().
-        antMatchers("/me/**", "groups/**", "internal/**").access("#oauth2.hasScope(" + hasScopeArgs + ")");
+        antMatchers("/me/**", "groups/**", "internal/**").access("#oauth2.hasScope(" + hasScopeArgs + ")").
+        antMatchers("/public/**","/health/**","/info/**").permitAll().
+        antMatchers("/**").hasRole("USER");
+
     }
 
   }

@@ -1,4 +1,4 @@
-package voot.oauth;
+package voot.oidc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import voot.oauth.DecisionResourceServerTokenServices;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;

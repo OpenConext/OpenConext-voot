@@ -1,4 +1,4 @@
-package voot.oauth;
+package voot.oidc;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -6,6 +6,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
 import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
+import voot.oauth.ClientCredentialsAuthentication;
+import voot.oauth.SchacHomeAuthentication;
 
 import java.util.Collections;
 import java.util.List;

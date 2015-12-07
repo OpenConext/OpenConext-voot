@@ -1,8 +1,10 @@
-package voot.oauth;
+package voot.authz;
 
 import org.junit.Test;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
+import voot.authz.AuthzSchacHomeAwareUserAuthenticationConverter;
+import voot.oauth.AbstractRemoteTokenServicesTest;
+import voot.oauth.DecisionResourceServerTokenServices;
 
 import java.util.UUID;
 
@@ -10,7 +12,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.util.stream.IntStream.range;
 import static org.junit.Assert.*;
 
-public class AuthzResourceServerTokenServicesTest extends AbstractRemoteTokenServicesTest{
+public class AuthzResourceServerTokenServicesTest extends AbstractRemoteTokenServicesTest {
 
   @Override
   protected DecisionResourceServerTokenServices getRemoteTokenServices() {

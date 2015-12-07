@@ -1,7 +1,12 @@
 package voot;
 
+import org.junit.Test;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
@@ -10,6 +15,7 @@ import java.nio.charset.Charset;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.Assert.assertTrue;
 
 @WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "authz.checkToken.endpoint.url=http://localhost:12121/oauth/check_token", "checkToken.cache=false"}, randomPort = true)
 public class VootAuthzApiIntegrationTest extends VootOidcApiIntegrationTest {
@@ -26,7 +32,12 @@ public class VootAuthzApiIntegrationTest extends VootOidcApiIntegrationTest {
     doStubOAuthCheckToken("json/authz/check_token.client_credentials.json");
   }
 
-  private void doStubOAuthCheckToken(String path) throws IOException {
+  @Override
+  protected void stubOAuthCheckTokenMissingScope() throws IOException {
+    doStubOAuthCheckToken("json/authz/check_token.missing_scope.json");
+  }
+
+  protected void doStubOAuthCheckToken(String path) throws IOException {
     InputStream inputStream = new ClassPathResource(path).getInputStream();
     String json = StreamUtils.copyToString(inputStream, Charset.forName("UTF-8"));
     authorizationServerMock.stubFor(post(urlMatching("/oauth/check_token")).willReturn(

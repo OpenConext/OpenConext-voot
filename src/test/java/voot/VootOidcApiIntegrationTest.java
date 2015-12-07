@@ -33,16 +33,16 @@ import static org.junit.Assert.assertTrue;
 public class VootOidcApiIntegrationTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(VootOidcApiIntegrationTest.class);
+  private static final Integer MOCK_AUTHORIZATION_SERVER_PORT = 12121;
+  private static final Integer MOCK_VOOT_PROVIDER_PORT = 23232;
 
-  private static final String SPECIFIC_MEMBERSHIP_URL_TEMPLATE = "/me/groups/%s";
-  private static final String MEMBERSHIP_URL_TEMPLATE = "/user/%s/groups/%s";
-  public static final Integer MOCK_AUTHORIZATION_SERVER_PORT = 12121;
-  public static final Integer MOCK_VOOT_PROVIDER_PORT = 23232;
+  protected static final String SPECIFIC_MEMBERSHIP_URL_TEMPLATE = "/me/groups/%s";
+  protected static final String MEMBERSHIP_URL_TEMPLATE = "/user/%s/groups/%s";
 
-  private static final String SCHAC_HOME = "surfteams.nl";
-  private static final String LOCAL_UID = "admin";
+  protected static final String SCHAC_HOME = "surfteams.nl";
+  protected static final String LOCAL_UID = "admin";
 
-  private TestRestTemplate client = new TestRestTemplate();
+  protected TestRestTemplate client = new TestRestTemplate();
 
   @Rule
   public WireMockRule authorizationServerMock = new WireMockRule(MOCK_AUTHORIZATION_SERVER_PORT);
@@ -52,7 +52,8 @@ public class VootOidcApiIntegrationTest {
 
   @Value("${local.server.port}")
   int port;
-  private HttpHeaders oauthHeaders;
+
+  protected HttpHeaders oauthHeaders;
 
 
   @Before
@@ -75,6 +76,10 @@ public class VootOidcApiIntegrationTest {
 
   protected void stubOAuthCheckTokenClientCredentials() throws IOException {
     doStubOAuthCheckToken("json/oidc/introspect.client_credentials.json");
+  }
+
+  protected void stubOAuthCheckTokenMissingScope() throws IOException {
+    doStubOAuthCheckToken("json/oidc/introspect.missing_scope.json");
   }
 
   private void doStubOAuthCheckToken(String path) throws IOException {
@@ -141,6 +146,30 @@ public class VootOidcApiIntegrationTest {
     assertTrue("meaningful error message required", entity.getBody().contains("error"));
     assertTrue("not a valid", entity.getBody().contains(illegalGroupUrn));
     assertTrue("must report back the offending value", entity.getBody().contains(illegalGroupUrn));
+  }
+
+  @Test
+  public void testMissingScope() throws IOException {
+    stubOAuthCheckTokenMissingScope();
+
+    String url = "http://localhost:" + port + "/me/groups";
+    ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(oauthHeaders), String.class);
+
+    assertTrue(HttpStatus.FORBIDDEN.equals(entity.getStatusCode()));
+    assertTrue(entity.getBody().contains("Insufficient scope for this resource"));
+  }
+
+  @Test
+  public void testUnauthorizedAccess() throws IOException {
+    String url = "http://localhost:" + port + "/me/groups";
+
+    HttpHeaders plainHeaders = new HttpHeaders();
+    plainHeaders.add("Accept", MediaType.APPLICATION_JSON_VALUE);
+
+    ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(plainHeaders), String.class);
+
+    assertTrue(HttpStatus.UNAUTHORIZED.equals(entity.getStatusCode()));
+    assertTrue(entity.getBody().contains("Full authentication is required to access this resource"));
   }
 
 }

@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import voot.oauth.SchacHomeAuthentication;
 import voot.valueobject.Group;
 import voot.valueobject.Membership;
+import voot.web.VootController;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VootControllerTest {

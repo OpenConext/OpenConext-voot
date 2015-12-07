@@ -1,6 +1,7 @@
-package voot.oauth;
+package voot.authz;
 
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+import voot.oauth.DecisionResourceServerTokenServices;
 
 public class AuthzResourceServerTokenServices extends RemoteTokenServices implements DecisionResourceServerTokenServices {
 

@@ -1,7 +1,9 @@
-package voot.oauth;
+package voot.oidc;
 
 import org.junit.Test;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
+import voot.oauth.AbstractRemoteTokenServicesTest;
+import voot.oauth.DecisionResourceServerTokenServices;
 
 import java.util.UUID;
 
