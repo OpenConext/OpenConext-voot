@@ -16,15 +16,9 @@ public class AuthzResourceServerTokenServicesTest extends AbstractRemoteTokenSer
 
   @Override
   protected DecisionResourceServerTokenServices getRemoteTokenServices() {
-    AuthzResourceServerTokenServices tokenServices = new AuthzResourceServerTokenServices();
-    tokenServices.setCheckTokenEndpointUrl("http://localhost:" + PORT + "/check_token");
-    tokenServices.setClientId("clientId");
-    tokenServices.setClientSecret("secret");
-
     final DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
     accessTokenConverter.setUserTokenConverter(new AuthzSchacHomeAwareUserAuthenticationConverter());
-    tokenServices.setAccessTokenConverter(accessTokenConverter);
-    return tokenServices;
+    return new AuthzResourceServerTokenServices("clientId","secret","http://localhost:" + PORT + "/check_token", accessTokenConverter);
   }
 
   @Override

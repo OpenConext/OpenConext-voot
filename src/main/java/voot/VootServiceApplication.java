@@ -1,7 +1,5 @@
 package voot;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -23,7 +21,9 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import voot.authz.AuthzResourceServerTokenServices;
 import voot.authz.AuthzSchacHomeAwareUserAuthenticationConverter;
-import voot.oauth.*;
+import voot.oauth.CachedRemoteTokenServices;
+import voot.oauth.CompositeDecisionResourceServerTokenServices;
+import voot.oauth.DecisionResourceServerTokenServices;
 import voot.oidc.OidcRemoteTokenServices;
 import voot.provider.*;
 
@@ -33,8 +33,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.joining;
 
 @SpringBootApplication()
 public class VootServiceApplication {
@@ -90,8 +88,6 @@ public class VootServiceApplication {
   @EnableWebSecurity
   protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ResourceServerConfiguration.class);
-
     @Value("${authz.checkToken.endpoint.url}")
     private String authzCheckTokenEndpointUrl;
 
@@ -135,15 +131,9 @@ public class VootServiceApplication {
     }
 
     private DecisionResourceServerTokenServices authzResourceServerTokenServices() {
-      AuthzResourceServerTokenServices authzResourceServerTokenServices = new AuthzResourceServerTokenServices();
-      authzResourceServerTokenServices.setCheckTokenEndpointUrl(authzCheckTokenEndpointUrl);
-      authzResourceServerTokenServices.setClientId(authzCheckTokenClientId);
-      authzResourceServerTokenServices.setClientSecret(authzCheckTokenSecret);
-
       final DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
       accessTokenConverter.setUserTokenConverter(new AuthzSchacHomeAwareUserAuthenticationConverter());
-      authzResourceServerTokenServices.setAccessTokenConverter(accessTokenConverter);
-      return authzResourceServerTokenServices;
+      return new AuthzResourceServerTokenServices(authzCheckTokenClientId, authzCheckTokenSecret, authzCheckTokenEndpointUrl, accessTokenConverter);
     }
 
     /*
@@ -160,13 +150,13 @@ public class VootServiceApplication {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-      http.
-        sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).
-        and().
-        authorizeRequests().
-        antMatchers("/me/**", "groups/**", "internal/**").access("#oauth2.hasScope('groups')").
-        antMatchers("/public/**","/health/**","/info/**").permitAll().
-        antMatchers("/**").hasRole("USER");
+      http
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
+        .and()
+        .authorizeRequests()
+        .antMatchers("/me/**", "groups/**", "internal/**").access("#oauth2.hasScope('groups')")
+        .antMatchers("/public/**", "/health/**", "/info/**").permitAll()
+        .antMatchers("/**").hasRole("USER");
 
     }
 
