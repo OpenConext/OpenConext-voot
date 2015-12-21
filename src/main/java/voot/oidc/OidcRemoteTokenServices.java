@@ -47,6 +47,7 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public OAuth2Authentication loadAuthentication(String accessToken) throws AuthenticationException, InvalidTokenException {
     String introspectUri = UriComponentsBuilder.fromHttpUrl(checkTokenEndpointUrl)
       .queryParam("token", accessToken)

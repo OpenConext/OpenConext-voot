@@ -1,6 +1,5 @@
 package voot.provider;
 
-import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -55,7 +54,8 @@ public class GrouperSoapClient extends AbstractProvider {
 
   @Override
   public List<Group> getGroupMemberships(final String uid) {
-    Map<String, String> replacements = ImmutableMap.of("subjectId", uid);
+    Map<String, String> replacements = new HashMap<>();
+    replacements.put("subjectId", uid);
 
     try {
       LOG.debug("Querying getGroupMemberships for subjectId: {}", uid);
@@ -80,7 +80,10 @@ public class GrouperSoapClient extends AbstractProvider {
     if (!localGroupId.isPresent()) {
       throw new IllegalArgumentException("Unable to infer localgroupId from " + groupId);
     }
-    Map<String, String> replacements = ImmutableMap.of("subjectId", uid, "groupId", localGroupId.get());
+    Map<String, String> replacements = new HashMap<>();
+    replacements.put("subjectId", uid);
+    replacements.put("groupId", localGroupId.get());
+
     try {
       LOG.debug("Querying getGroupMembership API for subjectId: {}", uid);
       String soap = replaceTokens("soap/HasMemberLite.xml", replacements);

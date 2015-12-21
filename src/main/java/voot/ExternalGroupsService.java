@@ -1,7 +1,8 @@
 package voot;
 
-import com.google.common.base.Preconditions;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 import voot.provider.Provider;
 import voot.valueobject.Group;
 
@@ -14,9 +15,6 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ExternalGroupsService {
 
   private static final Logger LOG = LoggerFactory.getLogger(ExternalGroupsService.class);
@@ -26,7 +24,7 @@ public class ExternalGroupsService {
 
 
   public ExternalGroupsService(List<Provider> providers) {
-    Preconditions.checkArgument(providers.size() > 0, "No clients configured");
+    Assert.isTrue(providers.size() > 0, "No clients configured");
     this.providers = providers;
     this.forkJoinPool = new ForkJoinPool(providers.size() * 20); // we're I/O bound.
   }
@@ -50,7 +48,7 @@ public class ExternalGroupsService {
             return provider.getGroupMembership(uid, groupId);
           } catch (RuntimeException e) {
             LOG.warn("Provider {} threw exception: {} ", provider, e);
-            return Optional.<Group> empty();
+            return Optional.<Group>empty();
           }
         })
         .filter(Optional::isPresent)

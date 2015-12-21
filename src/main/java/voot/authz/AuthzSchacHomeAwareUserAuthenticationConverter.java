@@ -1,11 +1,10 @@
 package voot.authz;
 
-import com.google.common.base.Preconditions;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
 import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
+import org.springframework.util.Assert;
 import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;
 
@@ -30,10 +29,10 @@ public class AuthzSchacHomeAwareUserAuthenticationConverter extends DefaultUserA
      * Client credentials grant type does not contain an username
      */
     if (authentication == null) {
-      Preconditions.checkArgument(authenticationAttributes.containsKey(CLIENT_ID), "Authentication (%s) does not contain %s attribute", authenticationAttributes, CLIENT_ID);
-      return new ClientCredentialsAuthentication((String) authenticationAttributes.get(CLIENT_ID),DEFAULT_AUTHORITIES);
+      Assert.isTrue(authenticationAttributes.containsKey(CLIENT_ID), String.format("Authentication (%s) does not contain %s attribute", authenticationAttributes, CLIENT_ID));
+      return new ClientCredentialsAuthentication((String) authenticationAttributes.get(CLIENT_ID), DEFAULT_AUTHORITIES);
     } else {
-      Preconditions.checkArgument(authenticationAttributes.containsKey(SCHAC_HOME_KEY), "Authentication (%s) does not contain %s attribute", authenticationAttributes, SCHAC_HOME_KEY);
+      Assert.isTrue(authenticationAttributes.containsKey(SCHAC_HOME_KEY), String.format("Authentication (%s) does not contain %s attribute", authenticationAttributes, SCHAC_HOME_KEY));
       return new SchacHomeAuthentication((String) authenticationAttributes.get(SCHAC_HOME_KEY),
         authentication.getPrincipal(), authentication.getCredentials(), authentication.getAuthorities());
     }
