@@ -1,20 +1,24 @@
 package voot;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 
+import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;
 import voot.valueobject.Group;
 import voot.valueobject.Membership;
@@ -24,6 +28,8 @@ import voot.web.VootController;
 public class VootControllerTest {
 
   private static final String TOKEN_VALUE = "token_value";
+  private static final String GROUP_URN = "urn:collab:group:schachome:nl:surfnet:diensten:foo";
+
   @Mock
   private OAuth2Request authRequest;
 
@@ -58,23 +64,59 @@ public class VootControllerTest {
   @Test
   public void testEmptyMyGroupsResult() throws Exception {
     when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(Collections.emptyList());
-    final List<Group> groups = subject.myGroups(authentication);
+     List<Group> groups = subject.myGroups(authentication);
     assertTrue(groups.size() == 0);
   }
 
   @Test
   public void testSingleMembershipPositiveResult() {
-    final Group group = new Group("id", "foo", "bar", "source", new Membership("membership"));
+     Group group = group();
     when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(Collections.singletonList(group));
-    final List<Group> groups = subject.myGroups(authentication);
+     List<Group> groups = subject.myGroups(authentication);
     assertTrue(groups.size() > 0);
   }
 
   @Test(expected = VootController.MalformedGroupUrnException.class)
   public void testSingleMembershipIllegalGroupUrn() throws Exception {
-    final String nonFullyQualifiedGroupId = "nl:surfnet:diensten:foo";
+    String nonFullyQualifiedGroupId = "nl:surfnet:diensten:foo";
     subject.specificGroupMembership(nonFullyQualifiedGroupId, authentication);
   }
 
+  @Test(expected = VootController.MalformedPersonUrnException.class)
+  public void testInternalGroupsIllegalUserUrn() throws Exception {
+    setUpClientCredentials();
+    subject.internalGroups("wrong_user_id", authentication);
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void testAccessDeniedException() throws Exception {
+    subject.internalGroups("does_not_matter", authentication);
+  }
+
+  @Test
+  public void testInternalSpecificGroup() throws Exception {
+    setUpClientCredentials();
+    when(externalGroupsService.getMyGroupById(UID, GROUP_URN)).thenReturn(Optional.of(group()));
+
+    Group group = subject.internalSpecificGroup(UID, GROUP_URN, authentication);
+    assertEquals("id",group.id);
+  }
+
+  @Test
+  public void testExternalGroups() throws Exception {
+    setUpClientCredentials();
+    when(externalGroupsService.getMyExternalGroups("urn:collab:person:schac:admin", "schac")).thenReturn(Collections.singletonList(group()));
+
+    List<Group> groups = subject.externalGroups("urn:collab:person:schac:admin", authentication);
+    assertEquals(1,groups.size());
+  }
+
+  private Group group() {
+    return new Group("id", "foo", "bar", "source", new Membership("membership"));
+  }
+
+  private void setUpClientCredentials() {
+    when(authentication.getUserAuthentication()).thenReturn(new ClientCredentialsAuthentication("client_id", AuthorityUtils.createAuthorityList("groups")));
+  }
 
 }

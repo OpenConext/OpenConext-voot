@@ -1,6 +1,7 @@
 # Voot
 
 [![Build Status](https://travis-ci.org/OpenConext/OpenConext-voot.svg)](https://travis-ci.org/OpenConext/OpenConext-voot)
+[![codecov.io](https://codecov.io/github/OpenConext/OpenConext-voot/coverage.svg)](https://codecov.io/github/OpenConext/OpenConext-voot)
 
 This application acts as Oauth2 Resource Server which provides a HTTP+Json-based API where Oauth2 clients can query information about
 the 'groups' a user may belong to. Such clients may then use that information for their own internal authorization
