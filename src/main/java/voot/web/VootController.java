@@ -23,6 +23,7 @@ import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;
 import voot.util.UrnUtils;
 import voot.valueobject.Group;
+import voot.valueobject.Member;
 
 @RestController
 public class VootController {
@@ -126,6 +127,22 @@ public class VootController {
     LOG.debug("internal/external-groups/{} result: {}", userId, groups);
 
     return groups;
+  }
+
+  @RequestMapping(value = "/voot/members/{groupId:.+}")
+  public List<Member> members(@PathVariable String groupId, final OAuth2Authentication authentication) throws MalformedPersonUrnException {
+    String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
+    String clientId = authentication.getOAuth2Request().getClientId();
+
+    LOG.debug("voot/members/{}, accessToken: {}, clientId {}", groupId, accessToken, clientId);
+
+    assertClientCredentialsClient(authentication, clientId);
+
+    List<Member> members = externalGroupsService.getMembers(groupId);
+
+    LOG.debug("/voot/members/{} result: {}", groupId, members);
+
+    return members;
   }
 
   private void assertClientCredentialsClient(OAuth2Authentication authentication, String clientId) {

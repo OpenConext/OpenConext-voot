@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import voot.valueobject.Group;
+import voot.valueobject.Member;
 
 public interface Provider {
 
@@ -42,6 +43,21 @@ public interface Provider {
    * @return the Group membership info if the user is indeed a member of the group, the empty Optional otherwise.
    */
   Optional<Group> getGroupMembership(String uid, String groupId);
+
+  /**
+   * Get all members of a group
+   * @param groupId the fully qualified uid groupId
+   * @return all Members
+   */
+  List<Member> getMembers(String groupId);
+
+  /**
+   * Tells us if it is worthwhile calling this client when returning all members of a group
+   *
+   * @param groupId the fully qualified uid groupId
+   * @return true if this Provider can return memers for the specified group id
+   */
+  boolean shouldBeQueriedForMembers(String groupId);
 
   class Configuration {
 

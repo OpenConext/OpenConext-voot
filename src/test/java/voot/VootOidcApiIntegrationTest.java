@@ -130,16 +130,16 @@ public class VootOidcApiIntegrationTest {
     String url = "http://localhost:" + port + String.format("/internal/groups/%s", personUrn);
 
     // stub a response from the voot-provider that should be queried by the voot-implementation we are testing
-    String stubUrl = "/user/"+LOCAL_UID+"/groups";
+    String stubUrl = "/user/" + LOCAL_UID + "/groups";
 
     doExchange(url, stubUrl);
   }
 
   @Test
   public void testSingleMembershipIllegalGroupUrn() {
-     String illegalGroupUrn = "foo";
-     String url = "http://localhost:" + port + String.format(SPECIFIC_MEMBERSHIP_URL_TEMPLATE, illegalGroupUrn);
-     ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(oauthHeaders), String.class);
+    String illegalGroupUrn = "foo";
+    String url = "http://localhost:" + port + String.format(SPECIFIC_MEMBERSHIP_URL_TEMPLATE, illegalGroupUrn);
+    ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(oauthHeaders), String.class);
     // status must be 400 and error message meaningful
 
     assertTrue("status must be 400", HttpStatus.BAD_REQUEST.equals(entity.getStatusCode()));

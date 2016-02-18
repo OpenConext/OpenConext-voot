@@ -155,6 +155,7 @@ public class VootServiceApplication {
         .and()
         .authorizeRequests()
         .antMatchers("/me/**", "groups/**", "internal/**").access("#oauth2.hasScope('groups')")
+        .antMatchers("/voot/**").access("#oauth2.hasScope('members')")
         .antMatchers("/public/**", "/health/**", "/info/**").permitAll()
         .antMatchers("/**").hasRole("USER");
 

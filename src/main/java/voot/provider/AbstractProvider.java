@@ -65,6 +65,11 @@ public abstract class AbstractProvider implements Provider {
     return matcher.matches() && matcher.group(1).equals(configuration.schacHomeOrganization);
   }
 
+  @Override
+  public boolean shouldBeQueriedForMembers(String groupId) {
+    return !isExternalGroupProvider();
+  }
+
   protected <T> T parseJson(String json, Class<T> t) {
     try {
       return objectMapper.readValue(json, t);

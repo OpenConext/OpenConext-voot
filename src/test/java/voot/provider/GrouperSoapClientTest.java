@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 import voot.valueobject.Group;
+import voot.valueobject.Member;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -27,14 +29,14 @@ public class GrouperSoapClientTest {
   @Test
   @Ignore // only used for development purposes.
   public void testGetMembershipsFromVM() throws Exception {
-    final List<Group> memberships = getVMSubject().getGroupMemberships("urn:collab:person:example.com:admin");
+    List<Group> memberships = getVMSubject().getGroupMemberships("urn:collab:person:example.com:admin");
     assertTrue(memberships.size() == 2);
   }
 
   @Test
   public void testGrouperError() throws Exception {
     stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0")).withHeader("Content-Type", equalTo("text/xml")).willReturn(aResponse().withStatus(500)));
-    final List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
+    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
     assertTrue(memberships.isEmpty());
   }
 
@@ -53,7 +55,7 @@ public class GrouperSoapClientTest {
   @Test
   public void testGetMemberships() throws Exception {
     stubGrouperCall("soap/GetGroups_Success_Response.xml");
-    final List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
+    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
     assertTrue(memberships.size() == 2);
 
     Group group1 = memberships.get(0);
@@ -73,7 +75,7 @@ public class GrouperSoapClientTest {
   @Test
   public void testGetMembershipsEmptyResult() throws Exception {
     stubGrouperCall("soap/GetGroups_Empty_Response.xml");
-    final List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
+    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
     assertTrue(memberships.isEmpty());
   }
 
@@ -97,6 +99,32 @@ public class GrouperSoapClientTest {
 
     Optional<Group> optionalGroup = subject.getGroupMembership("urn:collab:person:example.com:admin", "urn:collab:group:surfnet.nl:some_group");
     assertFalse(optionalGroup.isPresent());
+  }
+
+  @Test
+  public void testGetMembers() throws Exception {
+    stubGrouperCall("soap/GetMembersLite_Success_Response.xml");
+    List<Member> members = subject.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon");
+    assertEquals(2, members.size());
+    Member bas = members.get(0);
+    assertEquals(bas, new Member("urn:collab:person:surfnet.nl:bas","Bas Zoetekouw","bas.zoetekouw@surfnet.nl"));
+
+    Member john = members.get(1);
+    assertEquals(john, new Member("urn:collab:person:example.com:admin","John Doe","j.doe@example.com"));
+  }
+
+  @Test
+  public void testGetMembersEmptyResult() throws Exception {
+    stubGrouperCall("soap/GetMembersLite_Empty_Response.xml");
+    List<Member> members = subject.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon");
+    assertTrue(members.isEmpty());
+  }
+
+  @Test
+  public void testMembersError() throws Exception {
+    stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0")).withHeader("Content-Type", equalTo("text/xml")).willReturn(aResponse().withStatus(500)));
+    List<Member> members = subject.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon");
+    assertTrue(members.isEmpty());
   }
 
   private void stubGrouperCall(String responseFile) throws IOException {

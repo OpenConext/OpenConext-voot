@@ -1,5 +1,6 @@
 package voot;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -21,6 +22,7 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;
 import voot.valueobject.Group;
+import voot.valueobject.Member;
 import voot.valueobject.Membership;
 import voot.web.VootController;
 
@@ -71,7 +73,7 @@ public class VootControllerTest {
   @Test
   public void testSingleMembershipPositiveResult() {
      Group group = group();
-    when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(Collections.singletonList(group));
+    when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(singletonList(group));
      List<Group> groups = subject.myGroups(authentication);
     assertTrue(groups.size() > 0);
   }
@@ -105,18 +107,32 @@ public class VootControllerTest {
   @Test
   public void testExternalGroups() throws Exception {
     setUpClientCredentials();
-    when(externalGroupsService.getMyExternalGroups("urn:collab:person:schac:admin", "schac")).thenReturn(Collections.singletonList(group()));
+    when(externalGroupsService.getMyExternalGroups("urn:collab:person:schac:admin", "schac")).thenReturn(singletonList(group()));
 
     List<Group> groups = subject.externalGroups("urn:collab:person:schac:admin", authentication);
     assertEquals(1,groups.size());
+  }
+
+  @Test
+  public void testMembers() throws Exception {
+    setUpClientCredentials("members");
+    when(externalGroupsService.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon")).thenReturn(singletonList(MockProvider.MEMBER));
+
+    List<Member> members = subject.members("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon", authentication);
+    assertEquals(1, members.size());
+    assertEquals(MockProvider.MEMBER, members.get(0));
   }
 
   private Group group() {
     return new Group("id", "foo", "bar", "source", new Membership("membership"));
   }
 
+  private void setUpClientCredentials(String scope) {
+    when(authentication.getUserAuthentication()).thenReturn(new ClientCredentialsAuthentication("client_id", AuthorityUtils.createAuthorityList(scope)));
+  }
+
   private void setUpClientCredentials() {
-    when(authentication.getUserAuthentication()).thenReturn(new ClientCredentialsAuthentication("client_id", AuthorityUtils.createAuthorityList("groups")));
+    setUpClientCredentials("groups");
   }
 
 }

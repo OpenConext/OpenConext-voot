@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 
 import voot.util.UrnUtils;
 import voot.valueobject.Group;
+import voot.valueobject.Member;
 import voot.valueobject.Membership;
 
 public class Voot2Provider extends AbstractProvider {
@@ -75,6 +76,11 @@ public class Voot2Provider extends AbstractProvider {
       LOG.error("Failed to invoke getGroupMemberships {} for {}, returning empty result.", response, configuration);
       return Optional.empty();
     }
+  }
+
+  @Override
+  public List<Member> getMembers(String groupId) {
+    throw new IllegalArgumentException("Voot2Providers do not support getting members");
   }
 
   @SuppressWarnings("unchecked")

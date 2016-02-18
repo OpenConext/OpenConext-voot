@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+  <soapenv:Body>
+    <ns:getMembersLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetMembersLiteResult">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
+          <ns:serverVersion>2.1.5</ns:serverVersion>
+        </ns:responseMetadata>
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true"/>
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:resultCode2 xsi:nil="true"/>
+          <ns:resultMessage>Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 1: [0]:
+            WsGroupLookup[pitGroups=[],groupName=nl:surfnet:diensten:managementvo]
+
+            , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null,
+            subjectAttributeNames: Array size: 1: [0]: mail
+
+            , paramNames:
+            , params: null
+            , sourceIds: null
+            , pointInTimeFrom: null, pointInTimeTo: null, pageSize: null, pageNumber: null, sortString: null, ascending:
+            null
+          </ns:resultMessage>
+          <ns:success>T</ns:success>
+        </ns:resultMetadata>
+        <ns:subjectAttributeNames>mail</ns:subjectAttributeNames>
+        <ns:wsGroup xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true"/>
+          <ns:detail xsi:nil="true"/>
+          <ns:displayExtension>managementvo</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:managementvo</ns:displayName>
+          <ns:extension>managementvo</ns:extension>
+          <ns:name>nl:surfnet:diensten:managementvo</ns:name>
+          <ns:uuid>8988a61beaaf41c8a34da6ec2c0cfe6e</ns:uuid>
+        </ns:wsGroup>
+        <ns:wsSubjects xsi:type="ns:WsSubject">
+          <ns:attributeValues>bas.zoetekouw@surfnet.nl</ns:attributeValues>
+          <ns:id>urn:collab:person:surfnet.nl:bas</ns:id>
+          <ns:identifierLookup xsi:nil="true"/>
+          <ns:name>Bas Zoetekouw</ns:name>
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:sourceId>openconext-ldap</ns:sourceId>
+          <ns:success>T</ns:success>
+        </ns:wsSubjects>
+        <ns:wsSubjects xsi:type="ns:WsSubject">
+          <ns:attributeValues>j.doe@example.com</ns:attributeValues>
+          <ns:id>urn:collab:person:example.com:admin</ns:id>
+          <ns:identifierLookup xsi:nil="true"/>
+          <ns:name>John Doe</ns:name>
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:sourceId>openconext-ldap</ns:sourceId>
+          <ns:success>T</ns:success>
+        </ns:wsSubjects>
+      </ns:return>
+    </ns:getMembersLiteResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

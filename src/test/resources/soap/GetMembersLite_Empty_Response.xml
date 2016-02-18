@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+  <soapenv:Body>
+    <ns:getMembersLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetMembersLiteResult">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true"/>
+          <ns:resultWarnings xsi:nil="true"/>
+          <ns:serverVersion>2.1.5</ns:serverVersion>
+        </ns:responseMetadata>
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true"/>
+          <ns:resultCode>GROUP_NOT_FOUND</ns:resultCode>
+          <ns:resultCode2 xsi:nil="true"/>
+          <ns:resultMessage>There were 0 successes and 1 failures of getting members for groups.Invalid group for
+            'wsGroupLookup', WsGroupLookup[pitGroups=[],groupName=nl:surfnet:Xdiensten:managementvo,
+            groupFindResult=GROUP_NOT_FOUND], WsGroupLookup[pitGroups=[],groupName=nl:surfnet:Xdiensten:managementvo,
+            groupFindResult=GROUP_NOT_FOUND], null
+          </ns:resultMessage>
+          <ns:success>F</ns:success>
+        </ns:resultMetadata>
+        <ns:subjectAttributeNames>mail</ns:subjectAttributeNames>
+        <ns:wsGroup xsi:nil="true"/>
+        <ns:wsSubjects xsi:nil="true"/>
+      </ns:return>
+    </ns:getMembersLiteResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

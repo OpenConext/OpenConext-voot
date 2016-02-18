@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import voot.provider.Provider;
 import voot.valueobject.Group;
+import voot.valueobject.Member;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,7 +13,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ExternalGroupsService {
@@ -30,13 +33,21 @@ public class ExternalGroupsService {
   }
 
   public List<Group> getMyGroups(String uid, String schacHomeOrganization) {
-    Predicate<Provider> providerFilter = provider -> provider.shouldBeQueriedForMemberships(schacHomeOrganization);
-    return doGetGroups(uid, providerFilter);
+    return doGet(
+      uid,
+      provider -> provider.shouldBeQueriedForMemberships(schacHomeOrganization),
+      Provider::getGroupMemberships);
   }
 
   public List<Group> getMyExternalGroups(String uid, String schacHomeOrganization) {
-    Predicate<Provider> providerFilter = provider -> provider.isExternalGroupProvider() && provider.shouldBeQueriedForMemberships(schacHomeOrganization);
-    return doGetGroups(uid, providerFilter);
+    return doGet(
+      uid,
+      provider -> provider.isExternalGroupProvider() && provider.shouldBeQueriedForMemberships(schacHomeOrganization),
+      Provider::getGroupMemberships);
+  }
+
+  public List<Member> getMembers(String groupId) {
+    return doGet(groupId, provider -> provider.shouldBeQueriedForMembers(groupId), Provider::getMembers);
   }
 
   public Optional<Group> getMyGroupById(String uid, String groupId) {
@@ -59,17 +70,17 @@ public class ExternalGroupsService {
     }
   }
 
-  private List<Group> doGetGroups(String uid, Predicate<Provider> providerFilter) {
+  private <T> List<T> doGet(String argument, Predicate<Provider> providerFilter, BiFunction<Provider, String, List<T>> get) {
     try {
       return forkJoinPool.submit(() -> {
         return this.providers.parallelStream()
           .filter(providerFilter)
           .map(provider -> {
             try {
-              return provider.getGroupMemberships(uid);
+              return get.apply(provider, argument);
             } catch (RuntimeException e) {
               LOG.warn("Provider {} threw exception: {} ", provider, e);
-              return Collections.<Group>emptyList();
+              return Collections.<T>emptyList();
             }
           })
           .flatMap(Collection::stream)
