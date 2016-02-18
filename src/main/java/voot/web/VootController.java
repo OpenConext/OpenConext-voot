@@ -129,18 +129,18 @@ public class VootController {
     return groups;
   }
 
-  @RequestMapping(value = "/voot/members/{groupId:.+}")
+  @RequestMapping(value = "/members/{groupId:.+}")
   public List<Member> members(@PathVariable String groupId, final OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    LOG.debug("voot/members/{}, accessToken: {}, clientId {}", groupId, accessToken, clientId);
+    LOG.debug("members/{}, accessToken: {}, clientId {}", groupId, accessToken, clientId);
 
     assertClientCredentialsClient(authentication, clientId);
 
     List<Member> members = externalGroupsService.getMembers(groupId);
 
-    LOG.debug("/voot/members/{} result: {}", groupId, members);
+    LOG.debug("/members/{} result: {}", groupId, members);
 
     return members;
   }

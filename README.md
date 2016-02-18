@@ -73,7 +73,7 @@ authorization.
 An additional endpoint is implemented to retrieve all members of a group:
 
 ```
-https://voot.example.org/voot/members/${fully qualified group name}
+https://voot.example.org/members/${fully qualified group name}
 ```
 
 
