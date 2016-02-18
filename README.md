@@ -70,3 +70,10 @@ The first internal endpoint is used by OpenConext Teams to fetch all external (e
 applications that need to verify the membership of a person in a specific group. EngineBlock uses this endpoint to check the GroupVO
 authorization.
 
+An additional endpoint is implemented to retrieve all members of a group:
+
+```
+https://voot.example.org/voot/members/${fully qualified group name}
+```
+
+
