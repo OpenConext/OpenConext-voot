@@ -112,6 +112,9 @@ public class VootServiceApplication {
     @Value("${checkToken.cache.duration.milliSeconds}")
     private int checkTokenCacheDurationMilliseconds;
 
+    @Value("${checkToken.cache.expiryIntervalCheck.milliseconds}")
+    private int expiryIntervalCheckMilliseconds;
+
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
       resources.resourceId("groups").tokenServices(resourceServerTokenServices()).tokenExtractor(tokenExtractor());
@@ -122,7 +125,7 @@ public class VootServiceApplication {
         Arrays.asList(oidcResourceServerTokenServices(), authzResourceServerTokenServices())
       );
       return checkTokenCache ?
-        new CachedRemoteTokenServices(tokenServices, checkTokenCacheDurationMilliseconds, checkTokenCacheDurationMilliseconds) :
+        new CachedRemoteTokenServices(tokenServices, checkTokenCacheDurationMilliseconds, expiryIntervalCheckMilliseconds) :
         tokenServices;
     }
 

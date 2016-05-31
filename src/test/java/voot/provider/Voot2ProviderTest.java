@@ -24,7 +24,9 @@ public class Voot2ProviderTest {
   private static final String USER_URN = "urn:collab:person:example.org:" + UID;
   private static final String GROUP_URN = "urn:collab:group:surfteams.nl:" + GROUP_ID;
 
-  private Configuration configuration = new Configuration(GroupProviderType.VOOT2, "http://localhost:8889", new Configuration.Credentials("user", "password"), 2000, "example.org", "example");
+  private Configuration configuration = new Configuration(GroupProviderType.VOOT2, "http://localhost:8889",
+    new Configuration.Credentials("user", "password"), 2000, "example.org", "example");
+
   private Voot2Provider subject = new Voot2Provider(configuration);
 
   @Rule
@@ -48,16 +50,33 @@ public class Voot2ProviderTest {
   @Test
   public void testGetMemberships() throws Exception {
     stubCall("user/" + UID + "/groups", "json/voot2/voot2_groups.json");
-    final List<Group> groups = subject.getGroupMemberships(USER_URN);
+    List<Group> groups = subject.getGroupMemberships(USER_URN);
     assertTrue(groups.size() > 0);
   }
 
   @Test
   public void testGetEmptyMemberships() throws Exception {
     stubCall("user/" + UID + "/groups", "json/voot2/voot2_groups_empty.json");
-    final List<Group> memberships = subject.getGroupMemberships(USER_URN);
+    List<Group> memberships = subject.getGroupMemberships(USER_URN);
 
     assertTrue(memberships.isEmpty());
+  }
+
+  @Test
+  public void testGetEmptyMembershipsBecauseOfVootException() throws Exception {
+    stubFor(get(urlEqualTo("/" + "user/" + UID + "/groups")).willReturn(aResponse().withStatus(304)));
+    List<Group> memberships = subject.getGroupMemberships(USER_URN);
+    assertTrue(memberships.isEmpty());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetGroupMembershipsInvalidUid() {
+    subject.getGroupMemberships("bogus");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetMembers() {
+    subject.getMembers("bogus");
   }
 
   @Test

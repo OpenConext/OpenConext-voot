@@ -3,12 +3,17 @@ package voot.oauth;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,4 +53,40 @@ public class CompositeDecisionResourceServerTokenServicesTest {
   public void testReadAccessToken() throws Exception {
     assertEquals(value, tokenServices.readAccessToken(accessToken).getValue());
   }
+
+  @Test
+  public void testCanNotHandle() {
+    CompositeDecisionResourceServerTokenServices subject = getFailureSubject();
+    assertFalse(subject.canHandle("whatever"));
+  }
+
+  @Test(expected = InvalidTokenException.class)
+  public void testCanNotLoad() {
+    CompositeDecisionResourceServerTokenServices subject = getFailureSubject();
+    subject.loadAuthentication("whatever");
+  }
+
+  @Test(expected = InvalidTokenException.class)
+  public void testCanNotRead() {
+    CompositeDecisionResourceServerTokenServices subject = getFailureSubject();
+    subject.readAccessToken("whatever");
+  }
+
+  private CompositeDecisionResourceServerTokenServices getFailureSubject() {
+    return new CompositeDecisionResourceServerTokenServices(Collections.singletonList(new DecisionResourceServerTokenServices(){
+      @Override
+      public OAuth2Authentication loadAuthentication(String accessToken) throws AuthenticationException, InvalidTokenException {
+        return null;
+      }
+      @Override
+      public OAuth2AccessToken readAccessToken(String accessToken) {
+        return null;
+      }
+      @Override
+      public boolean canHandle(String accessToken) {
+        return false;
+      }
+    }));
+  }
+
 }

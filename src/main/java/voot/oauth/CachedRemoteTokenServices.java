@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.Executors.newScheduledThreadPool;
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 public class CachedRemoteTokenServices implements DecisionResourceServerTokenServices {
 
@@ -29,7 +30,7 @@ public class CachedRemoteTokenServices implements DecisionResourceServerTokenSer
     Assert.isTrue(durationMilliseconds > 0 && durationMilliseconds < 1000 * 60 * 61);
     Assert.isTrue(expiryIntervalCheckMilliseconds > 0 && expiryIntervalCheckMilliseconds < 1000 * 60 * 61);
     this.duration = durationMilliseconds;
-    newScheduledThreadPool(1).scheduleAtFixedRate(this::clearExpiredAuthentications, 0, expiryIntervalCheckMilliseconds, TimeUnit.MILLISECONDS);
+    newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::clearExpiredAuthentications, 0, expiryIntervalCheckMilliseconds, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -56,13 +57,18 @@ public class CachedRemoteTokenServices implements DecisionResourceServerTokenSer
   }
 
   private void clearExpiredAuthentications() {
-    long now = System.currentTimeMillis();
-    authentications.forEach((accessToken, authentication) -> {
-      if (authentication.timestamp + duration < now) {
-        LOG.debug("Removing expired authentication with access token {}", accessToken);
-        authentications.remove(accessToken);
-      }
-    });
+    try {
+      long now = System.currentTimeMillis();
+      authentications.forEach((accessToken, authentication) -> {
+        if (authentication.timestamp + duration < now) {
+          LOG.debug("Removing expired authentication with access token {}", accessToken);
+          authentications.remove(accessToken);
+        }
+      });
+    } catch (Throwable t) {
+      LOG.error("Error in clearExpiredAuthentications", t);
+      //we don't rethrow as this would stop the subsequent scheduled clearing
+    }
   }
 
   @Override
