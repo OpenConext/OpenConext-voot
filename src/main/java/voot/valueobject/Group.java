@@ -6,7 +6,7 @@ public class Group {
   public final String displayName;
   public final String description;
   public final String sourceID;
-  public final Membership membership;
+  public Membership membership;
 
   public Group(String id, String displayName, String description, String sourceID, Membership membership) {
     this.id = id;

@@ -50,14 +50,14 @@ public class Voot2ProviderTest {
   @Test
   public void testGetMemberships() throws Exception {
     stubCall("user/" + UID + "/groups", "json/voot2/voot2_groups.json");
-    List<Group> groups = subject.getGroupMemberships(USER_URN);
+    List<Group> groups = subject.getGroupMemberships(USER_URN, true);
     assertTrue(groups.size() > 0);
   }
 
   @Test
   public void testGetEmptyMemberships() throws Exception {
     stubCall("user/" + UID + "/groups", "json/voot2/voot2_groups_empty.json");
-    List<Group> memberships = subject.getGroupMemberships(USER_URN);
+    List<Group> memberships = subject.getGroupMemberships(USER_URN, true);
 
     assertTrue(memberships.isEmpty());
   }
@@ -65,13 +65,13 @@ public class Voot2ProviderTest {
   @Test
   public void testGetEmptyMembershipsBecauseOfVootException() throws Exception {
     stubFor(get(urlEqualTo("/" + "user/" + UID + "/groups")).willReturn(aResponse().withStatus(304)));
-    List<Group> memberships = subject.getGroupMemberships(USER_URN);
+    List<Group> memberships = subject.getGroupMemberships(USER_URN, true);
     assertTrue(memberships.isEmpty());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetGroupMembershipsInvalidUid() {
-    subject.getGroupMemberships("bogus");
+    subject.getGroupMemberships("bogus", true);
   }
 
   @Test(expected = IllegalArgumentException.class)

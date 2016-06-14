@@ -1,6 +1,7 @@
 package voot.provider;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,9 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static voot.provider.GrouperSoapClient.*;
 
 public class GrouperSoapClientTest {
 
@@ -26,18 +26,23 @@ public class GrouperSoapClientTest {
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(8889);
 
+  @Before
+  public void before() {
+    wireMockRule.resetToDefaultMappings();
+  }
+
   @Test
   @Ignore // only used for development purposes.
   public void testGetMembershipsFromVM() throws Exception {
-    List<Group> memberships = getVMSubject().getGroupMemberships("urn:collab:person:example.com:admin");
+    List<Group> memberships = getVMSubject().getGroupMemberships("urn:collab:person:example.com:admin", true);
     assertTrue(memberships.size() == 2);
   }
 
   @Test
   public void testGrouperError() throws Exception {
     stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0")).withHeader("Content-Type", equalTo("text/xml")).willReturn(aResponse().withStatus(500)));
-    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
-    assertTrue(memberships.isEmpty());
+    List<Group> groups = subject.getGroupMemberships("urn:collab:person:example.com:admin", true);
+    assertTrue(groups.isEmpty());
   }
 
   @Test
@@ -54,34 +59,36 @@ public class GrouperSoapClientTest {
 
   @Test
   public void testGetMemberships() throws Exception {
-    stubGrouperCall("soap/GetGroups_Success_Response.xml");
-    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
+    stubGrouperCall("soap/GetGroups_Success_Response.xml", URN_GET_GROUPS_LITE);
+    stubGrouperCall("soap/GetPrivileges_Success_Response.xml", URN_GET_GROUPER_PRIVILEGES_LITE);
+
+    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin", true);
     assertTrue(memberships.size() == 2);
 
     Group group1 = memberships.get(0);
-    assertTrue(group1.id.equals("urn:collab:group:surfnet.nl:etc:sysadmingroup"));
-    assertTrue(group1.displayName.equals("sysadmingroup"));
-    assertTrue(group1.description.equals("system administrators with all privileges"));
-    assertTrue(group1.membership.basic.equals("member"));
+    assertEquals(group1.id,"urn:collab:group:surfnet.nl:etc:sysadmingroup");
+    assertEquals(group1.displayName,"sysadmingroup");
+    assertEquals(group1.description,"system administrators with all privileges");
+    assertEquals(group1.membership.basic,"admin");
 
 
     Group group2 = memberships.get(1);
-    assertTrue(group2.id.equals("urn:collab:group:surfnet.nl:nl:surfnet:diensten:test_groep"));
-    assertTrue(group2.displayName.equals("test_groep"));
-    assertTrue(group2.description.equals("test groep"));
-    assertTrue(group2.membership.basic.equals("member"));
+    assertEquals(group2.id,"urn:collab:group:surfnet.nl:nl:surfnet:diensten:test_groep");
+    assertEquals(group2.displayName,"test_groep");
+    assertEquals(group2.description,"test groep");
+    assertEquals(group2.membership.basic,"admin");
   }
 
   @Test
   public void testGetMembershipsEmptyResult() throws Exception {
-    stubGrouperCall("soap/GetGroups_Empty_Response.xml");
-    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
+    stubGrouperCall("soap/GetGroups_Empty_Response.xml", URN_GET_GROUPS_LITE);
+    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin", true);
     assertTrue(memberships.isEmpty());
   }
 
   @Test
   public void testGetMembershipForMember() throws Exception {
-    stubGrouperCall("soap/HasMemberLite_Member_Response.xml");
+    stubGrouperCall("soap/HasMemberLite_Member_Response.xml", URN_HAS_MEMBER_LITE);
 
     Optional<Group> optionalGroup = subject.getGroupMembership("urn:collab:person:example.com:admin", "urn:collab:group:surfnet.nl:some_group");
     assertTrue(optionalGroup.isPresent());
@@ -95,7 +102,7 @@ public class GrouperSoapClientTest {
 
   @Test
   public void testGetMembershipForNonMember() throws Exception {
-    stubGrouperCall("soap/HasMemberLite_NotMember_Response.xml");
+    stubGrouperCall("soap/HasMemberLite_NotMember_Response.xml", URN_HAS_MEMBER_LITE);
 
     Optional<Group> optionalGroup = subject.getGroupMembership("urn:collab:person:example.com:admin", "urn:collab:group:surfnet.nl:some_group");
     assertFalse(optionalGroup.isPresent());
@@ -103,7 +110,7 @@ public class GrouperSoapClientTest {
 
   @Test
   public void testGetMembers() throws Exception {
-    stubGrouperCall("soap/GetMembersLite_Success_Response.xml");
+    stubGrouperCall("soap/GetMembersLite_Success_Response.xml", URN_GET_MEMBERS_LITE);
     List<Member> members = subject.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon");
     assertEquals(2, members.size());
     Member bas = members.get(0);
@@ -115,7 +122,7 @@ public class GrouperSoapClientTest {
 
   @Test
   public void testGetMembersEmptyResult() throws Exception {
-    stubGrouperCall("soap/GetMembersLite_Empty_Response.xml");
+    stubGrouperCall("soap/GetMembersLite_Empty_Response.xml", URN_GET_MEMBERS_LITE);
     List<Member> members = subject.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon");
     assertTrue(members.isEmpty());
   }
@@ -127,9 +134,12 @@ public class GrouperSoapClientTest {
     assertTrue(members.isEmpty());
   }
 
-  private void stubGrouperCall(String responseFile) throws IOException {
+  private void stubGrouperCall(String responseFile, String soupAction) throws IOException {
     String response = StreamUtils.copyToString(new ClassPathResource(responseFile).getInputStream(), Charset.forName("UTF-8"));
-    stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0")).withHeader("Content-Type", equalTo("text/xml")).willReturn(aResponse().withStatus(200).withBody(response)));
+    wireMockRule.stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0"))
+      .withHeader("Content-Type", equalTo("text/xml"))
+      .withHeader(GrouperSoapClient.SOAP_ACTION, equalTo(soupAction))
+      .willReturn(aResponse().withStatus(200).withBody(response)));
   }
 
   private GrouperSoapClient getSubject(String url) {

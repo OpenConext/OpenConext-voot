@@ -10,11 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import voot.AccessDeniedException;
 import voot.ExternalGroupsService;
@@ -38,14 +34,15 @@ public class VootController {
   }
 
   @RequestMapping(value = "/me/groups")
-  public List<Group> myGroups(final OAuth2Authentication authentication) {
+  public List<Group> myGroups(OAuth2Authentication authentication,
+                              @RequestParam(name = "includeMemberships", required = false, defaultValue = "false") boolean includeMemberships) {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
     LOG.debug("me/groups on behalf of uid: {}, schacHomeOrg: {}, accessToken: {}, clientId: {}", authentication.getName(), schacHome, accessToken, clientId);
 
-    final List<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome);
+    List<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome, includeMemberships);
 
     LOG.debug("me/groups result for uid {}: {}", authentication.getName(), myGroups);
     return myGroups;
@@ -53,16 +50,16 @@ public class VootController {
   }
 
   @RequestMapping(value = "/me/groups/{groupId:.+}")
-  public Group specificGroupMembership(@PathVariable final String groupId, final OAuth2Authentication authentication) throws MalformedGroupUrnException{
+  public Group specificGroupMembership(@PathVariable String groupId, OAuth2Authentication authentication) throws MalformedGroupUrnException {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
     LOG.debug("groups/{} on behalf of uid {}, schacHomeOrg: {}, accessToken: {}, clientId {}", groupId, authentication.getName(), schacHome, accessToken, clientId);
-    if (! UrnUtils.isFullyQualifiedGroupName(groupId)) {
+    if (!UrnUtils.isFullyQualifiedGroupName(groupId)) {
       throw new MalformedGroupUrnException(groupId);
     }
-    final Optional<Group> group = externalGroupsService.getMyGroupById(authentication.getName(), groupId);
+    Optional<Group> group = externalGroupsService.getMyGroupById(authentication.getName(), groupId);
 
     LOG.debug("groups/{} result for uid {}: {}", groupId, authentication.getName(), group);
 
@@ -70,7 +67,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/internal/groups/{userId:.+}/{groupId:.+}")
-  public Group internalSpecificGroup(@PathVariable final String userId, @PathVariable final String groupId, final OAuth2Authentication authentication) throws MalformedGroupUrnException {
+  public Group internalSpecificGroup(@PathVariable String userId, @PathVariable String groupId, OAuth2Authentication authentication) throws MalformedGroupUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -82,7 +79,7 @@ public class VootController {
     if (!schacHome.isPresent()) {
       throw new MalformedGroupUrnException(groupId);
     }
-    final Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId);
+    Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId);
 
     LOG.debug("groups/{} result: {}", groupId, group);
 
@@ -90,7 +87,8 @@ public class VootController {
   }
 
   @RequestMapping(value = "/internal/groups/{userId:.+}")
-  public List<Group> internalGroups(@PathVariable String userId, final OAuth2Authentication authentication) throws MalformedPersonUrnException {
+  public List<Group> internalGroups(@PathVariable String userId, OAuth2Authentication authentication,
+                                    @RequestParam(name = "includeMemberships", required = false, defaultValue = "false") boolean includeMemberships) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -102,7 +100,7 @@ public class VootController {
     if (!schacHome.isPresent()) {
       throw new MalformedPersonUrnException(userId);
     }
-    final List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome.get());
+    List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome.get(), includeMemberships);
 
     LOG.debug("internal/groups/{} result: {}", userId, myGroups);
 
@@ -110,7 +108,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/internal/external-groups/{userId:.+}")
-  public List<Group> externalGroups(@PathVariable String userId, final OAuth2Authentication authentication) throws MalformedPersonUrnException {
+  public List<Group> externalGroups(@PathVariable String userId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -122,7 +120,7 @@ public class VootController {
     if (!schacHome.isPresent()) {
       throw new MalformedPersonUrnException(userId);
     }
-    final List<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome.get());
+    List<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome.get());
 
     LOG.debug("internal/external-groups/{} result: {}", userId, groups);
 
@@ -130,7 +128,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/members/{groupId:.+}")
-  public List<Member> members(@PathVariable String groupId, final OAuth2Authentication authentication) throws MalformedPersonUrnException {
+  public List<Member> members(@PathVariable String groupId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -166,7 +164,7 @@ public class VootController {
   }
 
   public static class MalformedPersonUrnException extends MalformedUrnException {
-    private static final String MESSAGE_FORMAT = "%s is not a valid person-urn. Values must adhere to regexp: %s";
+    private static String MESSAGE_FORMAT = "%s is not a valid person-urn. Values must adhere to regexp: %s";
 
     public MalformedPersonUrnException(String incorrectValue) {
       super(String.format(MESSAGE_FORMAT, incorrectValue, UrnUtils.URN_COLLAB_PERSON_REGEXP));
@@ -174,7 +172,7 @@ public class VootController {
   }
 
   public static class MalformedGroupUrnException extends MalformedUrnException {
-    private static final String MESSAGE_FORMAT = "%s is not a valid group-urn. Values must adhere to regexp: %s";
+    private static String MESSAGE_FORMAT = "%s is not a valid group-urn. Values must adhere to regexp: %s";
 
     public MalformedGroupUrnException(String incorrectValue) {
       super(String.format(MESSAGE_FORMAT, incorrectValue, UrnUtils.URN_COLLAB_GROUP_REGEXP));

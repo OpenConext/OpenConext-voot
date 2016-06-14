@@ -27,24 +27,30 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GrouperSoapClient extends AbstractProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(GrouperSoapClient.class);
 
-  private final NamespaceContext grouperNameSpaceContext = new GrouperNameSpaceContext();
+  public static final String URN_GET_GROUPER_PRIVILEGES_LITE = "urn:getGrouperPrivilegesLite";
+  public static final String URN_HAS_MEMBER_LITE = "urn:hasMemberLite";
+  public static final String URN_GET_MEMBERS_LITE = "urn:getMembersLite";
+  public static final String URN_GET_MEMBERSHIPS_LITE = "urn:getMembershipsLite";
+  public static final String SOAP_ACTION = "SOAPAction";
+  public static final String URN_GET_GROUPS_LITE = "urn:getGroupsLite";
 
   private final Pattern replacementPattern = Pattern.compile("\\[(.+?)\\]");
 
   private final Charset charSet = Charset.forName("UTF-8");
 
-  private final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
   private final Map<String, String> soapTemplates = new HashMap<>();
+
+  private final GrouperSoapParser soapParser;
 
   public GrouperSoapClient(Configuration configuration) {
     super(configuration);
-    this.factory.setNamespaceAware(true);
+    soapParser = new GrouperSoapParser(configuration.name, groupIdPrefix);
   }
 
   @Override
@@ -53,7 +59,7 @@ public class GrouperSoapClient extends AbstractProvider {
   }
 
   @Override
-  public List<Group> getGroupMemberships(final String uid) {
+  public List<Group> getGroupMemberships(final String uid, boolean includeMemberships) {
     Map<String, String> replacements = new HashMap<>();
     replacements.put("subjectId", uid);
 
@@ -61,8 +67,12 @@ public class GrouperSoapClient extends AbstractProvider {
       LOG.debug("Querying getGroupMemberships for subjectId: {}", uid);
       String soap = replaceTokens("soap/GetGroupsLite.xml", replacements);
 
-      ResponseEntity<String> response = getGrouperResponse(soap);
-      List<Group> groups = parseGroups(response);
+      ResponseEntity<String> response = getGrouperResponse(soap, URN_GET_GROUPS_LITE);
+      List<Group> groups = soapParser.parseGroups(response);
+
+      if (includeMemberships) {
+        groups.stream().forEach(group -> correctMembership(group, uid));
+      }
 
       LOG.debug("getGroupMemberships result: {} groups.", groups.size());
       return groups;
@@ -84,8 +94,8 @@ public class GrouperSoapClient extends AbstractProvider {
       LOG.debug("Querying getGroupMembership API for subjectId: {}", uid);
       String soap = replaceTokens("soap/HasMemberLite.xml", replacements);
 
-      ResponseEntity<String> response = getGrouperResponse(soap);
-      Optional<Group> group = parseOptionalGroupMembership(response);
+      ResponseEntity<String> response = getGrouperResponse(soap, URN_HAS_MEMBER_LITE);
+      Optional<Group> group = soapParser.parseOptionalGroupMembership(response);
 
       LOG.debug("getGroupMembership result: {} group.", group);
       return group;
@@ -105,8 +115,8 @@ public class GrouperSoapClient extends AbstractProvider {
       LOG.debug("Querying getMembers API for groupId: {}", localGroupId.get());
       String soap = replaceTokens("soap/GetMembersLite.xml", replacements);
 
-      ResponseEntity<String> response = getGrouperResponse(soap);
-      List<Member> members = parseMembers(response);
+      ResponseEntity<String> response = getGrouperResponse(soap, URN_GET_MEMBERS_LITE);
+      List<Member> members = soapParser.parseMembers(response);
 
       LOG.debug("getMembers result: {} .", members);
       return members;
@@ -116,9 +126,35 @@ public class GrouperSoapClient extends AbstractProvider {
     }
   }
 
-  private ResponseEntity<String> getGrouperResponse(String soap) {
+  private void correctMembership(Group group, String uid) {
+    Map<String, String> replacements = new HashMap<>();
+    replacements.put("groupId", uid);
+
+    LOG.debug("Querying GetPrivileges for group: {}", group.id);
+    try {
+      String soap = replaceTokens("soap/GetPrivilegesLite.xml", replacements);
+
+      ResponseEntity<String> response = getGrouperResponse(soap, URN_GET_GROUPER_PRIVILEGES_LITE);
+      List<String> memberships = soapParser.parsePrivileges(response, uid);
+      if (memberships.contains("admin")) {
+        group.membership = Membership.fromRole("admin");
+      } else if (memberships.contains("update")) {
+        group.membership = Membership.fromRole("manager");
+      } else {
+        group.membership = Membership.defaultMembership;
+      }
+      LOG.debug("GetPrivileges result: {} ", group.membership);
+    } catch (Exception exception) {
+      LOG.warn("Failed to invoke grouper, not correcting membership.", exception);
+
+    }
+  }
+
+  private ResponseEntity<String> getGrouperResponse(String soap, String action) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.TEXT_XML);
+    headers.set(SOAP_ACTION, action);
+
     HttpEntity<String> entity = new HttpEntity<>(soap, headers);
 
     return restTemplate.exchange(configuration.url, HttpMethod.POST, entity, String.class);
@@ -131,90 +167,6 @@ public class GrouperSoapClient extends AbstractProvider {
     }
     return localGroupId;
   }
-
-  private List<Group> parseGroups(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
-    LOG.debug("result from Grouper: {} .", response);
-
-    Document document = getDocument(response);
-    XPath xpath = getXPath();
-
-    NodeList nodes = (NodeList) xpath.evaluate("//ns:wsGroups", document, XPathConstants.NODESET);
-    List<Group> groups = new ArrayList<>();
-
-    for (int i = 0; i < nodes.getLength(); i++) {
-      Node item = nodes.item(i);
-      if (nonNilNode(item)) {
-        groups.add(parseGroup(xpath, item));
-      }
-    }
-    return groups;
-  }
-
-  private Document getDocument(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException {
-    return factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.getBody().getBytes()));
-  }
-
-  private List<Member> parseMembers(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
-    LOG.debug("result from Grouper: {} .", response);
-
-    Document document = getDocument(response);
-    XPath xpath = getXPath();
-
-    NodeList nodes = (NodeList) xpath.evaluate("//ns:wsSubjects", document, XPathConstants.NODESET);
-    List<Member> groups = new ArrayList<>();
-
-    for (int i = 0; i < nodes.getLength(); i++) {
-      Node item = nodes.item(i);
-      if (nonNilNode(item)) {
-        groups.add(parseMember(xpath, item));
-      }
-    }
-    return groups;
-  }
-
-  private boolean nonNilNode(Node node) {
-    Node attribute = node.getAttributes().getNamedItem("xsi:nil");
-    return attribute == null || !Boolean.valueOf(attribute.getNodeValue());
-  }
-
-  private Group parseGroup(XPath xpath, Node item) throws XPathExpressionException {
-    return new Group(
-      groupIdPrefix + xpath.evaluate("ns:name", item),
-      xpath.evaluate("ns:displayExtension", item),
-      xpath.evaluate("ns:description", item),
-      configuration.name,
-      //Grouper does not hand out the membership, but for consistency with the other VOOT providers we default to
-      Membership.defaultMembership);
-  }
-
-  private Member parseMember(XPath xpath, Node item) throws XPathExpressionException {
-    return new Member(
-      xpath.evaluate("ns:id", item),
-      xpath.evaluate("ns:name", item),
-      xpath.evaluate("ns:attributeValues", item)
-    );
-  }
-
-  private Optional<Group> parseOptionalGroupMembership(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
-    Document document = getDocument(response);
-
-    XPath xpath = getXPath();
-
-    String resultCode = (String) xpath.evaluate("//ns:resultCode[1]", document, XPathConstants.STRING);
-    if (resultCode.equals("IS_MEMBER")) {
-      Node group = (Node) xpath.evaluate("//ns:wsGroup[1]", document, XPathConstants.NODE);
-      return Optional.of(parseGroup(xpath, group));
-    } else {
-      return Optional.empty();
-    }
-  }
-
-  private XPath getXPath() {
-    XPath xpath = XPathFactory.newInstance().newXPath();
-    xpath.setNamespaceContext(grouperNameSpaceContext);
-    return xpath;
-  }
-
   private String replaceTokens(String soapTemplate, Map<String, String> replacements) throws IOException {
     String xml = soapTemplates.get(soapTemplate);
     if (xml == null) {

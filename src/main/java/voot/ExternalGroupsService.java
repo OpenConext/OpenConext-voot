@@ -32,18 +32,18 @@ public class ExternalGroupsService {
     this.forkJoinPool = new ForkJoinPool(providers.size() * 20); // we're I/O bound.
   }
 
-  public List<Group> getMyGroups(String uid, String schacHomeOrganization) {
-    return doGet(
+  public List<Group> getMyGroups(String uid, String schacHomeOrganization, boolean includeMemberships) {
+    return getGroupMemberships(
       uid,
       provider -> provider.shouldBeQueriedForMemberships(schacHomeOrganization),
-      Provider::getGroupMemberships);
+      includeMemberships);
   }
 
   public List<Group> getMyExternalGroups(String uid, String schacHomeOrganization) {
-    return doGet(
+    return getGroupMemberships(
       uid,
       provider -> provider.isExternalGroupProvider() && provider.shouldBeQueriedForMemberships(schacHomeOrganization),
-      Provider::getGroupMemberships);
+      true);
   }
 
   public List<Member> getMembers(String groupId) {
@@ -67,6 +67,27 @@ public class ExternalGroupsService {
       return optionals.isEmpty() ? Optional.empty() : optionals.get(0);
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException("Unable to schedule querying of external group providers.", e);
+    }
+  }
+
+  public List<Group> getGroupMemberships(String uid, Predicate<Provider> providerFilter, boolean includeMemberships) {
+    try {
+      return forkJoinPool.submit(() -> {
+        return this.providers.parallelStream()
+          .filter(providerFilter)
+          .map(provider -> {
+            try {
+              return provider.getGroupMemberships(uid, includeMemberships);
+            } catch (RuntimeException e) {
+              LOG.warn("Provider {} threw exception: {} ", provider, e);
+              return Collections.<Group>emptyList();
+            }
+          })
+          .flatMap(Collection::stream)
+          .collect(Collectors.toList());
+      }).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException("Unable to schedule querying of group memberships.", e);
     }
   }
 

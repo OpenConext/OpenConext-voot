@@ -65,16 +65,16 @@ public class VootControllerTest {
 
   @Test
   public void testEmptyMyGroupsResult() throws Exception {
-    when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(Collections.emptyList());
-     List<Group> groups = subject.myGroups(authentication);
+    when(externalGroupsService.getMyGroups(UID, SCHAC_HOME, true)).thenReturn(Collections.emptyList());
+     List<Group> groups = subject.myGroups(authentication, true);
     assertTrue(groups.size() == 0);
   }
 
   @Test
   public void testSingleMembershipPositiveResult() {
      Group group = group();
-    when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(singletonList(group));
-     List<Group> groups = subject.myGroups(authentication);
+    when(externalGroupsService.getMyGroups(UID, SCHAC_HOME, true)).thenReturn(singletonList(group));
+     List<Group> groups = subject.myGroups(authentication, true);
     assertTrue(groups.size() > 0);
   }
 
@@ -87,12 +87,12 @@ public class VootControllerTest {
   @Test(expected = VootController.MalformedPersonUrnException.class)
   public void testInternalGroupsIllegalUserUrn() throws Exception {
     setUpClientCredentials();
-    subject.internalGroups("wrong_user_id", authentication);
+    subject.internalGroups("wrong_user_id", authentication, true);
   }
 
   @Test(expected = AccessDeniedException.class)
   public void testAccessDeniedException() throws Exception {
-    subject.internalGroups("does_not_matter", authentication);
+    subject.internalGroups("does_not_matter", authentication, true);
   }
 
   @Test

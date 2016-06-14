@@ -34,7 +34,7 @@ public class ExternalGroupsServiceTest {
     List<Provider> providers = new ArrayList<>();
     IntStream.rangeClosed(1, 10).forEach(i -> providers.add(new MockProvider(200L, Success, GROUPER)));
     ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
-    final List<Group> result = externalGroupsService.getMyGroups("foo", "example.com");
+    final List<Group> result = externalGroupsService.getMyGroups("foo", "example.com", true);
     assertTrue(result.size() == providers.size());
   }
 
@@ -44,7 +44,7 @@ public class ExternalGroupsServiceTest {
     final MockProvider errorMockProvider = new MockProvider(200L, Error, GROUPER);
 
     ExternalGroupsService externalGroupsService = new ExternalGroupsService(Arrays.asList(successMockProvider, errorMockProvider));
-    final List<Group> foo = externalGroupsService.getMyGroups("foo", "example.com");
+    final List<Group> foo = externalGroupsService.getMyGroups("foo", "example.com", true);
     assertTrue(foo.size() == 1);
   }
 
@@ -53,7 +53,7 @@ public class ExternalGroupsServiceTest {
     List<Provider> providers = new ArrayList<>();
     IntStream.rangeClosed(1, 10).forEach(i -> providers.add(new MockProvider(200L, i % 2 == 0 ? Success : Timeout, GROUPER)));
     ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
-    final List<Group> foo = externalGroupsService.getMyGroups("foo", "example.com");
+    final List<Group> foo = externalGroupsService.getMyGroups("foo", "example.com", true);
     assertTrue(foo.size() == 5);
   }
 

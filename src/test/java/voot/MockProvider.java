@@ -19,7 +19,7 @@ public class MockProvider extends AbstractProvider {
   public static final String SCHAC_HOME_ORGANIZATION = "example.org";
   public static final Member MEMBER = new Member("urn:collab:person:example.com:admin", "John Doe", "j.doe@example.com");
 
-  public enum SimulationMode {Success, Timeout, Error }
+  public enum SimulationMode {Success, Timeout, Error}
 
   private final Long timeoutMillis;
   private final SimulationMode simulationMode;
@@ -41,7 +41,7 @@ public class MockProvider extends AbstractProvider {
   }
 
   @Override
-  public List<Group> getGroupMemberships(String uid) {
+  public List<Group> getGroupMemberships(String uid, boolean includeMemberships) {
     return getResult(defaultGroup("id"));
   }
 
@@ -52,7 +52,7 @@ public class MockProvider extends AbstractProvider {
 
   @Override
   public List<Member> getMembers(String groupId) {
-      return getResult(defaultMember());
+    return getResult(defaultMember());
   }
 
   private <T> List<T> getResult(T group) {
