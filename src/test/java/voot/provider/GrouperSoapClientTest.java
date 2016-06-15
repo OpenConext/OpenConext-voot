@@ -65,7 +65,7 @@ public class GrouperSoapClientTest {
     List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin", true);
 
     //have to sleep otherwise the wireMock servers stops before the privileges are fetched in parallel
-    Thread.sleep(1000);
+    Thread.sleep(1500);
 
     assertTrue(memberships.size() == 12);
 

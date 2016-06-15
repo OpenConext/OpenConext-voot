@@ -132,7 +132,9 @@ public class GrouperSoapClient extends AbstractProvider {
 
   protected void correctMembership(Group group, String uid) {
     Map<String, String> replacements = new HashMap<>();
-    replacements.put("groupId", uid);
+    //we need to strip the SURFnet collab prefix
+    String groupIdWithoutPrefix = group.id.replace(groupIdPrefix, "");
+    replacements.put("groupId", groupIdWithoutPrefix);
 
     LOG.debug("Querying GetPrivileges for group: {} from Thread {}", group.id, Thread.currentThread().getName());
     try {
