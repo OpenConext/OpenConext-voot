@@ -1,10 +1,12 @@
 package voot.provider;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
 import org.springframework.util.StreamUtils;
+import org.springframework.web.client.HttpServerErrorException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -75,10 +78,12 @@ public class GrouperSoapClient extends AbstractProvider {
       List<Group> groups = soapParser.parseGroups(response);
 
       if (includeMemberships) {
-        forkJoinPool.submit(() -> groups.parallelStream().forEach(group -> correctMembership(group, uid)));
-      }
+        return forkJoinPool.submit(() ->
+          groups.parallelStream()
+            .map(group -> correctMembership(group, uid))
+            .collect(Collectors.toList())).get();
 
-      LOG.debug("getGroupMemberships result: {} groups.", groups.size());
+      }
       return groups;
 
     } catch (Exception exception) {
@@ -130,28 +135,36 @@ public class GrouperSoapClient extends AbstractProvider {
     }
   }
 
-  protected void correctMembership(Group group, String uid) {
+  protected Group correctMembership(Group group, String uid) {
     Map<String, String> replacements = new HashMap<>();
     //we need to strip the SURFnet collab prefix
-    String groupIdWithoutPrefix = group.id.replace(groupIdPrefix, "");
+    String groupIdWithoutPrefix = StringEscapeUtils.escapeXml11(group.id.replace(groupIdPrefix, ""));
     replacements.put("groupId", groupIdWithoutPrefix);
 
-    LOG.debug("Querying GetPrivileges for group: {} from Thread {}", group.id, Thread.currentThread().getName());
+    LOG.debug("Querying GetPrivileges for group: {} from Thread {}", groupIdWithoutPrefix, Thread.currentThread().getName());
     try {
       String soap = replaceTokens("soap/GetPrivilegesLite.xml", replacements);
 
       ResponseEntity<String> response = getGrouperResponse(soap, URN_GET_GROUPER_PRIVILEGES_LITE);
       List<String> memberships = soapParser.parsePrivileges(response, uid);
+      Group newGroup;
       if (memberships.contains("admin")) {
-        group.membership = Membership.fromRole("admin");
+        newGroup = new Group(group, Membership.fromRole("admin"));
       } else if (memberships.contains("update")) {
-        group.membership = Membership.fromRole("manager");
+        newGroup = new Group(group, Membership.fromRole("manager"));
       } else {
-        group.membership = Membership.defaultMembership;
+        newGroup = new Group(group, Membership.defaultMembership);
       }
-      LOG.debug("GetPrivileges result: {} ", group.membership);
+      LOG.debug("GetPrivileges result: {} for Group {} and uid {}", newGroup.membership, groupIdWithoutPrefix, uid);
+      return newGroup;
     } catch (Exception exception) {
-      LOG.warn("Failed to invoke grouper, not correcting membership.", exception);
+      if (exception instanceof HttpServerErrorException) {
+        HttpServerErrorException serverError = (HttpServerErrorException) exception;
+        LOG.warn("Failed to invoke grouper, not correcting membership. Cause: " + serverError.getResponseBodyAsString());
+      } else {
+        LOG.warn("Failed to invoke grouper, not correcting membership.", exception);
+      }
+      return group;
     }
   }
 

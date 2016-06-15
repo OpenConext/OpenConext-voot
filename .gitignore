@@ -16,3 +16,4 @@ log/
 target/
 
 *.log
+DelMeGrouperSoapClientTest.java

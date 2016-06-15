@@ -151,7 +151,7 @@ public class GrouperSoapClientTest {
   private void doTestCorrectMembership(String responseFile, String expectedMembership) throws IOException {
     Group group = new Group("id", "displayName", "description", "sourceID", null);
     stubGrouperCall(responseFile, URN_GET_GROUPER_PRIVILEGES_LITE);
-    subject.correctMembership(group, "urn:collab:person:example.com:admin");
+    group = subject.correctMembership(group, "urn:collab:person:example.com:admin");
 
     assertEquals(expectedMembership, group.membership.basic);
   }
