@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,12 +34,12 @@ public class GrouperSoapClient extends AbstractProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(GrouperSoapClient.class);
 
+  public static final String URN_GET_GROUPS_LITE = "urn:getGroupsLite";
+  public static final String URN_GET_MEMBERS_LITE = "urn:getMembersLite";
   public static final String URN_GET_GROUPER_PRIVILEGES_LITE = "urn:getGrouperPrivilegesLite";
   public static final String URN_HAS_MEMBER_LITE = "urn:hasMemberLite";
-  public static final String URN_GET_MEMBERS_LITE = "urn:getMembersLite";
-  public static final String URN_GET_MEMBERSHIPS_LITE = "urn:getMembershipsLite";
+
   public static final String SOAP_ACTION = "SOAPAction";
-  public static final String URN_GET_GROUPS_LITE = "urn:getGroupsLite";
 
   private final Pattern replacementPattern = Pattern.compile("\\[(.+?)\\]");
 
@@ -48,9 +49,12 @@ public class GrouperSoapClient extends AbstractProvider {
 
   private final GrouperSoapParser soapParser;
 
+  private final ForkJoinPool forkJoinPool;
+
   public GrouperSoapClient(Configuration configuration) {
     super(configuration);
     soapParser = new GrouperSoapParser(configuration.name, groupIdPrefix);
+    this.forkJoinPool = new ForkJoinPool(16);
   }
 
   @Override
@@ -71,7 +75,7 @@ public class GrouperSoapClient extends AbstractProvider {
       List<Group> groups = soapParser.parseGroups(response);
 
       if (includeMemberships) {
-        groups.stream().forEach(group -> correctMembership(group, uid));
+        forkJoinPool.submit(() -> groups.parallelStream().forEach(group -> correctMembership(group, uid)));
       }
 
       LOG.debug("getGroupMemberships result: {} groups.", groups.size());
@@ -126,11 +130,11 @@ public class GrouperSoapClient extends AbstractProvider {
     }
   }
 
-  private void correctMembership(Group group, String uid) {
+  protected void correctMembership(Group group, String uid) {
     Map<String, String> replacements = new HashMap<>();
     replacements.put("groupId", uid);
 
-    LOG.debug("Querying GetPrivileges for group: {}", group.id);
+    LOG.debug("Querying GetPrivileges for group: {} from Thread {}", group.id, Thread.currentThread().getName());
     try {
       String soap = replaceTokens("soap/GetPrivilegesLite.xml", replacements);
 
@@ -146,7 +150,6 @@ public class GrouperSoapClient extends AbstractProvider {
       LOG.debug("GetPrivileges result: {} ", group.membership);
     } catch (Exception exception) {
       LOG.warn("Failed to invoke grouper, not correcting membership.", exception);
-
     }
   }
 
@@ -167,6 +170,7 @@ public class GrouperSoapClient extends AbstractProvider {
     }
     return localGroupId;
   }
+
   private String replaceTokens(String soapTemplate, Map<String, String> replacements) throws IOException {
     String xml = soapTemplates.get(soapTemplate);
     if (xml == null) {

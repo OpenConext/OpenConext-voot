@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+  <soapenv:Body>
+    <ns:getGrouperPrivilegesLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetGrouperPrivilegesLiteResult">
+        <ns:params xsi:nil="true" />
+        <ns:privilegeResults xsi:type="ns:WsGrouperPrivilegeResult">
+          <ns:allowed>T</ns:allowed>
+          <ns:ownerSubject xsi:type="ns:WsSubject">
+            <ns:attributeValues xsi:nil="true" />
+            <ns:id>urn:collab:person:example.com:admin</ns:id>
+            <ns:identifierLookup xsi:nil="true" />
+            <ns:name>EveryEntity</ns:name>
+            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:sourceId>g:isa</ns:sourceId>
+            <ns:success>T</ns:success>
+          </ns:ownerSubject>
+          <ns:privilegeName>update</ns:privilegeName>
+          <ns:privilegeType>access</ns:privilegeType>
+          <ns:revokable>F</ns:revokable>
+          <ns:wsGroup xsi:type="ns:WsGroup">
+            <ns:description>People that are allowed to use the oauth2-admin application</ns:description>
+            <ns:detail xsi:nil="true" />
+            <ns:displayExtension>authz-admins</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:authz-admins</ns:displayName>
+            <ns:extension>authz-admins</ns:extension>
+            <ns:name>nl:surfnet:diensten:authz-admins</ns:name>
+            <ns:uuid>452f18cefdff44a0b930b728c9fd26ba</ns:uuid>
+          </ns:wsGroup>
+          <ns:wsStem xsi:nil="true" />
+          <ns:wsSubject xsi:type="ns:WsSubject">
+            <ns:attributeValues xsi:nil="true" />
+            <ns:id>urn:collab:person:example.com:admin</ns:id>
+            <ns:identifierLookup xsi:nil="true" />
+            <ns:name>EveryEntity</ns:name>
+            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:sourceId>g:isa</ns:sourceId>
+            <ns:success>T</ns:success>
+          </ns:wsSubject>
+        </ns:privilegeResults>
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true" />
+          <ns:resultWarnings xsi:nil="true" />
+          <ns:serverVersion>2.1.5</ns:serverVersion>
+        </ns:responseMetadata>
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true" />
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultMessage xsi:nil="true" />
+          <ns:success>T</ns:success>
+        </ns:resultMetadata>
+        <ns:subjectAttributeNames xsi:nil="true" />
+      </ns:return>
+    </ns:getGrouperPrivilegesLiteResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

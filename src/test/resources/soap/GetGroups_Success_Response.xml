@@ -41,12 +41,102 @@
             <ns:uuid>2495447b2ca04dc494db0be5348f28fb</ns:uuid>
           </ns:wsGroups>
           <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep 1</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep_1</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_1</ns:displayName>
+            <ns:extension>test_groep_1</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_1</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
             <ns:description>test groep</ns:description>
             <ns:detail xsi:nil="true"/>
-            <ns:displayExtension>test_groep</ns:displayExtension>
-            <ns:displayName>nl:surfnet:diensten:test_groep</ns:displayName>
-            <ns:extension>test_groep</ns:extension>
-            <ns:name>nl:surfnet:diensten:test_groep</ns:name>
+            <ns:displayExtension>test_groep_2</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_2</ns:displayName>
+            <ns:extension>test_groep_2</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_2</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep_4</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep_4</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_4</ns:displayName>
+            <ns:extension>test_groep_4</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_4</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep_5</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep_5</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_5</ns:displayName>
+            <ns:extension>test_groep_5</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_5</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep_6</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep_6</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_6</ns:displayName>
+            <ns:extension>test_groep_6</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_6</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep_7</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep_7</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_7</ns:displayName>
+            <ns:extension>test_groep_7</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_7</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep_8</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep_8</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_8</ns:displayName>
+            <ns:extension>test_groep_8</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_8</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep_9</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep_9</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_9</ns:displayName>
+            <ns:extension>test_groep_9</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_9</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep_10</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep_10</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_10</ns:displayName>
+            <ns:extension>test_groep_10</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_10</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep_11</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep_11</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_11</ns:displayName>
+            <ns:extension>test_groep_11</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_11</ns:name>
+            <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
+          </ns:wsGroups>
+          <ns:wsGroups xsi:type="ns:WsGroup">
+            <ns:description>test groep_12</ns:description>
+            <ns:detail xsi:nil="true"/>
+            <ns:displayExtension>test_groep_12</ns:displayExtension>
+            <ns:displayName>nl:surfnet:diensten:test_groep_12</ns:displayName>
+            <ns:extension>test_groep_12</ns:extension>
+            <ns:name>nl:surfnet:diensten:test_groep_12</ns:name>
             <ns:uuid>233e24c872ab49d3b3b8b4af1e120306</ns:uuid>
           </ns:wsGroups>
           <ns:wsSubject xsi:type="ns:WsSubject">

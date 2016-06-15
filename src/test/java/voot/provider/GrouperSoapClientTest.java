@@ -63,7 +63,11 @@ public class GrouperSoapClientTest {
     stubGrouperCall("soap/GetPrivileges_Success_Response.xml", URN_GET_GROUPER_PRIVILEGES_LITE);
 
     List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin", true);
-    assertTrue(memberships.size() == 2);
+
+    //have to sleep otherwise the wireMock servers stops before the privileges are fetched in parallel
+    Thread.sleep(1000);
+
+    assertTrue(memberships.size() == 12);
 
     Group group1 = memberships.get(0);
     assertEquals(group1.id,"urn:collab:group:surfnet.nl:etc:sysadmingroup");
@@ -73,9 +77,9 @@ public class GrouperSoapClientTest {
 
 
     Group group2 = memberships.get(1);
-    assertEquals(group2.id,"urn:collab:group:surfnet.nl:nl:surfnet:diensten:test_groep");
-    assertEquals(group2.displayName,"test_groep");
-    assertEquals(group2.description,"test groep");
+    assertEquals(group2.id,"urn:collab:group:surfnet.nl:nl:surfnet:diensten:test_groep_1");
+    assertEquals(group2.displayName,"test_groep_1");
+    assertEquals(group2.description,"test groep 1");
     assertEquals(group2.membership.basic,"admin");
   }
 
@@ -132,6 +136,24 @@ public class GrouperSoapClientTest {
     stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0")).withHeader("Content-Type", equalTo("text/xml")).willReturn(aResponse().withStatus(500)));
     List<Member> members = subject.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon");
     assertTrue(members.isEmpty());
+  }
+
+  @Test
+  public void testCorrectMembershipManager() throws Exception {
+    doTestCorrectMembership("soap/GetPrivilegesManager_Success_Response.xml", "manager");
+  }
+
+  @Test
+  public void testCorrectMembershipMember() throws Exception {
+    doTestCorrectMembership("soap/GetPrivilegesMember_Success_Response.xml", "member");
+  }
+
+  private void doTestCorrectMembership(String responseFile, String expectedMembership) throws IOException {
+    Group group = new Group("id", "displayName", "description", "sourceID", null);
+    stubGrouperCall(responseFile, URN_GET_GROUPER_PRIVILEGES_LITE);
+    subject.correctMembership(group, "urn:collab:person:example.com:admin");
+
+    assertEquals(expectedMembership, group.membership.basic);
   }
 
   private void stubGrouperCall(String responseFile, String soupAction) throws IOException {

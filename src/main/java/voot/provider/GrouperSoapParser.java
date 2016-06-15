@@ -105,7 +105,7 @@ public class GrouperSoapParser {
         if (nonNilNode(subject)) {
           String id = xpath.evaluate("ns:id", subject);
           if (id != null && id.equals(uid)) {
-            privileges.add(xpath.evaluate("ns:privilegeName", item));
+            privileges.add(xpath.evaluate("ns:privilegeName", item).toLowerCase());
           }
         }
       }
