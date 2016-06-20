@@ -22,8 +22,10 @@ import org.springframework.util.StreamUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
@@ -143,9 +145,11 @@ public class VootOidcApiIntegrationTest {
     // status must be 400 and error message meaningful
 
     assertTrue("status must be 400", HttpStatus.BAD_REQUEST.equals(entity.getStatusCode()));
-    assertTrue("meaningful error message required", entity.getBody().contains("error"));
-    assertTrue("not a valid", entity.getBody().contains(illegalGroupUrn));
-    assertTrue("must report back the offending value", entity.getBody().contains(illegalGroupUrn));
+
+    String body = entity.getBody();
+    assertTrue("meaningful error message required", body.contains("error"));
+    assertTrue("not a valid", body.contains(illegalGroupUrn));
+    assertTrue("must report back the offending value", body.contains(illegalGroupUrn));
   }
 
   @Test
@@ -168,8 +172,18 @@ public class VootOidcApiIntegrationTest {
 
     ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(plainHeaders), String.class);
 
-    assertTrue(HttpStatus.UNAUTHORIZED.equals(entity.getStatusCode()));
+    assertEquals(HttpStatus.UNAUTHORIZED, entity.getStatusCode());
     assertTrue(entity.getBody().contains("Full authentication is required to access this resource"));
+  }
+
+  @Test
+  public void testErrorPath() {
+    String url = "http://localhost:" + port + "/me/unknown";
+    ResponseEntity<Map> result = client.exchange(url, HttpMethod.GET, new HttpEntity<>(oauthHeaders), Map.class);
+
+    assertEquals(404, result.getStatusCode().value());
+    assertEquals("/me/unknown", result.getBody().get("path"));
+
   }
 
 }

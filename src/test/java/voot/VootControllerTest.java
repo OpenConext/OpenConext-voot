@@ -104,12 +104,33 @@ public class VootControllerTest {
     assertEquals("id",group.id);
   }
 
+  @Test(expected = VootController.MalformedGroupUrnException.class)
+  public void testInternalSpecificGroupUrnException() throws Exception {
+    setUpClientCredentials();
+    subject.internalSpecificGroup(UID, "bogus", authentication);
+  }
+
   @Test
   public void testExternalGroups() throws Exception {
     setUpClientCredentials();
     when(externalGroupsService.getMyExternalGroups("urn:collab:person:schac:admin", "schac")).thenReturn(singletonList(group()));
 
     List<Group> groups = subject.externalGroups("urn:collab:person:schac:admin", authentication);
+    assertEquals(1,groups.size());
+  }
+
+  @Test(expected = VootController.MalformedPersonUrnException.class)
+  public void testExternalGroupsWrongUrn() throws Exception {
+    setUpClientCredentials();
+    subject.externalGroups("bogus", authentication);
+  }
+
+  @Test
+  public void testGetAllGroups() throws Exception {
+    setUpClientCredentials();
+    when(externalGroupsService.getAllGroups()).thenReturn(singletonList(group()));
+
+    List<Group> groups = subject.allGroups(authentication);
     assertEquals(1,groups.size());
   }
 

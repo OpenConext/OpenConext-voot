@@ -1,0 +1,447 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+  <soapenv:Body>
+    <ns:findGroupsLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsFindGroupsResults">
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>Demo team voor SURFconext PDP-functionaliteit</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>_Autorisatie-Demoteam</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:_Autorisatie-Demoteam</ns:displayName>
+          <ns:extension>_autorisatie-demoteam</ns:extension>
+          <ns:name>nl:surfnet:diensten:_autorisatie-demoteam</ns:name>
+          <ns:uuid>49330dd0c6e84cf7b30929158fcf03fa</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>People that are allowed to use the oauth2-admin application</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>authz-admins</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:authz-admins</ns:displayName>
+          <ns:extension>authz-admins</ns:extension>
+          <ns:name>nl:surfnet:diensten:authz-admins</ns:name>
+          <ns:uuid>452f18cefdff44a0b930b728c9fd26ba</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:authz-admins</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>authz-admins2</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:authz-admins2</ns:displayName>
+          <ns:extension>authz-admins2</ns:extension>
+          <ns:name>nl:surfnet:diensten:authz-admins2</ns:name>
+          <ns:uuid>34e9d17e54c04a688671d338718364fa</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>desc</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Bar</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Bar</ns:displayName>
+          <ns:extension>bar</ns:extension>
+          <ns:name>nl:surfnet:diensten:bar</ns:name>
+          <ns:uuid>af7a0b73fb704f1590575cb24dca7a4e</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>test</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>bassie &amp; adriaan</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:bassie &amp; adriaan</ns:displayName>
+          <ns:extension>bassie_&amp;_adriaan</ns:extension>
+          <ns:name>nl:surfnet:diensten:bassie_&amp;_adriaan</ns:name>
+          <ns:uuid>161055b1a7b846f68e068e8d150dd759</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>Eh</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Bazenteam</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Bazenteam</ns:displayName>
+          <ns:extension>bazenteam</ns:extension>
+          <ns:name>nl:surfnet:diensten:bazenteam</ns:name>
+          <ns:uuid>bc3fc1f2bb22448f9f2dbaecb75d396e</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>test</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Bernie 2</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Bernie 2</ns:displayName>
+          <ns:extension>bernie_2</ns:extension>
+          <ns:name>nl:surfnet:diensten:bernie_2</ns:name>
+          <ns:uuid>32a7506ed61441189747e448e53f5ee0</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>test</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Bernie 3</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Bernie 3</ns:displayName>
+          <ns:extension>bernie_3</ns:extension>
+          <ns:name>nl:surfnet:diensten:bernie_3</ns:name>
+          <ns:uuid>e7ea474b86424bb392c32e407ab3777c</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>fffff</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>burr</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:burr</ns:displayName>
+          <ns:extension>burr</ns:extension>
+          <ns:name>nl:surfnet:diensten:burr</ns:name>
+          <ns:uuid>cc633acb84d4441f9d7febde54cce77b</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>Team voor dashboard_super_user</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>dashboard_super_user</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:dashboard_super_user</ns:displayName>
+          <ns:extension>dashboard_super_user</ns:extension>
+          <ns:name>nl:surfnet:diensten:dashboard_super_user</ns:name>
+          <ns:uuid>c5d23c5779d04d488a462d362890eab3</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>Dummy team</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>dummy team</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:dummy team</ns:displayName>
+          <ns:extension>dummy_team</ns:extension>
+          <ns:name>nl:surfnet:diensten:dummy_team</ns:name>
+          <ns:uuid>183136b467d140399e9102391eaea84d</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>eew</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>dwqedw</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:dwqedw</ns:displayName>
+          <ns:extension>dwqedw</ns:extension>
+          <ns:name>nl:surfnet:diensten:dwqedw</ns:name>
+          <ns:uuid>dc10a5e2b5734be6a4f207dcde698fab</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>fsjkhgjlsdfhhgjlf</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:fsjkhgjlsdfhhgjlf</ns:displayName>
+          <ns:extension>fsjkhgjlsdfhhgjlf</ns:extension>
+          <ns:name>nl:surfnet:diensten:fsjkhgjlsdfhhgjlf</ns:name>
+          <ns:uuid>2d673064f0a647cabcfce08536cc47de</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>ghfghfghfhf</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>gfggg</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:gfggg</ns:displayName>
+          <ns:extension>gfggg</ns:extension>
+          <ns:name>nl:surfnet:diensten:gfggg</ns:name>
+          <ns:uuid>4777d01fbc3b40968288e2a76551de87</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>Test team van Henny &amp; Co</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Henny</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Henny</ns:displayName>
+          <ns:extension>henny</ns:extension>
+          <ns:name>nl:surfnet:diensten:henny</ns:name>
+          <ns:uuid>e89410c14ae44dffb065c7d6afe99a98</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>HR medewerkers</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:HR medewerkers</ns:displayName>
+          <ns:extension>hr_medewerkers</ns:extension>
+          <ns:name>nl:surfnet:diensten:hr_medewerkers</ns:name>
+          <ns:uuid>164a6748bb0d47268e5ea118e6bbfafc</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Make it slower</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Make it slower</ns:displayName>
+          <ns:extension>make_it_slower</ns:extension>
+          <ns:name>nl:surfnet:diensten:make_it_slower</ns:name>
+          <ns:uuid>3f29de4f9f03475ca8bd764d11dc0f3d</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Make it slower 2</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Make it slower 2</ns:displayName>
+          <ns:extension>make_it_slower_2</ns:extension>
+          <ns:name>nl:surfnet:diensten:make_it_slower_2</ns:name>
+          <ns:uuid>e6a1cfcf077c4cd49059bdbafa4b6eaf</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Make it slower 3</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Make it slower 3</ns:displayName>
+          <ns:extension>make_it_slower_3</ns:extension>
+          <ns:name>nl:surfnet:diensten:make_it_slower_3</ns:name>
+          <ns:uuid>d750ec4ecd0a4590ad580bf5f9d09597</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Make it slower 4</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Make it slower 4</ns:displayName>
+          <ns:extension>make_it_slower_4</ns:extension>
+          <ns:name>nl:surfnet:diensten:make_it_slower_4</ns:name>
+          <ns:uuid>d569a789f7c1424d80ca46ad074f86c6</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>TEST AA TEAM</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>makr-test-aa-team</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:makr-test-aa-team</ns:displayName>
+          <ns:extension>makr-test-aa-team</ns:extension>
+          <ns:name>nl:surfnet:diensten:makr-test-aa-team</ns:name>
+          <ns:uuid>dc18ddcb1e4844e29e09b139d9022602</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>managementvo</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:managementvo</ns:displayName>
+          <ns:extension>managementvo</ns:extension>
+          <ns:name>nl:surfnet:diensten:managementvo</ns:name>
+          <ns:uuid>8988a61beaaf41c8a34da6ec2c0cfe6e</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>de invite procedure dus</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Mijn mooie team dat demote dat t weer werkt</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Mijn mooie team dat demote dat t weer werkt</ns:displayName>
+          <ns:extension>mijn_mooie_team_dat_demote_dat_t_weer_werkt</ns:extension>
+          <ns:name>nl:surfnet:diensten:mijn_mooie_team_dat_demote_dat_t_weer_werkt</ns:name>
+          <ns:uuid>61bd7fd4c76d47a5b86960b0b5a3df19</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>You know the system, have seen it for what it truly is, and know that it is in fact against you. The banks, big-business and the government all work together to control you and you life and keep you a slave to the financial system. School brainwashes us into never questioning the world. We are kept in a dreamlike state through work and television. And for those cases that could possibly develop a thought of their own, we have big pharma to drug us into submission while making us more poor at the same time. Yes, the world is an ugly thing, and at last there is Bernie Sanders to point that out. Welcome to the pro-Bernie side of things.</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Pro-Bernie team</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Pro-Bernie team</ns:displayName>
+          <ns:extension>pro-bernie_team</ns:extension>
+          <ns:name>nl:surfnet:diensten:pro-bernie_team</ns:name>
+          <ns:uuid>38eb17eda29c450ea5fe71342833cd72</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>You worship Trump and everything he stands for. As a devote disciple you have been trained your whole life in the use of rifles and outdoor survival. You are convinced the end of the world is coming, caused by the ungodliness found in the middle east. However, through the use of your personal backyard bunker, you will ensure you and your family will survive into the new world. In secret, you cannot wait for this event to occur as it will A) solve all your problems, and B) make sure all those self-righteous, misguided fools must acknowledge how right you were all along. In the meantime, you are pro-Trump.</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Pro-Trump team</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Pro-Trump team</ns:displayName>
+          <ns:extension>pro-trump_team</ns:extension>
+          <ns:name>nl:surfnet:diensten:pro-trump_team</ns:name>
+          <ns:uuid>785a54a9f6f149a1ae670ac333cc2a3d</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>asdasdasd</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>sada</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:sada</ns:displayName>
+          <ns:extension>sada</ns:extension>
+          <ns:name>nl:surfnet:diensten:sada</ns:name>
+          <ns:uuid>8219a18064a646f09eb561bf48fc5a0d</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>SURFnet team</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:SURFnet team</ns:displayName>
+          <ns:extension>surfnet_team</ns:extension>
+          <ns:name>nl:surfnet:diensten:surfnet_team</ns:name>
+          <ns:uuid>f9293bfb079f45a8b527ac688b2c7f21</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>fdsfdsf</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test</ns:displayName>
+          <ns:extension>test</ns:extension>
+          <ns:name>nl:surfnet:diensten:test</ns:name>
+          <ns:uuid>b8e7ef2c91504114960a646d948df81c</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>test-team-bug</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test-team-bug</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test-team-bug</ns:displayName>
+          <ns:extension>test-team-bug</ns:extension>
+          <ns:name>nl:surfnet:diensten:test-team-bug</ns:name>
+          <ns:uuid>62a77432e06541468d822004ad0a4f2d</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>Testteam</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test123</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test123</ns:displayName>
+          <ns:extension>test123</ns:extension>
+          <ns:name>nl:surfnet:diensten:test123</ns:name>
+          <ns:uuid>8c0b105ce42b44c0b373af77ea1ae841</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test 1</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test 1</ns:displayName>
+          <ns:extension>test_1</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_1</ns:name>
+          <ns:uuid>740d9f8d171146c9b754a7e6a44c25e0</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>teteyeye</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Test 14</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Test 14</ns:displayName>
+          <ns:extension>test_14</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_14</ns:name>
+          <ns:uuid>956abd6d17e744459c8ca5d996ab2e1e</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>Invite 2</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Test 15</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Test 15</ns:displayName>
+          <ns:extension>test_15</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_15</ns:name>
+          <ns:uuid>6be0af44b98b429a9574b244a18e39c5</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test 2</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test 2</ns:displayName>
+          <ns:extension>test_2</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_2</ns:name>
+          <ns:uuid>f9f5bd74635d4e45b97f11b0ed566cd4</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test 3</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test 3</ns:displayName>
+          <ns:extension>test_3</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_3</ns:name>
+          <ns:uuid>5ae1d9a8860243c486383a55afe6a76a</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test 5</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test 5</ns:displayName>
+          <ns:extension>test_5</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_5</ns:name>
+          <ns:uuid>affa442e31c84f32b57b93df4defc904</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test 7</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test 7</ns:displayName>
+          <ns:extension>test_7</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_7</ns:name>
+          <ns:uuid>36e61932898247f3aaa832bdd0565261</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test 8</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test 8</ns:displayName>
+          <ns:extension>test_8</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_8</ns:name>
+          <ns:uuid>bfead8c7ba6e4b7faa3aa7c73b6cccd1</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test 9</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test 9</ns:displayName>
+          <ns:extension>test_9</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_9</ns:name>
+          <ns:uuid>f843f34323024241ac366b8c6cb60bc1</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>dfsf</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>test_team_2</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:test_team_2</ns:displayName>
+          <ns:extension>test_team_2</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_team_2</ns:name>
+          <ns:uuid>1a8180b2d68e4b01a62089981f2b949f</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>test team 2</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Test Team 5</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Test Team 5</ns:displayName>
+          <ns:extension>test_team_5</ns:extension>
+          <ns:name>nl:surfnet:diensten:test_team_5</ns:name>
+          <ns:uuid>dca0319c671e4cfb8b4ae916c4614c2e</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>Testing this super group</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>testGroup</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:testGroup</ns:displayName>
+          <ns:extension>testgroup</ns:extension>
+          <ns:name>nl:surfnet:diensten:testgroup</ns:name>
+          <ns:uuid>63d5c1391c4c472981f3a4c94ae93708</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>test</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>testgtt</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:testgtt</ns:displayName>
+          <ns:extension>testgtt</ns:extension>
+          <ns:name>nl:surfnet:diensten:testgtt</ns:name>
+          <ns:uuid>057912541b83476db7a37845b967c045</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>test</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>testtest</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:testtest</ns:displayName>
+          <ns:extension>testtest</ns:extension>
+          <ns:name>nl:surfnet:diensten:testtest</ns:name>
+          <ns:uuid>a41cf352b17842caaaed9799e61dd493</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>test group with ampersand</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Truus &amp; Henk</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Truus &amp; Henk</ns:displayName>
+          <ns:extension>truus_&amp;_henk</ns:extension>
+          <ns:name>nl:surfnet:diensten:truus_&amp;_henk</ns:name>
+          <ns:uuid>fb0e077649554207997e1f9b26c00fdb</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>ttttt</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>tttt</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:tttt</ns:displayName>
+          <ns:extension>tttt</ns:extension>
+          <ns:name>nl:surfnet:diensten:tttt</ns:name>
+          <ns:uuid>0b43f1ec477347d68ac125275ac7a96b</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults xsi:type="ns:WsGroup">
+          <ns:description>Guest aangemaakt team</ns:description>
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>Yesh</ns:displayExtension>
+          <ns:displayName>nl:surfnet:diensten:Yesh</ns:displayName>
+          <ns:extension>yesh</ns:extension>
+          <ns:name>nl:surfnet:diensten:yesh</ns:name>
+          <ns:uuid>4cd4fff1556641039fe417aba5817746</ns:uuid>
+        </ns:groupResults>
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true" />
+          <ns:resultWarnings xsi:nil="true" />
+          <ns:serverVersion>2.1.5</ns:serverVersion>
+        </ns:responseMetadata>
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true" />
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: 2.0.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=%%,stemName=nl:surfnet:diensten]
+            , includeGroupDetail: false, actAsSubject: null, paramNames:
+            , params: null
+            , wsGroupLookups: null</ns:resultMessage>
+          <ns:success>T</ns:success>
+        </ns:resultMetadata>
+      </ns:return>
+    </ns:findGroupsLiteResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

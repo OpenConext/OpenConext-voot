@@ -132,6 +132,20 @@ public class GrouperSoapClientTest {
   }
 
   @Test
+  public void testGetAllGroups() throws Exception {
+    stubGrouperCall("soap/FindGroupsLite_Success_Response.xml", URN_FIND_GROUPS_LITE);
+    List<Group> allGroups = subject.getAllGroups();
+    assertEquals(47, allGroups.size());
+    allGroups.forEach(this::validGroup);
+  }
+
+  private void validGroup(Group group) {
+    assertTrue(group.id.startsWith("urn:collab:group:surfnet.nl:nl:surfnet:diensten:"));
+    assertEquals("surfnet", group.sourceID);
+    assertNotNull(group.displayName);
+  }
+
+  @Test
   public void testMembersError() throws Exception {
     stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0")).withHeader("Content-Type", equalTo("text/xml")).willReturn(aResponse().withStatus(500)));
     List<Member> members = subject.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon");

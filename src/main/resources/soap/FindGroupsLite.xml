@@ -1,0 +1,11 @@
+<x:Envelope xmlns:x="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+  <x:Header/>
+  <x:Body>
+    <xsd:findGroupsLite>
+      <xsd:clientVersion>2.0.0</xsd:clientVersion>
+      <xsd:queryFilterType>FIND_BY_GROUP_NAME_APPROXIMATE</xsd:queryFilterType>
+      <xsd:groupName>%%</xsd:groupName>
+      <xsd:stemName>nl:surfnet:diensten</xsd:stemName>
+    </xsd:findGroupsLite>
+  </x:Body>
+</x:Envelope>

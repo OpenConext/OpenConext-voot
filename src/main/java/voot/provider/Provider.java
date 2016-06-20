@@ -37,6 +37,11 @@ public interface Provider {
   List<Group> getGroupMemberships(String uid, boolean includeMemberships) ;
 
   /**
+   * All groups
+   */
+  List<Group> getAllGroups() ;
+
+  /**
    *
    * @param uid the fully qualified uid
    * @param groupId the fully qualified uid groupId

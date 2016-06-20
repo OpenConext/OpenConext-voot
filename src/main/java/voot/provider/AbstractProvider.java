@@ -14,9 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import voot.util.UrnUtils;
+import voot.valueobject.Group;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 

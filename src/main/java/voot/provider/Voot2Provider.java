@@ -49,7 +49,11 @@ public class Voot2Provider extends AbstractProvider {
       LOG.error("Failed to invoke getGroupMemberships {} for {}, returning empty result.", response, configuration);
       return Collections.emptyList();
     }
+  }
 
+  @Override
+  public List<Group> getAllGroups() {
+    return Collections.emptyList();
   }
 
   @Override

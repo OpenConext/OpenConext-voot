@@ -41,6 +41,7 @@ public class GrouperSoapClient extends AbstractProvider {
   public static final String URN_GET_MEMBERS_LITE = "urn:getMembersLite";
   public static final String URN_GET_GROUPER_PRIVILEGES_LITE = "urn:getGrouperPrivilegesLite";
   public static final String URN_HAS_MEMBER_LITE = "urn:hasMemberLite";
+  public static final String URN_FIND_GROUPS_LITE = "urn:findGroupsLite";
 
   public static final String SOAP_ACTION = "SOAPAction";
 
@@ -111,6 +112,23 @@ public class GrouperSoapClient extends AbstractProvider {
     } catch (Exception exception) {
       LOG.warn("Failed to invoke grouper, returning empty result.", exception);
       return Optional.empty();
+    }
+  }
+
+  @Override
+  public List<Group> getAllGroups() {
+    try {
+      LOG.debug("Querying findGroupsLite API");
+      String soap = getTemplate("soap/FindGroupsLite.xml");
+
+      ResponseEntity<String> response = getGrouperResponse(soap, URN_FIND_GROUPS_LITE);
+      List<Group> group = soapParser.parseFindAllGroups(response);
+
+      LOG.debug("getGroupMembership result: {} group.", group.size());
+      return group;
+    } catch (Exception exception) {
+      LOG.warn("Failed to invoke grouper, returning empty result.", exception);
+      return Collections.emptyList();
     }
   }
 
@@ -187,11 +205,7 @@ public class GrouperSoapClient extends AbstractProvider {
   }
 
   private String replaceTokens(String soapTemplate, Map<String, String> replacements) throws IOException {
-    String xml = soapTemplates.get(soapTemplate);
-    if (xml == null) {
-      xml = StreamUtils.copyToString(new ClassPathResource(soapTemplate).getInputStream(), charSet);
-      soapTemplates.put(soapTemplate, xml);
-    }
+    String xml = getTemplate(soapTemplate);
     Matcher matcher = replacementPattern.matcher(xml);
     StringBuffer buffer = new StringBuffer();
     while (matcher.find()) {
@@ -204,5 +218,14 @@ public class GrouperSoapClient extends AbstractProvider {
     matcher.appendTail(buffer);
     return buffer.toString();
 
+  }
+
+  private String getTemplate(String soapTemplate) throws IOException {
+    String xml = soapTemplates.get(soapTemplate);
+    if (xml == null) {
+      xml = StreamUtils.copyToString(new ClassPathResource(soapTemplate).getInputStream(), charSet);
+      soapTemplates.put(soapTemplate, xml);
+    }
+    return xml;
   }
 }

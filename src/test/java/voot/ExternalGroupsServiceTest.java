@@ -91,4 +91,16 @@ public class ExternalGroupsServiceTest {
     assertEquals(MockProvider.MEMBER, members.get(0));
   }
 
+  @Test
+  public void testGetAllGroups() throws Exception {
+    List<Provider> providers = Arrays.asList(
+      new MockProvider(200L, Success, GROUPER),
+      new MockProvider(200L, Success, VOOT2)
+  );
+
+    ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
+    List<Group> allGroups = externalGroupsService.getAllGroups();
+    assertEquals(1, allGroups.size());
+  }
+
 }

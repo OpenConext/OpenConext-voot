@@ -42,12 +42,20 @@ public class GrouperSoapParser {
   }
 
   public List<Group> parseGroups(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
+    return doGetGroups(response, "//ns:wsGroups");
+  }
+
+  public List<Group> parseFindAllGroups(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
+    return doGetGroups(response, "//ns:groupResults");
+  }
+
+  private List<Group> doGetGroups(ResponseEntity<String> response, String groupElement) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
     LOG.debug("result from Grouper: {} .", response);
 
     Document document = getDocument(response);
     XPath xpath = getXPath();
 
-    NodeList nodes = (NodeList) xpath.evaluate("//ns:wsGroups", document, XPathConstants.NODESET);
+    NodeList nodes = (NodeList) xpath.evaluate(groupElement, document, XPathConstants.NODESET);
     List<Group> groups = new ArrayList<>();
 
     for (int i = 0; i < nodes.getLength(); i++) {

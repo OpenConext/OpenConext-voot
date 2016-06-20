@@ -46,7 +46,6 @@ public class VootController {
 
     LOG.debug("me/groups result for uid {}: {}", authentication.getName(), myGroups);
     return myGroups;
-
   }
 
   @RequestMapping(value = "/me/groups/{groupId:.+}")
@@ -123,6 +122,22 @@ public class VootController {
     List<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome.get());
 
     LOG.debug("internal/external-groups/{} result: {}", userId, groups);
+
+    return groups;
+  }
+
+  @RequestMapping(value = "/internal/all-groups/")
+  public List<Group> allGroups(OAuth2Authentication authentication) throws MalformedPersonUrnException {
+    String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
+    String clientId = authentication.getOAuth2Request().getClientId();
+
+    LOG.debug("internal/all-groups, accessToken: {}, clientId {}", accessToken, clientId);
+
+    assertClientCredentialsClient(authentication, clientId);
+
+    List<Group> groups = externalGroupsService.getAllGroups();
+
+    LOG.debug("internal/all-groupsresult: {}", groups.size());
 
     return groups;
   }

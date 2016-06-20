@@ -7,16 +7,15 @@ import voot.provider.Provider;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.BiFunction;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 public class ExternalGroupsService {
 
@@ -33,80 +32,53 @@ public class ExternalGroupsService {
   }
 
   public List<Group> getMyGroups(String uid, String schacHomeOrganization, boolean includeMemberships) {
-    return getGroupMemberships(
-      uid,
+    return this.execute(
       provider -> provider.shouldBeQueriedForMemberships(schacHomeOrganization),
-      includeMemberships);
+      provider -> provider.getGroupMemberships(uid, includeMemberships),
+      Collections::<Group>emptyList).flatMap(Collection::stream).collect(toList());
   }
 
   public List<Group> getMyExternalGroups(String uid, String schacHomeOrganization) {
-    return getGroupMemberships(
-      uid,
+    return this.execute(
       provider -> provider.isExternalGroupProvider() && provider.shouldBeQueriedForMemberships(schacHomeOrganization),
-      true);
+      provider -> provider.getGroupMemberships(uid, true),
+      Collections::<Group>emptyList).flatMap(Collection::stream).collect(toList());
   }
 
   public List<Member> getMembers(String groupId) {
-    return doGet(groupId, provider -> provider.shouldBeQueriedForMembers(groupId), Provider::getMembers);
+    return this.execute(
+      provider -> provider.shouldBeQueriedForMembers(groupId),
+      provider -> provider.getMembers(groupId),
+      Collections::<Member>emptyList).flatMap(Collection::stream).collect(toList());
   }
 
   public Optional<Group> getMyGroupById(String uid, String groupId) {
+    List<Optional<Group>> groups = this.execute(
+      provider -> provider.shouldBeQueriedForGroup(groupId),
+      provider -> provider.getGroupMembership(uid, groupId),
+      Optional::<Group>empty).filter(Optional::isPresent).collect(toList());
+    return groups.isEmpty() ? Optional.empty() : groups.get(0);
+  }
+
+  public List<Group> getAllGroups() {
+    return this.execute(
+      provider -> !provider.isExternalGroupProvider(),
+      Provider::getAllGroups,
+      Collections::<Group>emptyList).flatMap(Collection::stream).collect(toList());
+  }
+
+  private <T> Stream<T> execute(Predicate<Provider> providerFilter, ProviderCallback<T> callback, ExceptionProviderCallback<T> exceptionCallback) {
     try {
-      List<Optional<Group>> optionals = forkJoinPool.submit(() -> this.providers.parallelStream()
-        .filter(provider -> provider.shouldBeQueriedForGroup(groupId))
+      return forkJoinPool.submit(() -> providers.parallelStream()
+        .filter(providerFilter)
         .map(provider -> {
           try {
-            return provider.getGroupMembership(uid, groupId);
+            return callback.execute(provider);
           } catch (RuntimeException e) {
             LOG.warn("Provider {} threw exception: {} ", provider, e);
-            return Optional.<Group>empty();
+            return exceptionCallback.result();
           }
-        })
-        .filter(Optional::isPresent)
-        .collect(Collectors.toList())).get();
-      return optionals.isEmpty() ? Optional.empty() : optionals.get(0);
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("Unable to schedule querying of external group providers.", e);
-    }
-  }
-
-  public List<Group> getGroupMemberships(String uid, Predicate<Provider> providerFilter, boolean includeMemberships) {
-    try {
-      return forkJoinPool.submit(() -> {
-        return this.providers.parallelStream()
-          .filter(providerFilter)
-          .map(provider -> {
-            try {
-              return provider.getGroupMemberships(uid, includeMemberships);
-            } catch (RuntimeException e) {
-              LOG.warn("Provider {} threw exception: {} ", provider, e);
-              return Collections.<Group>emptyList();
-            }
-          })
-          .flatMap(Collection::stream)
-          .collect(Collectors.toList());
-      }).get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("Unable to schedule querying of group memberships.", e);
-    }
-  }
-
-  private <T> List<T> doGet(String argument, Predicate<Provider> providerFilter, BiFunction<Provider, String, List<T>> get) {
-    try {
-      return forkJoinPool.submit(() -> {
-        return this.providers.parallelStream()
-          .filter(providerFilter)
-          .map(provider -> {
-            try {
-              return get.apply(provider, argument);
-            } catch (RuntimeException e) {
-              LOG.warn("Provider {} threw exception: {} ", provider, e);
-              return Collections.<T>emptyList();
-            }
-          })
-          .flatMap(Collection::stream)
-          .collect(Collectors.toList());
-      }).get();
+        })).get();
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException("Unable to schedule querying of external group providers.", e);
     }

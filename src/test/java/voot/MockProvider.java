@@ -46,6 +46,12 @@ public class MockProvider extends AbstractProvider {
   }
 
   @Override
+  public List<Group> getAllGroups() {
+    return Collections.singletonList(defaultGroup("id"));
+  }
+
+
+  @Override
   public Optional<Group> getGroupMembership(String uid, String groupId) {
     return Optional.of(defaultGroup(groupId));
   }
