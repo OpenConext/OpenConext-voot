@@ -126,7 +126,7 @@ public class VootController {
     return groups;
   }
 
-  @RequestMapping(value = "/internal/all-groups/")
+  @RequestMapping(value = "/internal/all-groups")
   public List<Group> allGroups(OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
