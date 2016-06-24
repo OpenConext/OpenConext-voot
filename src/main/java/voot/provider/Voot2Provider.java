@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -104,7 +103,7 @@ public class Voot2Provider extends AbstractProvider {
       (String) item.get("displayName"),
       (String) item.get("description"),
       configuration.name,
-      item.containsKey("membership") ? Membership.fromRole((String) ((Map) item.get("membership")).get("basic")) : Membership.defaultMembership);
+      item.containsKey("membership") ? new Membership((String) ((Map) item.get("membership")).get("basic")) : Membership.MEMBER);
   }
 
 

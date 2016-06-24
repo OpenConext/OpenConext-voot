@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = VootServiceApplication.class)
-@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oidc.checkToken.endpoint.url=http://localhost:12121/introspect", "checkToken.cache=false"}, randomPort = true)
+@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oidc.checkToken.endpoint.url=http://localhost:12121/introspect", "checkToken.cache=false", "flyway.enabled=true"}, randomPort = true)
 public class VootOidcApiIntegrationTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(VootOidcApiIntegrationTest.class);

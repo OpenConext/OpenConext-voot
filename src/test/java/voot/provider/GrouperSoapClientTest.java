@@ -73,14 +73,14 @@ public class GrouperSoapClientTest {
     assertEquals(group1.id,"urn:collab:group:surfnet.nl:etc:sysadmingroup");
     assertEquals(group1.displayName,"sysadmingroup");
     assertEquals(group1.description,"system administrators with all privileges");
-    assertEquals(group1.membership.basic,"admin");
+    assertEquals(group1.membership.getBasic(),"admin");
 
 
     Group group2 = memberships.get(1);
     assertEquals(group2.id,"urn:collab:group:surfnet.nl:nl:surfnet:diensten:test_groep_1");
     assertEquals(group2.displayName,"test_groep_1");
     assertEquals(group2.description,"test groep 1");
-    assertEquals(group2.membership.basic,"admin");
+    assertEquals(group2.membership.getBasic(),"admin");
   }
 
   @Test
@@ -101,7 +101,7 @@ public class GrouperSoapClientTest {
     assertTrue(group.id.equals("urn:collab:group:surfnet.nl:nl:surfnet:diensten:dit_is_de_team_naam"));
     assertTrue(group.displayName.equals("Dit is de team naam"));
     assertTrue(group.description.equals("Dit is de team description, kan lang zijn"));
-    assertTrue(group.membership.basic.equals("member"));
+    assertTrue(group.membership.getBasic().equals("member"));
   }
 
   @Test
@@ -167,7 +167,7 @@ public class GrouperSoapClientTest {
     stubGrouperCall(responseFile, URN_GET_GROUPER_PRIVILEGES_LITE);
     group = subject.correctMembership(group, "urn:collab:person:example.com:admin");
 
-    assertEquals(expectedMembership, group.membership.basic);
+    assertEquals(expectedMembership, group.membership.getBasic());
   }
 
   private void stubGrouperCall(String responseFile, String soupAction) throws IOException {

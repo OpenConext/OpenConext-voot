@@ -79,7 +79,7 @@ public class MockProvider extends AbstractProvider {
   }
 
   private Group defaultGroup(String id) {
-    return new Group(id, "came from" + this.toString(), "description", SCHAC_HOME_ORGANIZATION, Membership.defaultMembership);
+    return new Group(id, "came from" + this.toString(), "description", SCHAC_HOME_ORGANIZATION, Membership.MEMBER);
   }
 
   private Member defaultMember() {

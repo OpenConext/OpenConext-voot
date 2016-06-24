@@ -7,28 +7,15 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.HttpServerErrorException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 import voot.valueobject.Membership;
 
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -167,11 +154,11 @@ public class GrouperSoapClient extends AbstractProvider {
       List<String> memberships = soapParser.parsePrivileges(response, uid);
       Group newGroup;
       if (memberships.contains("admin")) {
-        newGroup = new Group(group, Membership.fromRole("admin"));
+        newGroup = new Group(group, Membership.ADMIN);
       } else if (memberships.contains("update")) {
-        newGroup = new Group(group, Membership.fromRole("manager"));
+        newGroup = new Group(group, Membership.MANAGER);
       } else {
-        newGroup = new Group(group, Membership.defaultMembership);
+        newGroup = new Group(group, Membership.MEMBER);
       }
       LOG.debug("GetPrivileges result: {} for Group {} and uid {}", newGroup.membership, groupIdWithoutPrefix, uid);
       return newGroup;

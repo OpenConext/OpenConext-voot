@@ -29,7 +29,7 @@ public class OpenSocialClient extends Voot2Provider {
         (String) map.get("title"),
         (String) map.get("description"),
         configuration.name,
-        Membership.fromRole((String) map.getOrDefault("voot_membership_role", "member")));
+        new Membership((String) map.getOrDefault("voot_membership_role", "member")));
     }).collect(Collectors.toList());
   }
 

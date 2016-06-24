@@ -17,7 +17,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.assertTrue;
 
-@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "authz.checkToken.endpoint.url=http://localhost:12121/oauth/check_token", "checkToken.cache=false"}, randomPort = true)
+@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "authz.checkToken.endpoint.url=http://localhost:12121/oauth/check_token", "checkToken.cache=false", "flyway.enabled=true"}, randomPort = true)
 public class VootAuthzApiIntegrationTest extends VootOidcApiIntegrationTest {
 
   private static final String accessToken = UUID.randomUUID().toString();

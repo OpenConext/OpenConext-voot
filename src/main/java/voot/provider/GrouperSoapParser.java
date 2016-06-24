@@ -136,7 +136,7 @@ public class GrouperSoapParser {
       xpath.evaluate("ns:description", item),
       sourceId,
       //Grouper does not hand out the membership, but for consistency with the other VOOT providers we default to
-      Membership.defaultMembership);
+      Membership.MEMBER);
   }
 
   private XPath getXPath() {

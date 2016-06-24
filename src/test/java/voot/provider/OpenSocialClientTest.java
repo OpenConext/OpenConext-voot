@@ -90,14 +90,14 @@ public class OpenSocialClientTest {
     assertEquals("urn:collab:group:example.org:nl:surfnet:diensten:test", group2.id);
     assertEquals("test title", group2.displayName);
     assertEquals("test description", group2.description);
-    assertEquals("member", group2.membership.basic);
+    assertEquals("member", group2.membership.getBasic());
   }
 
   private void assertAdminGroup(Group group1) {
     assertEquals("urn:collab:group:example.org:etc:sysadmingroup", group1.id);
     assertEquals("sysadmingroup", group1.displayName);
     assertEquals("Super users", group1.description);
-    assertEquals("admin", group1.membership.basic);
+    assertEquals("admin", group1.membership.getBasic());
   }
 
   private void stubCall(String queryPart, String responseFile) throws IOException {
