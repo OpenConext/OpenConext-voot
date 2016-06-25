@@ -8,14 +8,6 @@ public class Group {
   public final String sourceID;
   public final Membership membership;
 
-  public Group(Group group, Membership membership) {
-    this.id = group.id;
-    this.displayName = group.displayName;
-    this.description = group.description;
-    this.sourceID = group.sourceID;
-    this.membership = membership;
-  }
-
   public Group(String id, String displayName, String description, String sourceID, Membership membership) {
     this.id = id;
     this.displayName = displayName;
