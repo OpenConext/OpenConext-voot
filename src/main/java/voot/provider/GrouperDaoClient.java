@@ -30,18 +30,18 @@ public class GrouperDaoClient implements GrouperDao {
     List<Group> groups = this.jdbcTemplate.query(
       "select gf.name as role, gg.name as groupname," +
         " gg.description as description, gg.display_extension as display_extension" +
-        " from grouper_memberships gms, grouper_groups gg, grouper_fields gf, grouper_stems gs, grouper_members gm " +
+        " from grouper_memberships gms, grouper_groups gg, grouper_fields gf, grouper_members gm " +
         " where gms.field_id = gf.id and gms.owner_group_id = gg.id and gms.member_id = gm.id and gm.subject_id = ?" +
-        " and gg.parent_stem = gs.id and gs.name != 'etc'" +
         " and (gf.name = 'admins' or gf.name = 'updaters' or gf.name = 'members') order by gg.name",
       new Object[]{subjectId},
       (resultSet, i) ->
         new Group(groupIdPrefix + resultSet.getString("groupname"), resultSet.getString("groupname"),
           resultSet.getString("display_extension"), sourceId, membership(resultSet))
     );
+    //the query returns duplicate groups because you can have multiple roles for one team
     Map<String, List<Group>> collect = groups.stream().collect(Collectors.groupingBy(group -> group.id));
-    return collect.values().stream()
-      .map(this::mostImportant).collect(toList());
+    //we reduce the groups with the same ID to one group with the highest role
+    return collect.values().stream().map(this::mostImportant).collect(toList());
   }
 
   private Group mostImportant(List<Group> groupList) {

@@ -29,10 +29,6 @@ VALUES
 	('6', '1', 1, 'updaters', 'admin', 'access', 'admin', 0, '3'),
 	('7', '1', 1, 'members', 'read', 'list', 'update', 0, '1');
 
-INSERT INTO `grouper_stems` (`id`, `parent_stem`, `name`, `display_name`, `creator_id`, `create_time`, `modifier_id`, `modify_time`, `display_extension`, `extension`, `description`, `last_membership_change`, `alternate_name`, `hibernate_version_number`, `context_id`)
-VALUES
-	('1', '1', 'nl:surfnet:diensten', 'nl:surfnet:diensten', '1', 1428407370002, NULL, 0, 'diensten', 'diensten', NULL, NULL, NULL, 0, '1');
-
 INSERT INTO `grouper_members` (`id`, `subject_id`, `subject_source`, `subject_type`, `hibernate_version_number`, `sort_string0`, `sort_string1`, `sort_string2`, `sort_string3`, `sort_string4`, `search_string0`, `search_string1`, `search_string2`, `search_string3`, `search_string4`, `name`, `description`, `context_id`)
 VALUES
 	('1', 'urn:collab:person:example.com:amin', 'openconext-ldap', 'person', 0, 'John Doe', NULL, NULL, NULL, NULL, ',john doe,', NULL, NULL, NULL, NULL, 'John Doe', 'John Doe', NULL);

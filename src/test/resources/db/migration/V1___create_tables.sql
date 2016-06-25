@@ -52,25 +52,6 @@ CREATE TABLE `grouper_fields` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE `grouper_stems` (
-  `id` varchar(40) NOT NULL,
-  `parent_stem` varchar(40) DEFAULT NULL,
-  `name` varchar(255) NOT NULL,
-  `display_name` varchar(255) NOT NULL,
-  `creator_id` varchar(40) NOT NULL,
-  `create_time` bigint(20) NOT NULL,
-  `modifier_id` varchar(40) DEFAULT NULL,
-  `modify_time` bigint(20) DEFAULT NULL,
-  `display_extension` varchar(255) NOT NULL,
-  `extension` varchar(255) NOT NULL,
-  `description` varchar(1024) DEFAULT NULL,
-  `last_membership_change` bigint(20) DEFAULT NULL,
-  `alternate_name` varchar(255) DEFAULT NULL,
-  `hibernate_version_number` bigint(20) DEFAULT NULL,
-  `context_id` varchar(40) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 CREATE TABLE `grouper_members` (
   `id` varchar(40) NOT NULL,
   `subject_id` varchar(255) NOT NULL,
