@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -77,6 +78,11 @@ public class Voot2ProviderTest {
   @Test(expected = IllegalArgumentException.class)
   public void testGetMembers() {
     subject.getMembers("bogus");
+  }
+
+  @Test
+  public void testGetAllGroups() {
+    assertEquals(0, subject.getAllGroups().size());
   }
 
   @Test
