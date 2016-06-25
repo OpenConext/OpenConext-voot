@@ -9,6 +9,17 @@ purposes. The way this information is shared adheres to the [Voot protocol](http
 
 The info below is geared towards developers that need to work on this codebase, not to those that may want to use this API.
 
+### [Create test database](#create-database)
+
+Connect to your local mysql database: `mysql -uroot`
+
+Execute the following:
+
+```sql
+CREATE DATABASE grouper_local DEFAULT CHARACTER SET latin1;
+grant all on grouper_local.* to 'root'@'localhost';
+```
+
 # Getting started
 This project uses Spring Boot and Maven. To run locally, type:
 

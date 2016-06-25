@@ -41,10 +41,6 @@ public class GrouperSoapParser {
     this.groupIdPrefix = groupIdPrefix;
   }
 
-  public List<Group> parseGroups(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
-    return doGetGroups(response, "//ns:wsGroups");
-  }
-
   public List<Group> parseFindAllGroups(ResponseEntity<String> response) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
     return doGetGroups(response, "//ns:groupResults");
   }
@@ -97,28 +93,6 @@ public class GrouperSoapParser {
     } else {
       return Optional.empty();
     }
-  }
-
-  public List<String> parsePrivileges(ResponseEntity<String> response, String uid) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-    Document document = getDocument(response);
-    XPath xpath = getXPath();
-
-    NodeList nodes = (NodeList) xpath.evaluate("//ns:privilegeResults", document, XPathConstants.NODESET);
-    List<String> privileges = new ArrayList<>();
-
-    for (int i = 0; i < nodes.getLength(); i++) {
-      Node item = nodes.item(i);
-      if (nonNilNode(item)) {
-        Node subject = (Node) xpath.evaluate("ns:wsSubject", item, XPathConstants.NODE);
-        if (nonNilNode(subject)) {
-          String id = xpath.evaluate("ns:id", subject);
-          if (id != null && id.equals(uid)) {
-            privileges.add(xpath.evaluate("ns:privilegeName", item).toLowerCase());
-          }
-        }
-      }
-    }
-    return privileges;
   }
 
   private Member parseMember(XPath xpath, Node item) throws XPathExpressionException {

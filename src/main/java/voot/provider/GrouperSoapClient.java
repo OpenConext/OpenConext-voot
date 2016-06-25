@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.HttpServerErrorException;
 import voot.util.UrnUtils;
@@ -12,6 +13,7 @@ import voot.valueobject.Group;
 import voot.valueobject.Member;
 import voot.valueobject.Membership;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -40,12 +42,18 @@ public class GrouperSoapClient extends AbstractProvider {
 
   private final GrouperSoapParser soapParser;
 
-  private final ForkJoinPool forkJoinPool;
+  private final GrouperDao dao;
 
-  public GrouperSoapClient(Configuration configuration) {
+  public GrouperSoapClient(Configuration configuration, DataSource dataSource) {
     super(configuration);
-    soapParser = new GrouperSoapParser(configuration.name, groupIdPrefix);
-    this.forkJoinPool = new ForkJoinPool(16);
+    this.dao = new GrouperDaoClient(new JdbcTemplate(dataSource),configuration.name, groupIdPrefix);
+    this.soapParser = new GrouperSoapParser(configuration.name, groupIdPrefix);
+  }
+
+  public GrouperSoapClient(Configuration configuration, GrouperDao grouperDao) {
+    super(configuration);
+    this.dao = grouperDao;
+    this.soapParser = new GrouperSoapParser(configuration.name, groupIdPrefix);
   }
 
   @Override
@@ -55,25 +63,9 @@ public class GrouperSoapClient extends AbstractProvider {
 
   @Override
   public List<Group> getGroupMemberships(final String uid, boolean includeMemberships) {
-    Map<String, String> replacements = new HashMap<>();
-    replacements.put("subjectId", uid);
-
+    LOG.debug("Querying database getGroupMemberships for subjectId: {}", uid);
     try {
-      LOG.debug("Querying getGroupMemberships for subjectId: {}", uid);
-      String soap = replaceTokens("soap/GetGroupsLite.xml", replacements);
-
-      ResponseEntity<String> response = getGrouperResponse(soap, URN_GET_GROUPS_LITE);
-      List<Group> groups = soapParser.parseGroups(response);
-
-      if (includeMemberships) {
-        return forkJoinPool.submit(() ->
-          groups.parallelStream()
-            .map(group -> correctMembership(group, uid))
-            .collect(Collectors.toList())).get();
-
-      }
-      return groups;
-
+      return dao.groups(uid);
     } catch (Exception exception) {
       LOG.warn("Failed to invoke getGroupMemberships, returning empty result.", exception);
       return Collections.emptyList();
@@ -137,39 +129,6 @@ public class GrouperSoapClient extends AbstractProvider {
     } catch (Exception exception) {
       LOG.warn("Failed to invoke grouper, returning empty result.", exception);
       return Collections.emptyList();
-    }
-  }
-
-  protected Group correctMembership(Group group, String uid) {
-    Map<String, String> replacements = new HashMap<>();
-    //we need to strip the SURFnet collab prefix
-    String groupIdWithoutPrefix = StringEscapeUtils.escapeXml11(group.id.replace(groupIdPrefix, ""));
-    replacements.put("groupId", groupIdWithoutPrefix);
-
-    LOG.debug("Querying GetPrivileges for group: {} from Thread {}", groupIdWithoutPrefix, Thread.currentThread().getName());
-    try {
-      String soap = replaceTokens("soap/GetPrivilegesLite.xml", replacements);
-
-      ResponseEntity<String> response = getGrouperResponse(soap, URN_GET_GROUPER_PRIVILEGES_LITE);
-      List<String> memberships = soapParser.parsePrivileges(response, uid);
-      Group newGroup;
-      if (memberships.contains("admin")) {
-        newGroup = new Group(group, Membership.ADMIN);
-      } else if (memberships.contains("update")) {
-        newGroup = new Group(group, Membership.MANAGER);
-      } else {
-        newGroup = new Group(group, Membership.MEMBER);
-      }
-      LOG.debug("GetPrivileges result: {} for Group {} and uid {}", newGroup.membership, groupIdWithoutPrefix, uid);
-      return newGroup;
-    } catch (Exception exception) {
-      if (exception instanceof HttpServerErrorException) {
-        HttpServerErrorException serverError = (HttpServerErrorException) exception;
-        LOG.warn("Failed to invoke grouper, not correcting membership. Cause: " + serverError.getResponseBodyAsString());
-      } else {
-        LOG.warn("Failed to invoke grouper, not correcting membership.", exception);
-      }
-      return group;
     }
   }
 

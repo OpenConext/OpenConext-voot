@@ -1,19 +1,53 @@
 package voot.provider;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import voot.VootServiceApplication;
+import voot.valueobject.Group;
+import voot.valueobject.Membership;
 
-import java.util.Arrays;
+import javax.sql.DataSource;
 import java.util.List;
-import java.util.Optional;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.*;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = VootServiceApplication.class)
+@WebIntegrationTest(value = "flyway.enabled=true")
 public class GrouperDaoClientTest {
+
+  public static final String PREFIX = "urn:collab:group:grouper:";
+
+  private GrouperDaoClient subject;
+
+  @Autowired
+  private DataSource dataSource;
+
+  @Before
+  public void setUp() throws Exception {
+    subject = new GrouperDaoClient(new JdbcTemplate(dataSource), "grouper", PREFIX);
+
+  }
 
   @Test
   public void testGroups() throws Exception {
-    List<Integer> ints = Arrays.asList(1,2,3,4);
-    Optional<Integer> max = ints.stream().max((i, j) -> 0);
-    System.out.println(max);
+    List<Group> groups = subject.groups("urn:collab:person:example.com:amin");
+    assertEquals(5, groups.size());
+    assertMembership(groups, PREFIX + "nl:surfnet:diensten:bazenteam", Membership.ADMIN);
+    assertMembership(groups, PREFIX + "nl:surfnet:diensten:bassie_&_adriaan", Membership.ADMIN);
+    assertMembership(groups, PREFIX + "nl:surfnet:diensten:burr", Membership.MANAGER);
+    assertMembership(groups, PREFIX + "nl:surfnet:diensten:managementvo", Membership.MANAGER);
+    assertMembership(groups, PREFIX + "nl:surfnet:diensten:test123", Membership.MEMBER);
+  }
+
+  private void assertMembership(List<Group> groups, String groupId, Membership membership) {
+    assertEquals(groupId, groups.stream().filter(group -> group.id.equals(groupId)).collect(toList()).get(0).membership, membership);
   }
 }

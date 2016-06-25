@@ -7,13 +7,14 @@ import voot.valueobject.Membership;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
 import static voot.valueobject.Membership.*;
 
-public class GrouperDaoClient {
+public class GrouperDaoClient implements GrouperDao {
 
   private final JdbcTemplate jdbcTemplate;
   private final String sourceId;
@@ -31,27 +32,20 @@ public class GrouperDaoClient {
         " gg.description as description, gg.display_extension as display_extension" +
         " from grouper_memberships gms, grouper_groups gg, grouper_fields gf, grouper_stems gs, grouper_members gm " +
         " where gms.field_id = gf.id and gms.owner_group_id = gg.id and gms.member_id = gm.id and gm.subject_id = ?" +
-        " and gg.parent_stem = gs.id and gs.name != 'etc' and gm.subject_id = ?" +
+        " and gg.parent_stem = gs.id and gs.name != 'etc'" +
         " and (gf.name = 'admins' or gf.name = 'updaters' or gf.name = 'members') order by gg.name",
       new Object[]{subjectId},
       (resultSet, i) ->
         new Group(groupIdPrefix + resultSet.getString("groupname"), resultSet.getString("groupname"),
           resultSet.getString("display_extension"), sourceId, membership(resultSet))
     );
-    return groups.stream().collect(Collectors.groupingBy(group -> group.id)).values().stream()
+    Map<String, List<Group>> collect = groups.stream().collect(Collectors.groupingBy(group -> group.id));
+    return collect.values().stream()
       .map(this::mostImportant).collect(toList());
   }
 
-  private Group mostImportant(List<Group> groups) {
-    return groups.stream().max((o1, o2) -> {
-      if (o1.equals(ADMIN)) {
-        return 1;
-      }
-      if (o1.equals(MANAGER) && o2.equals(ADMIN)) {
-        return -1;
-      }
-      return 0;
-    }).get();
+  private Group mostImportant(List<Group> groupList) {
+    return groupList.stream().max((o1, o2) -> o1.membership.compareTo(o2.membership)).get();
   }
 
   private Membership membership(ResultSet resultSet) throws SQLException {

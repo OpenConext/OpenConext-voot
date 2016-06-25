@@ -9,38 +9,41 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
+import voot.valueobject.Membership;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static voot.provider.GrouperSoapClient.*;
 
 public class GrouperSoapClientTest {
 
-  private GrouperSoapClient subject = getSubject("http://localhost:8889/grouper-ws/services/GrouperService_v2_0");
+  private GrouperDaoClient dao;
+
+  private GrouperSoapClient subject;
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(8889);
 
   @Before
   public void before() {
-    wireMockRule.resetToDefaultMappings();
-  }
-
-  @Test
-  @Ignore // only used for development purposes.
-  public void testGetMembershipsFromVM() throws Exception {
-    List<Group> memberships = getVMSubject().getGroupMemberships("urn:collab:person:example.com:admin", true);
-    assertTrue(memberships.size() == 2);
+    dao = mock(GrouperDaoClient.class);
+    Provider.Configuration.Credentials credentials = new Provider.Configuration.Credentials("gadget", "gadget");
+    subject = new GrouperSoapClient(new Provider.Configuration(GroupProviderType.GROUPER, "http://localhost:8889/grouper-ws/services/GrouperService_v2_0", credentials, 2000, "surfnet.nl", "surfnet"), this.dao);
   }
 
   @Test
   public void testGrouperError() throws Exception {
-    stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0")).withHeader("Content-Type", equalTo("text/xml")).willReturn(aResponse().withStatus(500)));
+    when(dao.groups("urn:collab:person:example.com:admin")).thenThrow(new RuntimeException());
     List<Group> groups = subject.getGroupMemberships("urn:collab:person:example.com:admin", true);
     assertTrue(groups.isEmpty());
   }
@@ -59,35 +62,10 @@ public class GrouperSoapClientTest {
 
   @Test
   public void testGetMemberships() throws Exception {
-    stubGrouperCall("soap/GetGroups_Success_Response.xml", URN_GET_GROUPS_LITE);
-    stubGrouperCall("soap/GetPrivileges_Success_Response.xml", URN_GET_GROUPER_PRIVILEGES_LITE);
-
+    when(dao.groups("urn:collab:person:example.com:admin")).thenReturn(singletonList(new Group("id", "nice", "desc", "grouper", Membership.ADMIN)));
     List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin", true);
 
-    //have to sleep otherwise the wireMock servers stops before the privileges are fetched in parallel
-    Thread.sleep(1500);
-
-    assertTrue(memberships.size() == 12);
-
-    Group group1 = memberships.get(0);
-    assertEquals(group1.id,"urn:collab:group:surfnet.nl:etc:sysadmingroup");
-    assertEquals(group1.displayName,"sysadmingroup");
-    assertEquals(group1.description,"system administrators with all privileges");
-    assertEquals(group1.membership.getBasic(),"admin");
-
-
-    Group group2 = memberships.get(1);
-    assertEquals(group2.id,"urn:collab:group:surfnet.nl:nl:surfnet:diensten:test_groep_1");
-    assertEquals(group2.displayName,"test_groep_1");
-    assertEquals(group2.description,"test groep 1");
-    assertEquals(group2.membership.getBasic(),"admin");
-  }
-
-  @Test
-  public void testGetMembershipsEmptyResult() throws Exception {
-    stubGrouperCall("soap/GetGroups_Empty_Response.xml", URN_GET_GROUPS_LITE);
-    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin", true);
-    assertTrue(memberships.isEmpty());
+    assertTrue(memberships.size() == 1);
   }
 
   @Test
@@ -152,42 +130,12 @@ public class GrouperSoapClientTest {
     assertTrue(members.isEmpty());
   }
 
-  @Test
-  public void testCorrectMembershipManager() throws Exception {
-    doTestCorrectMembership("soap/GetPrivilegesManager_Success_Response.xml", "manager");
-  }
-
-  @Test
-  public void testCorrectMembershipMember() throws Exception {
-    doTestCorrectMembership("soap/GetPrivilegesMember_Success_Response.xml", "member");
-  }
-
-  private void doTestCorrectMembership(String responseFile, String expectedMembership) throws IOException {
-    Group group = new Group("id", "displayName", "description", "sourceID", null);
-    stubGrouperCall(responseFile, URN_GET_GROUPER_PRIVILEGES_LITE);
-    group = subject.correctMembership(group, "urn:collab:person:example.com:admin");
-
-    assertEquals(expectedMembership, group.membership.getBasic());
-  }
-
   private void stubGrouperCall(String responseFile, String soupAction) throws IOException {
     String response = StreamUtils.copyToString(new ClassPathResource(responseFile).getInputStream(), Charset.forName("UTF-8"));
     wireMockRule.stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0"))
       .withHeader("Content-Type", equalTo("text/xml"))
       .withHeader(GrouperSoapClient.SOAP_ACTION, equalTo(soupAction))
       .willReturn(aResponse().withStatus(200).withBody(response)));
-  }
-
-  private GrouperSoapClient getSubject(String url) {
-    Provider.Configuration.Credentials credentials = new Provider.Configuration.Credentials("gadget", "gadget");
-    return new GrouperSoapClient(new Provider.Configuration(GroupProviderType.GROUPER, url, credentials, 2000, "surfnet.nl", "surfnet"));
-
-  }
-
-  private GrouperSoapClient getVMSubject() {
-    String url = "https://grouper.vm.openconext.org/grouper-ws/services/GrouperService_v2_0";
-    return getSubject(url);
-
   }
 
 }

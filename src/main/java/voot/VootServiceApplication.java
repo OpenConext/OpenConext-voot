@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -28,6 +29,7 @@ import voot.oidc.OidcRemoteTokenServices;
 import voot.provider.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -37,12 +39,16 @@ import java.util.stream.Collectors;
 @SpringBootApplication()
 public class VootServiceApplication {
 
+  @Autowired
+  private ResourceLoader resourceLoader;
+
+  @Autowired
+  private DataSource dataSource;
+
   public static void main(String[] args) {
     SpringApplication.run(VootServiceApplication.class, args);
   }
 
-  @Autowired
-  private ResourceLoader resourceLoader;
 
   @Bean
   @Autowired
@@ -75,7 +81,7 @@ public class VootServiceApplication {
         case OPEN_SOCIAL:
           return new OpenSocialClient(configuration);
         case GROUPER:
-          return new GrouperSoapClient(configuration);
+          return new GrouperSoapClient(configuration, dataSource);
         default:
           throw new IllegalArgumentException("Unknown external provider-type: " + type);
       }

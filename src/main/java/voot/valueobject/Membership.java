@@ -1,18 +1,27 @@
 package voot.valueobject;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Comparator;
 import java.util.Objects;
 
-public class Membership {
+public class Membership implements Comparable<Membership> {
 
-  public static final Membership MEMBER = new Membership("member");
-  public static final Membership MANAGER = new Membership("manager");
-  public static final Membership ADMIN = new Membership("admin");
+  public static final Membership MEMBER = new Membership("member", 0);
+  public static final Membership MANAGER = new Membership("manager", 1);
+  public static final Membership ADMIN = new Membership("admin", 2);
 
   private final String basic;
+  @JsonIgnore
+  private final Integer importance;
 
   public Membership(String basic) {
+    this(basic, 0);
+  }
+
+  private Membership(String basic, int importance) {
     this.basic = basic;
+    this.importance = importance;
   }
 
   public String getBasic() {
@@ -35,5 +44,10 @@ public class Membership {
   @Override
   public int hashCode() {
     return Objects.hash(basic);
+  }
+
+  @Override
+  public int compareTo(Membership other) {
+    return this.importance.compareTo(other.importance);
   }
 }
