@@ -34,7 +34,7 @@ public class OpenSocialClientTest {
   @Test
   public void testGetMemberships() throws Exception {
     stubCall("groups/" + UID, "json/opensocial/open_social_groups.json");
-    final List<Group> memberships = subject.getGroupMemberships(USER_URN, false);
+    final List<Group> memberships = subject.getGroupMemberships(USER_URN);
 
     assertGroups(memberships);
   }
@@ -42,7 +42,7 @@ public class OpenSocialClientTest {
   @Test
   public void testGetEmptyMemberships() throws Exception {
     stubCall("groups/" + UID, "json/opensocial/open_social_groups_empty.json");
-    final List<Group> memberships = subject.getGroupMemberships(USER_URN, false);
+    final List<Group> memberships = subject.getGroupMemberships(USER_URN);
 
     assertTrue(memberships.isEmpty());
   }
@@ -50,7 +50,7 @@ public class OpenSocialClientTest {
   @Test
   public void testGetMembershipsDeprecatedCompoundId() throws Exception {
     stubCall("groups/admin", "json/opensocial/open_social_deprecated_groups.json");
-    final List<Group> memberships = subject.getGroupMemberships(USER_URN, false);
+    final List<Group> memberships = subject.getGroupMemberships(USER_URN);
     assertGroups(memberships);
   }
 

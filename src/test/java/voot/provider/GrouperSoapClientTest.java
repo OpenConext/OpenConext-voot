@@ -44,7 +44,7 @@ public class GrouperSoapClientTest {
   @Test
   public void testGrouperError() throws Exception {
     when(dao.groups("urn:collab:person:example.com:admin")).thenThrow(new RuntimeException());
-    List<Group> groups = subject.getGroupMemberships("urn:collab:person:example.com:admin", true);
+    List<Group> groups = subject.getGroupMemberships("urn:collab:person:example.com:admin");
     assertTrue(groups.isEmpty());
   }
 
@@ -63,7 +63,7 @@ public class GrouperSoapClientTest {
   @Test
   public void testGetMemberships() throws Exception {
     when(dao.groups("urn:collab:person:example.com:admin")).thenReturn(singletonList(new Group("id", "nice", "desc", "grouper", Membership.ADMIN)));
-    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin", true);
+    List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
 
     assertTrue(memberships.size() == 1);
   }

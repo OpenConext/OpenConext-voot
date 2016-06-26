@@ -33,7 +33,7 @@ public class Voot2Provider extends AbstractProvider {
   }
 
   @Override
-  public List<Group> getGroupMemberships(final String uid, boolean includeMemberships) {
+  public List<Group> getGroupMemberships(final String uid) {
     LOG.debug("Querying getGroupMemberships for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
 
     final Optional<String> localUid = UrnUtils.extractLocalUid(uid);

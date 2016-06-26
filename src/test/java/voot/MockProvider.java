@@ -41,7 +41,7 @@ public class MockProvider extends AbstractProvider {
   }
 
   @Override
-  public List<Group> getGroupMemberships(String uid, boolean includeMemberships) {
+  public List<Group> getGroupMemberships(String uid) {
     return getResult(defaultGroup("id"));
   }
 

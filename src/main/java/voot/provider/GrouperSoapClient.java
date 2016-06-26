@@ -62,7 +62,7 @@ public class GrouperSoapClient extends AbstractProvider {
   }
 
   @Override
-  public List<Group> getGroupMemberships(final String uid, boolean includeMemberships) {
+  public List<Group> getGroupMemberships(final String uid) {
     LOG.debug("Querying database getGroupMemberships for subjectId: {}", uid);
     try {
       return dao.groups(uid);

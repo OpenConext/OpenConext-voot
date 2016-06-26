@@ -34,15 +34,14 @@ public class VootController {
   }
 
   @RequestMapping(value = "/me/groups")
-  public List<Group> myGroups(OAuth2Authentication authentication,
-                              @RequestParam(name = "includeMemberships", required = false, defaultValue = "false") boolean includeMemberships) {
+  public List<Group> myGroups(OAuth2Authentication authentication) {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    LOG.debug("me/groups on behalf of uid: {}, schacHomeOrg: {}, accessToken: {}, clientId: {}, includeMemberships {}", authentication.getName(), schacHome, accessToken, clientId, includeMemberships);
+    LOG.debug("me/groups on behalf of uid: {}, schacHomeOrg: {}, accessToken: {}, clientId: {}", authentication.getName(), schacHome, accessToken, clientId);
 
-    List<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome, includeMemberships);
+    List<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome);
 
     LOG.debug("me/groups result for uid {}: {}", authentication.getName(), myGroups);
     return myGroups;
@@ -86,8 +85,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/internal/groups/{userId:.+}")
-  public List<Group> internalGroups(@PathVariable String userId, OAuth2Authentication authentication,
-                                    @RequestParam(name = "includeMemberships", required = false, defaultValue = "false") boolean includeMemberships) throws MalformedPersonUrnException {
+  public List<Group> internalGroups(@PathVariable String userId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -99,7 +97,7 @@ public class VootController {
     if (!schacHome.isPresent()) {
       throw new MalformedPersonUrnException(userId);
     }
-    List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome.get(), includeMemberships);
+    List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome.get());
 
     LOG.debug("internal/groups/{} result: {}", userId, myGroups);
 

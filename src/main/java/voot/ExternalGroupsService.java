@@ -32,17 +32,17 @@ public class ExternalGroupsService {
     this.forkJoinPool = new ForkJoinPool(providers.size() * 20); // we're I/O bound.
   }
 
-  public List<Group> getMyGroups(String uid, String schacHomeOrganization, boolean includeMemberships) {
+  public List<Group> getMyGroups(String uid, String schacHomeOrganization) {
     return this.execute(
       provider -> provider.shouldBeQueriedForMemberships(schacHomeOrganization),
-      provider -> provider.getGroupMemberships(uid, includeMemberships),
+      provider -> provider.getGroupMemberships(uid),
       Collections::<Group>emptyList).flatMap(Collection::stream).collect(toList());
   }
 
   public List<Group> getMyExternalGroups(String uid, String schacHomeOrganization) {
     return this.execute(
       provider -> provider.isExternalGroupProvider() && provider.shouldBeQueriedForMemberships(schacHomeOrganization),
-      provider -> provider.getGroupMemberships(uid, true),
+      provider -> provider.getGroupMemberships(uid),
       Collections::<Group>emptyList).flatMap(Collection::stream).collect(toList());
   }
 
