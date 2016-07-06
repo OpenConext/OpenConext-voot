@@ -60,7 +60,7 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
       LOG.warn("introspect returned error: " + map.get("error"));
       throw new InvalidTokenException(accessToken);
     }
-    if (!map.containsKey("active") || !(Boolean)map.get("active")) {
+    if (!map.containsKey("active") || !(Boolean) map.get("active")) {
       LOG.warn("introspect returned inactive access_token: " + accessToken);
       throw new InvalidTokenException(accessToken);
     }
@@ -73,6 +73,7 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
         map.put("scope", Arrays.asList(((String) scope).split(" ")));
       }
     }
+    LOG.debug("Client {} has scopes {} for info {}", map.get("client_id"), map.get("scope"), map);
     return accessTokenConverter.extractAuthentication(map);
   }
 
