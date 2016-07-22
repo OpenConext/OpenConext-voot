@@ -35,8 +35,8 @@ public class GrouperDaoClient implements GrouperDao {
         " and (gf.name = 'admins' or gf.name = 'updaters' or gf.name = 'members') order by gg.name",
       new Object[]{subjectId},
       (resultSet, i) ->
-        new Group(groupIdPrefix + resultSet.getString("groupname"), resultSet.getString("groupname"),
-          resultSet.getString("display_extension"), sourceId, membership(resultSet))
+        new Group(groupIdPrefix + resultSet.getString("groupname"), resultSet.getString("display_extension"),
+          resultSet.getString("description"), sourceId, membership(resultSet))
     );
     //the query returns duplicate groups because you can have multiple roles for one team
     Map<String, List<Group>> collect = groups.stream().collect(Collectors.groupingBy(group -> group.id));
