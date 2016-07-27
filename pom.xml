@@ -160,13 +160,6 @@
         <version>2.1</version>
       </plugin>
       <plugin>
-        <artifactId>maven-scm-plugin</artifactId>
-        <version>1.8.1</version>
-        <configuration>
-          <tag>${project.artifactId}-${project.version}</tag>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.7.5.201505241946</version>
@@ -184,6 +177,14 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <tagNameFormat>v@{project.version}</tagNameFormat>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+        </configuration>
       </plugin>
     </plugins>
     <extensions>
