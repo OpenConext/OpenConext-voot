@@ -4,7 +4,7 @@
 
   <groupId>org.openconext</groupId>
   <artifactId>voot-service</artifactId>
-  <version>2.0.2</version>
+  <version>2.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>voot-service</name>
@@ -30,7 +30,7 @@
   <scm>
     <connection>scm:git:git@github.com:OpenConext/OpenConext-voot.git</connection>
     <developerConnection>scm:git:git@github.com:OpenConext/OpenConext-voot.git</developerConnection>
-    <tag>v2.0.2</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencies>
