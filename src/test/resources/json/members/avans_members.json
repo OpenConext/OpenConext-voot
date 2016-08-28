@@ -1,0 +1,112 @@
+{
+  "result": {
+    "totalResults": 4,
+    "startIndex": 0,
+    "itemsPerPage": 4,
+    "filtered": false,
+    "updatedSince": 0,
+    "sorted": false,
+    "entry": [
+      {
+        "nickname": "Raymond van der Burgt",
+        "emails": [
+          "rwjc.vanderburgt@avans.nl"
+        ],
+        "voot_membership_role": "member",
+        "id": "rwjcburg",
+        "name": {
+          "formatted": "Raymond van der Burgt",
+          "familyName": "van der Burgt",
+          "givenName": "Raymond"
+        },
+        "tags": [
+          "member"
+        ],
+        "accounts": {
+          "username": "rwjcburg",
+          "userId": "rwjcburg"
+        },
+        "organizations": [
+          {
+            "name": null
+          }
+        ]
+      },
+      {
+        "nickname": "Jac Verhaeren",
+        "emails": [
+          "jlcm.verhaeren@avans.nl"
+        ],
+        "voot_membership_role": "member",
+        "id": "jlcmverh",
+        "name": {
+          "formatted": "Jac Verhaeren",
+          "familyName": "Verhaeren",
+          "givenName": "Jac"
+        },
+        "tags": [
+          "member"
+        ],
+        "accounts": {
+          "username": "jlcmverh",
+          "userId": "jlcmverh"
+        },
+        "organizations": [
+          {
+            "name": null
+          }
+        ]
+      },
+      {
+        "nickname": "Peter Havekes",
+        "emails": [
+          "p.havekes@avans.nl"
+        ],
+        "voot_membership_role": "member",
+        "id": "phavekes",
+        "name": {
+          "formatted": "Peter Havekes",
+          "familyName": "Havekes",
+          "givenName": "Peter"
+        },
+        "tags": [
+          "member"
+        ],
+        "accounts": {
+          "username": "phavekes",
+          "userId": "phavekes"
+        },
+        "organizations": [
+          {
+            "name": null
+          }
+        ]
+      },
+      {
+        "nickname": "Piet Brekelmans",
+        "emails": [
+          "pjam.brekelmans@avans.nl"
+        ],
+        "voot_membership_role": "member",
+        "id": "pjambrek",
+        "name": {
+          "formatted": "Piet Brekelmans",
+          "familyName": "Brekelmans",
+          "givenName": "Piet"
+        },
+        "tags": [
+          "member"
+        ],
+        "accounts": {
+          "username": "pjambrek",
+          "userId": "pjambrek"
+        },
+        "organizations": [
+          {
+            "name": null
+          }
+        ]
+      }
+    ]
+  }
+}

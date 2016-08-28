@@ -6,6 +6,7 @@ import static voot.MockProvider.SimulationMode.Error;
 import static voot.MockProvider.SimulationMode.Success;
 import static voot.MockProvider.SimulationMode.Timeout;
 import static voot.provider.GroupProviderType.GROUPER;
+import static voot.provider.GroupProviderType.OPEN_SOCIAL_MEMBERS;
 import static voot.provider.GroupProviderType.VOOT2;
 
 import java.util.ArrayList;
@@ -86,8 +87,8 @@ public class ExternalGroupsServiceTest {
       new MockProvider(200L, Error, GROUPER));
 
     ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
-    List<Member> members = externalGroupsService.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon");
-    assertEquals(1, members.size());
+    List<Member> members = externalGroupsService.getMembers("urn:collab:group:example.org:nl:surfnet:diensten:apachecon");
+    assertEquals(2, members.size());
     assertEquals(MockProvider.MEMBER, members.get(0));
   }
 
@@ -101,6 +102,20 @@ public class ExternalGroupsServiceTest {
     ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
     List<Group> allGroups = externalGroupsService.getAllGroups();
     assertEquals(1, allGroups.size());
+  }
+
+  @Test
+  public void testGetMembersIncExternal() throws Exception {
+    List<Provider> providers = Arrays.asList(
+      new MockProvider(200L, Success, OPEN_SOCIAL_MEMBERS)
+    );
+
+    ExternalGroupsService externalGroupsService = new ExternalGroupsService(providers);
+    List<Member> members = externalGroupsService.getMembers("personId",
+      "urn:collab:group:example.org:DIF-uc-test-surfteams-teams-3_grp");
+
+    assertEquals(1, members.size());
+    assertEquals(MockProvider.MEMBER, members.get(0));
   }
 
 }

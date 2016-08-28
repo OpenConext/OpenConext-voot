@@ -53,6 +53,13 @@ public class ExternalGroupsService {
       Collections::<Member>emptyList).flatMap(Collection::stream).collect(toList());
   }
 
+  public List<Member> getMembers(String personId, String groupId) {
+    return this.execute(
+      provider -> provider.shouldBeQueriedForMembers(groupId),
+      provider -> provider.getMembers(personId, groupId),
+      Collections::<Member>emptyList).flatMap(Collection::stream).collect(toList());
+  }
+
   public Optional<Group> getMyGroupById(String uid, String groupId) {
     List<Optional<Group>> groups = this.execute(
       provider -> provider.shouldBeQueriedForGroup(groupId),

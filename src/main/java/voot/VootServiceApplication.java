@@ -84,6 +84,8 @@ public class VootServiceApplication {
           return new OpenSocialClient(configuration);
         case GROUPER:
           return new GrouperSoapClient(configuration, dataSource);
+        case OPEN_SOCIAL_MEMBERS:
+          return new OpenSocialMembersClient(configuration);
         default:
           throw new IllegalArgumentException("Unknown external provider-type: " + type);
       }

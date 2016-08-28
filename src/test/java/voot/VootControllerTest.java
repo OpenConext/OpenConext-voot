@@ -144,6 +144,16 @@ public class VootControllerTest {
     assertEquals(MockProvider.MEMBER, members.get(0));
   }
 
+  @Test
+  public void testMembersIncExternal() throws Exception {
+    setUpClientCredentials("members");
+    when(externalGroupsService.getMembers("personId","urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon")).thenReturn(singletonList(MockProvider.MEMBER));
+
+    List<Member> members = subject.membersIncExternalMembers("personId", "urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon", authentication);
+    assertEquals(1, members.size());
+    assertEquals(MockProvider.MEMBER, members.get(0));
+  }
+
   private Group group() {
     return new Group("id", "foo", "bar", "source", new Membership("membership"));
   }

@@ -57,6 +57,14 @@ public interface Provider {
   List<Member> getMembers(String groupId);
 
   /**
+   * Get all members of a group
+   * @param personId the non-fully qualified personId
+   * @param groupId the fully qualified uid groupId
+   * @return all Members
+   */
+  List<Member> getMembers(String personId, String groupId);
+
+  /**
    * Tells us if it is worthwhile calling this client when returning all members of a group
    *
    * @param groupId the fully qualified uid groupId

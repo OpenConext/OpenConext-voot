@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import voot.provider.AbstractProvider;
 import voot.provider.GroupProviderType;
 import voot.provider.Provider;
+import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 import voot.valueobject.Membership;
@@ -41,6 +42,12 @@ public class MockProvider extends AbstractProvider {
   }
 
   @Override
+  public boolean shouldBeQueriedForMembers(String groupId) {
+    Optional<String> localGroupId = UrnUtils.getSchacHomeFromGroupUrn(groupId);
+    return localGroupId.map(s -> s.equals(configuration.schacHomeOrganization)).orElse(false);
+  }
+
+  @Override
   public List<Group> getGroupMemberships(String uid) {
     return getResult(defaultGroup("id"));
   }
@@ -58,6 +65,11 @@ public class MockProvider extends AbstractProvider {
 
   @Override
   public List<Member> getMembers(String groupId) {
+    return getResult(defaultMember());
+  }
+
+  @Override
+  public List<Member> getMembers(String personId, String groupId) {
     return getResult(defaultMember());
   }
 

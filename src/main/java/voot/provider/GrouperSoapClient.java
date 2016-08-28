@@ -132,6 +132,11 @@ public class GrouperSoapClient extends AbstractProvider {
     }
   }
 
+  @Override
+  public List<Member> getMembers(String personId, String groupId) {
+    return getMembers(groupId);
+  }
+
   private ResponseEntity<String> getGrouperResponse(String soap, String action) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.TEXT_XML);

@@ -17,19 +17,14 @@ import java.util.Optional;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.*;
 
-public class OpenSocialClientTest {
-
-  private String admin = "urn:collab:person:example.org:admin";
-  private static final String UID = "admin";
-  private static final String GROUP_ID = "nl:surfnet:diensten:apachecon";
-  private static final String USER_URN = "urn:collab:person:example.org:" + UID;
-  private static final String GROUP_URN = "urn:collab:group:surfteams.nl:" + GROUP_ID;
+public class OpenSocialClientTest extends AbstractOpenSocialClientTest {
 
   private Configuration configuration = new Configuration(GroupProviderType.OPEN_SOCIAL, "http://localhost:8889", new Configuration.Credentials("user", "password"), 2000, "example.org", "Example");
   private OpenSocialClient subject = new OpenSocialClient(configuration);
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(8889);
+
 
   @Test
   public void testGetMemberships() throws Exception {
@@ -98,11 +93,6 @@ public class OpenSocialClientTest {
     assertEquals("sysadmingroup", group1.displayName);
     assertEquals("Super users", group1.description);
     assertEquals("admin", group1.membership.getBasic());
-  }
-
-  private void stubCall(String queryPart, String responseFile) throws IOException {
-    String response = StreamUtils.copyToString(new ClassPathResource(responseFile).getInputStream(), Charset.forName("UTF-8"));
-    stubFor(get(urlEqualTo("/" + queryPart)).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(response)));
   }
 
 }

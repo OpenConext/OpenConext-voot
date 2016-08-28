@@ -17,7 +17,7 @@ import voot.valueobject.Membership;
 
 public class Voot2Provider extends AbstractProvider {
 
-  private static final Logger LOG = LoggerFactory.getLogger(Voot2Provider.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(Voot2Provider.class);
   protected String allMembershipsUrlTemplate;
   protected String specificMembershipTemplate;
 
@@ -84,6 +84,11 @@ public class Voot2Provider extends AbstractProvider {
   @Override
   public List<Member> getMembers(String groupId) {
     throw new IllegalArgumentException("Voot2Providers do not support getting members");
+  }
+
+  @Override
+  public List<Member> getMembers(String personId, String groupId) {
+    return getMembers(groupId);
   }
 
   @SuppressWarnings("unchecked")

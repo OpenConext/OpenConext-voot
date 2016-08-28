@@ -156,6 +156,22 @@ public class VootController {
     return members;
   }
 
+  @RequestMapping(value = "/members/{personId:.+}/{groupId:.+}")
+  public List<Member> membersIncExternalMembers(@PathVariable String personId, @PathVariable String groupId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
+    String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
+    String clientId = authentication.getOAuth2Request().getClientId();
+
+    LOG.debug("members/{}, accessToken: {}, clientId {}", groupId, accessToken, clientId);
+
+    assertClientCredentialsClient(authentication, clientId);
+
+    List<Member> members = externalGroupsService.getMembers(personId, groupId);
+
+    LOG.debug("/members/{}/{} result: {}", personId, groupId, members);
+
+    return members;
+  }
+
   private void assertClientCredentialsClient(OAuth2Authentication authentication, String clientId) {
     if (!(authentication.getUserAuthentication() instanceof ClientCredentialsAuthentication)) {
       throw new AccessDeniedException(String.format("ClientCredentials grant type required. ClientId is %s", clientId));
