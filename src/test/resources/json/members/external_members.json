@@ -10,7 +10,7 @@
       {
         "nickname": "Raymond van der Burgt",
         "emails": [
-          "rwjc.vanderburgt@avans.nl"
+          "anoniem@example.nl"
         ],
         "voot_membership_role": "member",
         "id": "rwjcburg",
@@ -35,7 +35,7 @@
       {
         "nickname": "Jac Verhaeren",
         "emails": [
-          "jlcm.verhaeren@avans.nl"
+          "anoniem@example.nl"
         ],
         "voot_membership_role": "member",
         "id": "jlcmverh",
@@ -60,7 +60,7 @@
       {
         "nickname": "Peter Havekes",
         "emails": [
-          "p.havekes@avans.nl"
+          "anoniem@example.nl"
         ],
         "voot_membership_role": "member",
         "id": "phavekes",
@@ -85,7 +85,7 @@
       {
         "nickname": "Piet Brekelmans",
         "emails": [
-          "pjam.brekelmans@avans.nl"
+          "anoniem@example.nl"
         ],
         "voot_membership_role": "member",
         "id": "pjambrek",
