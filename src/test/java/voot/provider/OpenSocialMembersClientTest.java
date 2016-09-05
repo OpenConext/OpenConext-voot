@@ -16,7 +16,7 @@ public class OpenSocialMembersClientTest extends AbstractOpenSocialClientTest {
   @Test
   public void testGetMembers() throws Exception {
     stubCall("people/" + UID + "/" + GROUP_ID, "json/members/external_members.json");
-    List<Member> members = subject.getMembers(UID, GROUP_URN);
+    List<Member> members = subject.getMembers(USER_URN, GROUP_URN);
 
     assertEquals(4, members.size());
     members.forEach(this::assertMember);

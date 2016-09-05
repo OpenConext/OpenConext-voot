@@ -32,9 +32,13 @@ public class OpenSocialMembersClient extends OpenSocialClient {
     if (!localGroupId.isPresent()) {
       throw new IllegalArgumentException("Unable to extract local groupId from " + groupId);
     }
+    Optional<String> localPersonId = UrnUtils.extractLocalUid(personId);
+    if (!localPersonId.isPresent()) {
+      throw new IllegalArgumentException("Unable to extract local id from " + personId);
+    }
     String url = String.format(membersTemplate, configuration.url);
     ResponseEntity<String> response = restTemplate.getForEntity(url,
-      String.class, personId, localGroupId.get());
+      String.class, localPersonId.get(), localGroupId.get());
 
     if (response.getStatusCode().is2xxSuccessful()) {
       return parseMembers(response.getBody());
