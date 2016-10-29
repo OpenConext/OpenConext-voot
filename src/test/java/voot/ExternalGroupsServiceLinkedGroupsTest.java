@@ -103,6 +103,10 @@ public class ExternalGroupsServiceLinkedGroupsTest {
   @Test
   public void testGetExternalTeamsLinkedToGrouperUser() throws Exception {
     List<Group> groups = subject.getMyGroups("Joe", "surfnet.test");
+    assertMyGroupsEquality(groups);
+  }
+
+  private void assertMyGroupsEquality(List<Group> groups) {
     groups.sort(comparing(group -> group.id));
     assertEquals(asList(teachers, admins), groups.stream().map(group -> group.id).collect(toList()));
   }
@@ -110,8 +114,7 @@ public class ExternalGroupsServiceLinkedGroupsTest {
   @Test
   public void testGetGrouperTeamsLinkedToExternalUser() throws Exception {
     List<Group> groups = subject.getMyGroups("Mary", "example.org");
-    groups.sort(comparing(group -> group.id));
-    assertEquals(asList(teachers, admins), groups.stream().map(group -> group.id).collect(toList()));
+    assertMyGroupsEquality(groups);
   }
 
   private Group group(String id) {
