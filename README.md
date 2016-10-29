@@ -9,7 +9,7 @@ purposes. The way this information is shared adheres to the [Voot protocol](http
 
 The info below is geared towards developers that need to work on this codebase, not to those that may want to use this API.
 
-### [Create test database](#create-database)
+### [Create test databases](#create-databases)
 
 Connect to your local mysql database: `mysql -uroot`
 

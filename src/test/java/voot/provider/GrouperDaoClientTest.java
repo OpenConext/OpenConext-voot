@@ -4,9 +4,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import voot.VootServiceApplication;
 import voot.valueobject.Group;
@@ -28,11 +30,12 @@ public class GrouperDaoClientTest {
   private GrouperDaoClient subject;
 
   @Autowired
+  @Qualifier("grouperDataSource")
   private DataSource dataSource;
 
   @Before
   public void setUp() throws Exception {
-    subject = new GrouperDaoClient(new JdbcTemplate(dataSource), "grouper", PREFIX);
+    subject = new GrouperDaoClient(new NamedParameterJdbcTemplate(dataSource), "grouper", PREFIX);
 
   }
 
@@ -56,6 +59,12 @@ public class GrouperDaoClientTest {
     assertDescription(groups, PREFIX + "nl:surfnet:diensten:test123", "Testteam");
 
     assertSourceID(groups, PREFIX + "nl:surfnet:diensten:bazenteam", "grouper");
+  }
+
+  @Test
+  public void testFindGroupsByName() throws Exception {
+    List<Group> groups = subject.groupsByName("nl:surfnet:diensten:bazenteam", "nl:surfnet:diensten:test123", "nl:surfnet:diensten:managementvo");
+    assertEquals(3, groups.size());
   }
 
   private void assertMembership(List<Group> groups, String groupId, Membership membership) {

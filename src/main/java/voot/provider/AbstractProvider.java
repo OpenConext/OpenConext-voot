@@ -96,4 +96,8 @@ public abstract class AbstractProvider implements Provider {
   public String toString() {
     return String.format("Provider with configuration: %s", this.configuration);
   }
+
+  public String getGroupIdPrefix() {
+    return groupIdPrefix;
+  }
 }

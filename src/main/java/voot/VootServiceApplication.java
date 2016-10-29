@@ -6,8 +6,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.MetricFilterAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.TraceWebFilterAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -44,13 +47,25 @@ public class VootServiceApplication {
   @Autowired
   private ResourceLoader resourceLoader;
 
-  @Autowired
-  private DataSource dataSource;
+  @Value("${support.linkedGrouperExternalGroups}")
+  private boolean supportLinkedGrouperExternalGroups;
 
   public static void main(String[] args) {
     SpringApplication.run(VootServiceApplication.class, args);
   }
 
+  @Bean(name = "grouperDataSource")
+  @Primary
+  @ConfigurationProperties(prefix = "spring.datasource")
+  public DataSource primaryDataSource() {
+    return DataSourceBuilder.create().build();
+  }
+
+  @Bean(name = "teamsDataSource")
+  @ConfigurationProperties(prefix = "spring.secondDatasource")
+  public DataSource secondaryDataSource() {
+    return DataSourceBuilder.create().build();
+  }
 
   @Bean
   @Autowired
@@ -83,14 +98,14 @@ public class VootServiceApplication {
         case OPEN_SOCIAL:
           return new OpenSocialClient(configuration);
         case GROUPER:
-          return new GrouperSoapClient(configuration, dataSource);
+          return new GrouperSoapClient(configuration, primaryDataSource());
         case OPEN_SOCIAL_MEMBERS:
           return new OpenSocialMembersClient(configuration);
         default:
           throw new IllegalArgumentException("Unknown external provider-type: " + type);
       }
     }).collect(Collectors.toList());
-    return new ExternalGroupsService(groupClients);
+    return new ExternalGroupsService(groupClients, new TeamsDaoClient(secondaryDataSource()), supportLinkedGrouperExternalGroups);
   }
 
   @Configuration

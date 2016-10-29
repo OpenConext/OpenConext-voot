@@ -73,3 +73,4 @@ CREATE TABLE `grouper_members` (
   `context_id` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+

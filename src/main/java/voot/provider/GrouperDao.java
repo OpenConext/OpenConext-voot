@@ -7,4 +7,6 @@ import java.util.List;
 public interface GrouperDao {
 
   List<Group> groups(String subjectId);
+
+  List<Group> groupsByName(String... groupNames);
 }

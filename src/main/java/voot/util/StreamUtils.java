@@ -1,0 +1,15 @@
+package voot.util;
+
+import java.util.List;
+import java.util.Optional;
+
+public class StreamUtils {
+
+  public static <T> Optional<T> optionalFromList(List<T> list) {
+    return list != null && !list.isEmpty() ? Optional.of(list.get(0)) : Optional.empty();
+  }
+
+  public static <T> Optional<T> optionalFromOptionalList(List<Optional<T>> list) {
+    return list != null && !list.isEmpty() ? list.get(0) : Optional.empty();
+  }
+}

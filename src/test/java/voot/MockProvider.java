@@ -20,7 +20,7 @@ public class MockProvider extends AbstractProvider {
   public static final String SCHAC_HOME_ORGANIZATION = "example.org";
   public static final Member MEMBER = new Member("urn:collab:person:example.com:admin", "John Doe", "j.doe@example.com");
 
-  public enum SimulationMode {Success, Timeout, Error}
+  public enum SimulationMode {Success, Timeout, Error, Empty}
 
   private final Long timeoutMillis;
   private final SimulationMode simulationMode;
@@ -28,6 +28,12 @@ public class MockProvider extends AbstractProvider {
   public MockProvider(Long timeoutMillis, SimulationMode simulationMode, GroupProviderType type) {
     super(new Provider.Configuration(type, "https://localhost/some/path", new Provider.Configuration.Credentials("user", "password"), 2000, SCHAC_HOME_ORGANIZATION, "example"));
     this.timeoutMillis = timeoutMillis;
+    this.simulationMode = simulationMode;
+  }
+
+  public MockProvider(SimulationMode simulationMode, GroupProviderType type, String schacHome) {
+    super(new Provider.Configuration(type, "https://localhost/some/path", new Provider.Configuration.Credentials("user", "password"), 2000, schacHome, "example"));
+    this.timeoutMillis = 0L;
     this.simulationMode = simulationMode;
   }
 
@@ -73,7 +79,7 @@ public class MockProvider extends AbstractProvider {
     return getResult(defaultMember());
   }
 
-  private <T> List<T> getResult(T group) {
+  private <T> List<T> getResult(T result) {
     switch (this.simulationMode) {
       case Timeout:
         try {
@@ -84,9 +90,11 @@ public class MockProvider extends AbstractProvider {
         return Collections.emptyList();
       case Error:
         throw new RuntimeException("failed!");
+      case Empty:
+        return Collections.<T>emptyList();
       default: // Success
         LOG.debug("got result");
-        return Collections.singletonList(group);
+        return Collections.singletonList(result);
     }
   }
 

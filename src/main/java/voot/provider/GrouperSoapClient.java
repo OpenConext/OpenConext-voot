@@ -1,34 +1,28 @@
 package voot.provider;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StreamUtils;
-import org.springframework.web.client.HttpServerErrorException;
 import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
-import voot.valueobject.Membership;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.concurrent.ForkJoinPool;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-public class GrouperSoapClient extends AbstractProvider {
+public class GrouperSoapClient extends AbstractProvider implements GrouperProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(GrouperSoapClient.class);
 
-  public static final String URN_GET_GROUPS_LITE = "urn:getGroupsLite";
   public static final String URN_GET_MEMBERS_LITE = "urn:getMembersLite";
-  public static final String URN_GET_GROUPER_PRIVILEGES_LITE = "urn:getGrouperPrivilegesLite";
   public static final String URN_HAS_MEMBER_LITE = "urn:hasMemberLite";
   public static final String URN_FIND_GROUPS_LITE = "urn:findGroupsLite";
 
@@ -42,17 +36,17 @@ public class GrouperSoapClient extends AbstractProvider {
 
   private final GrouperSoapParser soapParser;
 
-  private final GrouperDao dao;
+  private final GrouperDao grouperDao;
 
-  public GrouperSoapClient(Configuration configuration, DataSource dataSource) {
+  public GrouperSoapClient(Configuration configuration, DataSource grouperDataSource) {
     super(configuration);
-    this.dao = new GrouperDaoClient(new JdbcTemplate(dataSource),configuration.name, groupIdPrefix);
+    this.grouperDao = new GrouperDaoClient(new NamedParameterJdbcTemplate(grouperDataSource), configuration.name, groupIdPrefix);
     this.soapParser = new GrouperSoapParser(configuration.name, groupIdPrefix);
   }
 
   public GrouperSoapClient(Configuration configuration, GrouperDao grouperDao) {
     super(configuration);
-    this.dao = grouperDao;
+    this.grouperDao = grouperDao;
     this.soapParser = new GrouperSoapParser(configuration.name, groupIdPrefix);
   }
 
@@ -65,7 +59,7 @@ public class GrouperSoapClient extends AbstractProvider {
   public List<Group> getGroupMemberships(final String uid) {
     LOG.debug("Querying database getGroupMemberships for subjectId: {}", uid);
     try {
-      return dao.groups(uid);
+      return grouperDao.groups(uid);
     } catch (Exception exception) {
       LOG.warn("Failed to invoke getGroupMemberships, returning empty result.", exception);
       return Collections.emptyList();
@@ -74,10 +68,10 @@ public class GrouperSoapClient extends AbstractProvider {
 
   @Override
   public Optional<Group> getGroupMembership(final String uid, final String groupId) {
-    final Optional<String> localGroupId = getLocalGroupId(groupId);
+    String localGroupId = getLocalGroupId(groupId);
     Map<String, String> replacements = new HashMap<>();
     replacements.put("subjectId", uid);
-    replacements.put("groupId", localGroupId.get());
+    replacements.put("groupId", localGroupId);
 
     try {
       LOG.debug("Querying getGroupMembership API for subjectId: {}", uid);
@@ -87,11 +81,21 @@ public class GrouperSoapClient extends AbstractProvider {
       Optional<Group> group = soapParser.parseOptionalGroupMembership(response);
 
       LOG.debug("getGroupMembership result: {} group.", group);
+
       return group;
     } catch (Exception exception) {
       LOG.warn("Failed to invoke grouper, returning empty result.", exception);
       return Optional.empty();
     }
+  }
+
+  public List<Group> getGroupMembershipsForLocalGroupId(final String... localGroupId) {
+    return grouperDao.groupsByName(localGroupId);
+  }
+
+  public boolean isGrouperGroup(String groupId) {
+    Matcher matcher = UrnUtils.GROUP_PATTERN.matcher(groupId);
+    return matcher.matches() && matcher.group(1).equals(configuration.schacHomeOrganization);
   }
 
   @Override
@@ -113,12 +117,12 @@ public class GrouperSoapClient extends AbstractProvider {
 
   @Override
   public List<Member> getMembers(String groupId) {
-    final Optional<String> localGroupId = getLocalGroupId(groupId);
+    String localGroupId = getLocalGroupId(groupId);
     Map<String, String> replacements = new HashMap<>();
-    replacements.put("groupId", localGroupId.get());
+    replacements.put("groupId", localGroupId);
 
     try {
-      LOG.debug("Querying getMembers API for groupId: {}", localGroupId.get());
+      LOG.debug("Querying getMembers API for groupId: {}", localGroupId);
       String soap = replaceTokens("soap/GetMembersLite.xml", replacements);
 
       ResponseEntity<String> response = getGrouperResponse(soap, URN_GET_MEMBERS_LITE);
@@ -147,12 +151,9 @@ public class GrouperSoapClient extends AbstractProvider {
     return restTemplate.exchange(configuration.url, HttpMethod.POST, entity, String.class);
   }
 
-  private Optional<String> getLocalGroupId(String groupId) {
+  private String getLocalGroupId(String groupId) {
     final Optional<String> localGroupId = UrnUtils.extractLocalGroupId(groupId);
-    if (!localGroupId.isPresent()) {
-      throw new IllegalArgumentException("Unable to infer localgroupId from " + groupId);
-    }
-    return localGroupId;
+    return localGroupId.orElseThrow(() -> new IllegalArgumentException("Unable to infer localgroupId from " + groupId));
   }
 
   private String replaceTokens(String soapTemplate, Map<String, String> replacements) throws IOException {

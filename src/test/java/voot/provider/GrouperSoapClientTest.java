@@ -2,7 +2,6 @@ package voot.provider;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -13,8 +12,6 @@ import voot.valueobject.Membership;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +24,7 @@ import static voot.provider.GrouperSoapClient.*;
 
 public class GrouperSoapClientTest {
 
-  private GrouperDaoClient dao;
+  private GrouperDaoClient grouperDaoClient;
 
   private GrouperSoapClient subject;
 
@@ -36,14 +33,15 @@ public class GrouperSoapClientTest {
 
   @Before
   public void before() {
-    dao = mock(GrouperDaoClient.class);
+    grouperDaoClient = mock(GrouperDaoClient.class);
     Provider.Configuration.Credentials credentials = new Provider.Configuration.Credentials("gadget", "gadget");
-    subject = new GrouperSoapClient(new Provider.Configuration(GroupProviderType.GROUPER, "http://localhost:8889/grouper-ws/services/GrouperService_v2_0", credentials, 2000, "surfnet.nl", "surfnet"), this.dao);
+    Configuration configuration = new Configuration(GroupProviderType.GROUPER, "http://localhost:8889/grouper-ws/services/GrouperService_v2_0", credentials, 2000, "surfnet.nl", "surfnet");
+    subject = new GrouperSoapClient(configuration, this.grouperDaoClient);
   }
 
   @Test
   public void testGrouperError() throws Exception {
-    when(dao.groups("urn:collab:person:example.com:admin")).thenThrow(new RuntimeException());
+    when(grouperDaoClient.groups("urn:collab:person:example.com:admin")).thenThrow(new RuntimeException());
     List<Group> groups = subject.getGroupMemberships("urn:collab:person:example.com:admin");
     assertTrue(groups.isEmpty());
   }
@@ -62,7 +60,7 @@ public class GrouperSoapClientTest {
 
   @Test
   public void testGetMemberships() throws Exception {
-    when(dao.groups("urn:collab:person:example.com:admin")).thenReturn(singletonList(new Group("id", "nice", "desc", "grouper", Membership.ADMIN)));
+    when(grouperDaoClient.groups("urn:collab:person:example.com:admin")).thenReturn(singletonList(new Group("id", "nice", "desc", "grouper", Membership.ADMIN)));
     List<Group> memberships = subject.getGroupMemberships("urn:collab:person:example.com:admin");
 
     assertTrue(memberships.size() == 1);
