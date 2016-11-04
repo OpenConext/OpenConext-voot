@@ -12,6 +12,8 @@ import voot.valueobject.Membership;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -126,6 +128,12 @@ public class GrouperSoapClientTest {
     stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0")).withHeader("Content-Type", equalTo("text/xml")).willReturn(aResponse().withStatus(500)));
     List<Member> members = subject.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon");
     assertTrue(members.isEmpty());
+  }
+
+  @Test
+  public void testGetGroupMembershipsForLocalGroupId() {
+    when(grouperDaoClient.groupsByName("group")).thenReturn(Arrays.asList(new Group("group", null, null, null, null)));
+    assertEquals("group",subject.getGroupMembershipsForLocalGroupId("group").get(0).id);
   }
 
   private void stubGrouperCall(String responseFile, String soupAction) throws IOException {

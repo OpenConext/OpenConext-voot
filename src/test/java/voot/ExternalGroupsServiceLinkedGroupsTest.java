@@ -16,9 +16,11 @@ import java.util.stream.IntStream;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static voot.MockProvider.SimulationMode.Error;
@@ -35,8 +37,8 @@ import static voot.util.UrnUtils.extractLocalGroupId;
  * Joe is member of the team Admins from Grouper
  * Team Teachers is linked to the team Admins by someone who is member of both teams (not Mary or Joe)
  *
- * As a result Mary is implicitly also member of the team Admins and Joe is implicitly also member of the
- * team Teachers.
+ * As a result Mary is implicitly also member of the team Admins. Joe is not implicitly also a member of the
+ * team Teachers, because the groups are nested and not linked.
  *
  */
 public class ExternalGroupsServiceLinkedGroupsTest {
@@ -59,8 +61,7 @@ public class ExternalGroupsServiceLinkedGroupsTest {
     externalGroupProvider = mock(Provider.class);
 
     when(teamsDao.linkedExternalGroups(adminGrouperId)).thenReturn(asList(group(teachers)));
-    when(teamsDao.linkedGrouperGroupIds(teachers)).thenReturn(asList(adminGrouperId));
-    when(teamsDao.findExternalGroupById(teachers)).thenReturn(Optional.of(group(teachers)));
+    when(teamsDao.linkedLocalGrouperGroupIds(teachers)).thenReturn(asList(adminGrouperId));
 
     when(grouperProvider.shouldBeQueriedForGroup(admins)).thenReturn(true);
     when(grouperProvider.shouldBeQueriedForGroup(teachers)).thenReturn(false);
@@ -79,7 +80,7 @@ public class ExternalGroupsServiceLinkedGroupsTest {
     when(grouperProvider.getGroupIdPrefix()).thenReturn(groupIdPrefix);
 
     when(externalGroupProvider.getGroupMembership("Mary", teachers)).thenReturn(Optional.of(group(teachers)));
-    when(externalGroupProvider.getGroupMembership("Joe", teachers)).thenReturn(Optional.empty());
+    when(externalGroupProvider.getGroupMembership(eq("Joe"), anyString())).thenReturn(Optional.empty());
     when(externalGroupProvider.getGroupMemberships("Mary")).thenReturn(asList(group(teachers)));
 
     when(grouperProvider.getGroupMembership("Joe", admins)).thenReturn(Optional.of(group(admins)));
@@ -97,24 +98,23 @@ public class ExternalGroupsServiceLinkedGroupsTest {
   @Test
   public void testGetExternalTeamLinkedToGrouperUser() throws Exception {
     Optional<Group> group = subject.getMyGroupById("Joe", teachers);
-    assertEquals(teachers, group.get().id);
+    assertFalse(group.isPresent());
   }
 
   @Test
   public void testGetExternalTeamsLinkedToGrouperUser() throws Exception {
     List<Group> groups = subject.getMyGroups("Joe", "surfnet.test");
-    assertMyGroupsEquality(groups);
-  }
-
-  private void assertMyGroupsEquality(List<Group> groups) {
-    groups.sort(comparing(group -> group.id));
-    assertEquals(asList(teachers, admins), groups.stream().map(group -> group.id).collect(toList()));
+    assertMyGroupsEquality(groups, admins);
   }
 
   @Test
   public void testGetGrouperTeamsLinkedToExternalUser() throws Exception {
     List<Group> groups = subject.getMyGroups("Mary", "example.org");
-    assertMyGroupsEquality(groups);
+    assertMyGroupsEquality(groups, admins, teachers);
+  }
+
+  private void assertMyGroupsEquality(List<Group> groups, String... names) {
+    assertEquals(new HashSet<>(groups.stream().map(group -> group.id).collect(toList())), new HashSet<>(asList(names)));
   }
 
   private Group group(String id) {

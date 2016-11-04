@@ -7,9 +7,8 @@ import java.util.Optional;
 
 public interface TeamsDao {
 
-  List<String> linkedGrouperGroupIds(String... externalGroupId) ;
+  List<String> linkedLocalGrouperGroupIds(String... fullyQualifiedExternalGroupIds) ;
 
   List<Group> linkedExternalGroups(String... grouperGroupId);
 
-  Optional<Group> findExternalGroupById(String externalGroupId) ;
 }

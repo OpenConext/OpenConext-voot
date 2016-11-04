@@ -1,6 +1,5 @@
 package voot.provider;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import voot.valueobject.Group;
@@ -14,7 +13,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-
 import static voot.valueobject.Membership.*;
 
 public class GrouperDaoClient implements GrouperDao {

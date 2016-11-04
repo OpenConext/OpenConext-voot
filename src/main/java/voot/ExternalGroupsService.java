@@ -6,18 +6,19 @@ import org.springframework.util.Assert;
 import voot.provider.GrouperProvider;
 import voot.provider.Provider;
 import voot.provider.TeamsDao;
-import voot.util.StreamUtils;
 import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static voot.util.StreamUtils.optionalFromList;
 import static voot.util.StreamUtils.optionalFromOptionalList;
@@ -39,7 +40,7 @@ public class ExternalGroupsService {
     this.teamsDao = teamsDao;
     this.forkJoinPool = new ForkJoinPool(providers.size() * 20); // we're I/O bound.
     this.grouperProvider = this.providers.stream().filter(provider -> provider instanceof GrouperProvider)
-      .map(provider -> GrouperProvider.class.cast(provider)).findAny();
+      .map(GrouperProvider.class::cast).findAny();
     this.supportLinkedGrouperExternalGroups = supportLinkedGrouperExternalGroups;
   }
 
@@ -51,16 +52,13 @@ public class ExternalGroupsService {
 
     if (supportLinkedGrouperExternalGroups && grouperProvider.isPresent()) {
       GrouperProvider grouper = grouperProvider.get();
-      Map<Boolean, List<Group>> allGroups = groups.stream().collect(groupingBy(group -> grouper.isGrouperGroup(group.id)));
-
-      List<Group> externalGroups = teamsDao.linkedExternalGroups(allGroups.getOrDefault(true, Collections.<Group>emptyList()).stream()
-        .map(group -> extractLocalGroupId(group.id).get()).toArray(size -> new String[size]));
-      groups.addAll(externalGroups);
-
-      List<String> ids = teamsDao.linkedGrouperGroupIds(allGroups.getOrDefault(false, Collections.<Group>emptyList()).stream()
-        .map(group -> group.id).toArray(size -> new String[size]));
-      List<Group> grouperGroups = grouper.getGroupMembershipsForLocalGroupId(ids.toArray(new String[ids.size()]));
-      groups.addAll(grouperGroups);
+      String[] externalGroupIds = groups.stream()
+        .filter(group -> !grouper.isGrouperGroup(group.id))
+        .map(group -> group.id)
+        .toArray(String[]::new);
+      String[] grouperGroupIds = teamsDao.linkedLocalGrouperGroupIds(externalGroupIds).stream().toArray(String[]::new);
+      List<Group> groupsFromGrouper = grouper.getGroupMembershipsForLocalGroupId(grouperGroupIds);
+      groups.addAll(groupsFromGrouper);
     }
 
     return groups;
@@ -109,20 +107,12 @@ public class ExternalGroupsService {
         if (!grouperGroups.isEmpty()) {
           groups.add(findGroupByLocalGroupId(grouper, localGroupId));
         }
-      } else {
-        List<String> ids = teamsDao.linkedGrouperGroupIds(groupId);
-        List<Optional<Group>> internalGroups = ids.stream()
-          .map(localGroupId -> doGetMyGroupById(uid, grouper.getGroupIdPrefix() + localGroupId, false))
-          .collect(toList());
-        if (!internalGroups.isEmpty()) {
-          groups.add(teamsDao.findExternalGroupById(groupId));
-        }
       }
     }
     return optionalFromOptionalList(groups);
   }
 
-  private Optional<Group> findGroupByLocalGroupId(GrouperProvider grouper , String localGroupId) {
+  private Optional<Group> findGroupByLocalGroupId(GrouperProvider grouper, String localGroupId) {
     List<Group> groupsFromGrouper = grouper.getGroupMembershipsForLocalGroupId(localGroupId);
     return optionalFromList(groupsFromGrouper);
   }
