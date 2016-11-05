@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import voot.valueobject.Group;
 import voot.valueobject.Member;
+import voot.web.VootController;
 
 public interface Provider {
 
@@ -70,7 +71,7 @@ public interface Provider {
    * @param groupId the fully qualified uid groupId
    * @return true if this Provider can return memers for the specified group id
    */
-  boolean shouldBeQueriedForMembers(String groupId);
+  boolean shouldBeQueriedForMembers(String groupId) throws VootController.MalformedGroupUrnException;
 
   class Configuration {
 

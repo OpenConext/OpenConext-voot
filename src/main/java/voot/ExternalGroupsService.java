@@ -99,7 +99,7 @@ public class ExternalGroupsService {
       GrouperProvider grouper = this.grouperProvider.get();
 
       if (grouper.isGrouperGroup(groupId)) {
-        String localGroupId = extractLocalGroupId(groupId).get();
+        String localGroupId = extractLocalGroupId(groupId);
         List<Group> externalGroups = teamsDao.linkedExternalGroups(localGroupId);
         List<Optional<Group>> grouperGroups = externalGroups.stream()
           .map(externalGroup -> doGetMyGroupById(uid, externalGroup.id, false))

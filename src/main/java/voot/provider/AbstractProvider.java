@@ -15,6 +15,7 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import voot.util.UrnUtils;
 import voot.valueobject.Group;
+import voot.web.VootController;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -69,7 +70,7 @@ public abstract class AbstractProvider implements Provider {
   }
 
   @Override
-  public boolean shouldBeQueriedForMembers(String groupId) {
+  public boolean shouldBeQueriedForMembers(String groupId) throws VootController.MalformedGroupUrnException {
     return !isExternalGroupProvider();
   }
 

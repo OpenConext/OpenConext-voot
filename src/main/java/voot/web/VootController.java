@@ -21,6 +21,8 @@ import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 
+import static voot.util.UrnUtils.getSchacHomeFromPersonUrn;
+
 @RestController
 public class VootController {
 
@@ -73,10 +75,6 @@ public class VootController {
 
     assertClientCredentialsClient(authentication, clientId);
 
-    Optional<String> schacHome = UrnUtils.getSchacHomeFromGroupUrn(groupId);
-    if (!schacHome.isPresent()) {
-      throw new MalformedGroupUrnException(groupId);
-    }
     Optional<Group> group = externalGroupsService.getMyGroupById(userId, groupId);
 
     LOG.debug("groups/{} result: {}", groupId, group);
@@ -93,11 +91,8 @@ public class VootController {
 
     assertClientCredentialsClient(authentication, clientId);
 
-    Optional<String> schacHome = UrnUtils.getSchacHomeFromPersonUrn(userId);
-    if (!schacHome.isPresent()) {
-      throw new MalformedPersonUrnException(userId);
-    }
-    List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome.get());
+    String schacHome = getSchacHomeFromPersonUrn(userId);
+    List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome);
 
     LOG.debug("internal/groups/{} result: {}", userId, myGroups);
 
@@ -113,11 +108,8 @@ public class VootController {
 
     assertClientCredentialsClient(authentication, clientId);
 
-    Optional<String> schacHome = UrnUtils.getSchacHomeFromPersonUrn(userId);
-    if (!schacHome.isPresent()) {
-      throw new MalformedPersonUrnException(userId);
-    }
-    List<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome.get());
+    String schacHome = getSchacHomeFromPersonUrn(userId);
+    List<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome);
 
     LOG.debug("internal/external-groups/{} result: {}", userId, groups);
 
@@ -186,7 +178,7 @@ public class VootController {
     return model;
   }
 
-  public static abstract class MalformedUrnException extends Exception {
+  public static abstract class MalformedUrnException extends RuntimeException {
     public MalformedUrnException(String message) {
       super(message);
     }

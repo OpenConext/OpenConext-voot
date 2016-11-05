@@ -46,7 +46,7 @@ public class ExternalGroupsServiceLinkedGroupsTest {
   private String groupIdPrefix = "urn:collab:group:surfnet.test:";
   private String admins = groupIdPrefix + "Admins";
   private String teachers = "urn:collab:group:example.org:Teachers";
-  private String adminGrouperId = extractLocalGroupId(admins).get();
+  private String adminGrouperId = extractLocalGroupId(admins);
 
   private TeamsDao teamsDao;
   private GrouperProvider grouperProvider;

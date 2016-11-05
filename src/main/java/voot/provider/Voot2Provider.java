@@ -36,11 +36,8 @@ public class Voot2Provider extends AbstractProvider {
   public List<Group> getGroupMemberships(final String uid) {
     LOG.debug("Querying getGroupMemberships for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
 
-    final Optional<String> localUid = UrnUtils.extractLocalUid(uid);
-    if (!localUid.isPresent()) {
-      throw new IllegalArgumentException("Unable to extract local uid from " + uid);
-    }
-    ResponseEntity<String> response = restTemplate.getForEntity(String.format(allMembershipsUrlTemplate, configuration.url), String.class, localUid.get());
+    String localUid = UrnUtils.extractLocalUid(uid);
+    ResponseEntity<String> response = restTemplate.getForEntity(String.format(allMembershipsUrlTemplate, configuration.url), String.class, localUid);
 
     if (response.getStatusCode().is2xxSuccessful()) {
       return parseGroups(response.getBody());
@@ -59,19 +56,12 @@ public class Voot2Provider extends AbstractProvider {
   public Optional<Group> getGroupMembership(final String uid, final String groupId) {
     LOG.debug("Querying getGroupMembership for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
 
-    final Optional<String> localUid = UrnUtils.extractLocalUid(uid);
-    if (!localUid.isPresent()) {
-      throw new IllegalArgumentException("Unable to extract local uid from: " + uid);
-    }
-
-    final Optional<String> localGroupId = UrnUtils.extractLocalGroupId(groupId);
-    if (!localGroupId.isPresent()) {
-      throw new IllegalArgumentException("Unable to extract local group id from:" + groupId);
-    }
+    String localUid = UrnUtils.extractLocalUid(uid);
+    String localGroupId = UrnUtils.extractLocalGroupId(groupId);
 
     final String url = String.format(specificMembershipTemplate, configuration.url);
     LOG.debug("Invoking {} on provider {}", url, this);
-    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class, localUid.get(), localGroupId.get());
+    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class, localUid, localGroupId);
 
     if (response.getStatusCode().is2xxSuccessful()) {
       return parseSingleGroup(response.getBody());

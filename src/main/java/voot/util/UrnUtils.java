@@ -1,5 +1,7 @@
 package voot.util;
 
+import voot.web.VootController;
+
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,8 +23,9 @@ public class UrnUtils {
    * @param groupId the id that should addhere to {@value #URN_COLLAB_GROUP_REGEXP}
    * @return the stripped value or the empty Optional when stripping did not succeeed
    */
-  public static Optional<String> extractLocalGroupId(final String groupId) {
-    return getIdFromRegExp(GROUP_PATTERN, groupId);
+  public static String extractLocalGroupId(final String groupId) {
+    return getIdFromRegExp(GROUP_PATTERN, groupId)
+      .orElseThrow(() -> new IllegalArgumentException("Unable to extract local group id from:" + groupId));
   }
 
   /**
@@ -31,16 +34,19 @@ public class UrnUtils {
    * @param uid the uid that should addhere to {@value #URN_COLLAB_PERSON_REGEXP}
    * @return the stripped value or the empty Optional when stripping did not succeeed
    */
-  public static Optional<String> extractLocalUid(final String uid) {
-    return getIdFromRegExp(PERSON_PATTERN, uid);
+  public static String extractLocalUid(final String uid) {
+    return getIdFromRegExp(PERSON_PATTERN, uid)
+      .orElseThrow(() -> new IllegalArgumentException("Unable to extract local uid from " + uid));
   }
 
-  public static Optional<String> getSchacHomeFromGroupUrn(String groupId) {
-    return getSchacHomeFromRegExp(GROUP_PATTERN, groupId);
+  public static String getSchacHomeFromGroupUrn(String groupId) throws VootController.MalformedGroupUrnException {
+    return getSchacHomeFromRegExp(GROUP_PATTERN, groupId)
+      .orElseThrow(() -> new VootController.MalformedGroupUrnException(groupId));
   }
 
-  public static Optional<String> getSchacHomeFromPersonUrn(String personId) {
-    return getSchacHomeFromRegExp(PERSON_PATTERN, personId);
+  public static String getSchacHomeFromPersonUrn(String personId) throws VootController.MalformedPersonUrnException {
+    return getSchacHomeFromRegExp(PERSON_PATTERN, personId)
+      .orElseThrow(() -> new VootController.MalformedPersonUrnException(personId));
   }
 
   public static boolean isFullyQualifiedGroupName(String groupId) {

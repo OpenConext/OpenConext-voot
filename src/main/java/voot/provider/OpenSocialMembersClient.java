@@ -28,17 +28,11 @@ public class OpenSocialMembersClient extends OpenSocialClient {
   public List<Member> getMembers(String personId, String groupId) {
     LOG.debug("Querying getMembers for personId: {} and groupId: {}", personId, groupId);
 
-    Optional<String> localGroupId = UrnUtils.extractLocalGroupId(groupId);
-    if (!localGroupId.isPresent()) {
-      throw new IllegalArgumentException("Unable to extract local groupId from " + groupId);
-    }
-    Optional<String> localPersonId = UrnUtils.extractLocalUid(personId);
-    if (!localPersonId.isPresent()) {
-      throw new IllegalArgumentException("Unable to extract local id from " + personId);
-    }
+    String localGroupId = UrnUtils.extractLocalGroupId(groupId);
+    String localPersonId = UrnUtils.extractLocalUid(personId);
     String url = String.format(membersTemplate, configuration.url);
     ResponseEntity<String> response = restTemplate.getForEntity(url,
-      String.class, localPersonId.get(), localGroupId.get());
+      String.class, localPersonId, localGroupId);
 
     if (response.getStatusCode().is2xxSuccessful()) {
       return parseMembers(response.getBody());

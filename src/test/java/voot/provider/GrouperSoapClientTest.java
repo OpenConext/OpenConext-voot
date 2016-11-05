@@ -136,6 +136,12 @@ public class GrouperSoapClientTest {
     assertEquals("group",subject.getGroupMembershipsForLocalGroupId("group").get(0).id);
   }
 
+  @Test
+  public void testGrouperGroup() {
+    assertTrue(subject.isGrouperGroup("urn:collab:group:surfnet.nl:admins"));
+    assertFalse(subject.isGrouperGroup("urn:collab:group:nope:admins"));
+  }
+
   private void stubGrouperCall(String responseFile, String soupAction) throws IOException {
     String response = StreamUtils.copyToString(new ClassPathResource(responseFile).getInputStream(), Charset.forName("UTF-8"));
     wireMockRule.stubFor(post(urlEqualTo("/grouper-ws/services/GrouperService_v2_0"))

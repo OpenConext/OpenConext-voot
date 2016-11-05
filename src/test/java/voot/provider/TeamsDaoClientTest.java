@@ -9,11 +9,13 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import voot.VootServiceApplication;
+import voot.valueobject.Group;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -30,6 +32,13 @@ public class TeamsDaoClientTest {
   @Before
   public void setUp() throws Exception {
     subject = new TeamsDaoClient(dataSource);
+  }
+
+  @Test
+  public void testLinkedExternalGroups() throws Exception {
+    List<Group> groups = subject.linkedExternalGroups("nl:surfnet:diensten:test123","nl:surfnet:diensten:bazen");
+    assertEquals(Arrays.asList("urn:collab:group:example.org:name1", "urn:collab:group:example.org:name2", "urn:collab:group:example.org:name3"),
+      groups.stream().map(group -> group.id).collect(toList()));
   }
 
   @Test

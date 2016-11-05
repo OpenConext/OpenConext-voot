@@ -9,6 +9,7 @@ import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 import voot.valueobject.Membership;
+import voot.web.VootController;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,9 +49,9 @@ public class MockProvider extends AbstractProvider {
   }
 
   @Override
-  public boolean shouldBeQueriedForMembers(String groupId) {
-    Optional<String> localGroupId = UrnUtils.getSchacHomeFromGroupUrn(groupId);
-    return localGroupId.map(s -> s.equals(configuration.schacHomeOrganization)).orElse(false);
+  public boolean shouldBeQueriedForMembers(String groupId) throws VootController.MalformedGroupUrnException {
+    String localGroupId = UrnUtils.getSchacHomeFromGroupUrn(groupId);
+    return localGroupId.equals(configuration.schacHomeOrganization);
   }
 
   @Override

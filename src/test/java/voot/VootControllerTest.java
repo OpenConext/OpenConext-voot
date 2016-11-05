@@ -104,12 +104,6 @@ public class VootControllerTest {
     assertEquals("id",group.id);
   }
 
-  @Test(expected = VootController.MalformedGroupUrnException.class)
-  public void testInternalSpecificGroupUrnException() throws Exception {
-    setUpClientCredentials();
-    subject.internalSpecificGroup(UID, "bogus", authentication);
-  }
-
   @Test
   public void testExternalGroups() throws Exception {
     setUpClientCredentials();

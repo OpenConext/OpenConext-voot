@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static voot.util.UrnUtils.extractLocalGroupId;
+
 public class GrouperSoapClient extends AbstractProvider implements GrouperProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(GrouperSoapClient.class);
@@ -67,7 +69,7 @@ public class GrouperSoapClient extends AbstractProvider implements GrouperProvid
 
   @Override
   public Optional<Group> getGroupMembership(final String uid, final String groupId) {
-    String localGroupId = getLocalGroupId(groupId);
+    String localGroupId = extractLocalGroupId(groupId);
     Map<String, String> replacements = new HashMap<>();
     replacements.put("subjectId", uid);
     replacements.put("groupId", localGroupId);
@@ -116,7 +118,7 @@ public class GrouperSoapClient extends AbstractProvider implements GrouperProvid
 
   @Override
   public List<Member> getMembers(String groupId) {
-    String localGroupId = getLocalGroupId(groupId);
+    String localGroupId = extractLocalGroupId(groupId);
     Map<String, String> replacements = new HashMap<>();
     replacements.put("groupId", localGroupId);
 
@@ -148,11 +150,6 @@ public class GrouperSoapClient extends AbstractProvider implements GrouperProvid
     HttpEntity<String> entity = new HttpEntity<>(soap, headers);
 
     return restTemplate.exchange(configuration.url, HttpMethod.POST, entity, String.class);
-  }
-
-  private String getLocalGroupId(String groupId) {
-    final Optional<String> localGroupId = UrnUtils.extractLocalGroupId(groupId);
-    return localGroupId.orElseThrow(() -> new IllegalArgumentException("Unable to infer localgroupId from " + groupId));
   }
 
   private String replaceTokens(String soapTemplate, Map<String, String> replacements) throws IOException {

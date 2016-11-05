@@ -2,23 +2,36 @@ package voot.util;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static voot.util.UrnUtils.getSchacHomeFromGroupUrn;
+import static voot.util.UrnUtils.getSchacHomeFromPersonUrn;
 
 import org.junit.Test;
+import voot.web.VootController;
+
+import java.util.Optional;
 
 
 public class UrnUtilsTest {
 
   @Test
   public void testStripGroupUrnIdentifier() {
-    assertTrue(UrnUtils.extractLocalGroupId("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon").get().equals("nl:surfnet:diensten:apachecon"));
-    assertTrue(UrnUtils.extractLocalGroupId("urn:collab:group:example!org:remainder").get().equals("remainder"));
-    assertFalse(UrnUtils.extractLocalGroupId("example.com").isPresent());
+    assertTrue(UrnUtils.extractLocalGroupId("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon").equals("nl:surfnet:diensten:apachecon"));
+    assertTrue(UrnUtils.extractLocalGroupId("urn:collab:group:example!org:remainder").equals("remainder"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testStripGroupUrnIdentifierInvalid() {
+    UrnUtils.extractLocalGroupId("example.com");
   }
 
   @Test
   public void testStripPersonUrnIdentifier() {
-    assertTrue(UrnUtils.extractLocalUid("urn:collab:person:example.com:admin").get().equals("admin"));
-    assertFalse(UrnUtils.extractLocalUid("admin").isPresent());
+    assertTrue(UrnUtils.extractLocalUid("urn:collab:person:example.com:admin").equals("admin"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testStripPersonUrnIdentifierInvalid() {
+    UrnUtils.extractLocalUid("admin");
   }
 
   @Test
@@ -31,23 +44,24 @@ public class UrnUtilsTest {
 
   @Test
   public void testGetSchacHomeFromGroupUrn() {
-    assertTrue(UrnUtils.getSchacHomeFromGroupUrn("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon").get().equals("surfteams.nl"));
-    assertTrue(UrnUtils.getSchacHomeFromGroupUrn("urn:collab:group:example!org:remainder").get().equals("example!org"));
+    assertTrue(getSchacHomeFromGroupUrn("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon").equals("surfteams.nl"));
+    assertTrue(getSchacHomeFromGroupUrn("urn:collab:group:example!org:remainder").equals("example!org"));
   }
 
-  @Test
+  @Test(expected = VootController.MalformedGroupUrnException.class)
   public void testGetSchacHomeFromGroupUrnIllegal() {
-    assertFalse(UrnUtils.getSchacHomeFromGroupUrn("surfteams.nl").isPresent());
+    getSchacHomeFromGroupUrn("surfteams.nl");
   }
 
   @Test
   public void testGetSchacHomeFromPersonUrn() {
-    assertTrue(UrnUtils.getSchacHomeFromPersonUrn("urn:collab:person:example.com:some:admin").get().equals("example.com"));
-    assertTrue(UrnUtils.getSchacHomeFromPersonUrn("urn:collab:person:example!org:remainder").get().equals("example!org"));
+    String schacHomeFromPersonUrn = getSchacHomeFromPersonUrn("urn:collab:person:example.com:some:admin");
+    assertTrue(schacHomeFromPersonUrn.equals("example.com"));
+    assertTrue(getSchacHomeFromPersonUrn("urn:collab:person:example!org:remainder").equals("example!org"));
   }
 
-  @Test
+  @Test(expected = VootController.MalformedGroupUrnException.class)
   public void testGetSchacHomeFromPersonIllegal() {
-    assertFalse(UrnUtils.getSchacHomeFromGroupUrn("example.org").isPresent());
+    getSchacHomeFromGroupUrn("example.org");
   }
 }
