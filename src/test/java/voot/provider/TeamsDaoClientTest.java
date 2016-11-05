@@ -17,6 +17,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = VootServiceApplication.class)
@@ -42,8 +43,20 @@ public class TeamsDaoClientTest {
   }
 
   @Test
+  public void testLinkedExternalGroupsEmpty() throws Exception {
+    List<Group> groups = subject.linkedExternalGroups();
+    assertTrue(groups.isEmpty());
+  }
+
+  @Test
   public void testLinkedGrouperGroupIds() throws Exception {
     List<String> ids = subject.linkedLocalGrouperGroupIds("urn:collab:group:example.org:name1", "urn:collab:group:example.org:name3", "bogus");
     assertEquals(Arrays.asList("nl:surfnet:diensten:bazen", "nl:surfnet:diensten:test123"), ids);
+  }
+
+  @Test
+  public void testLinkedGrouperGroupIdsEmpty() throws Exception {
+    List<String> ids = subject.linkedLocalGrouperGroupIds();
+    assertTrue(ids.isEmpty());
   }
 }
