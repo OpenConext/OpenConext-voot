@@ -8,6 +8,7 @@ import voot.valueobject.Membership;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,6 +48,9 @@ public class GrouperDaoClient implements GrouperDao {
 
   @Override
   public List<Group> groupsByName(String... groupNames) {
+    if (groupNames.length == 0) {
+      return Collections.<Group>emptyList();
+    }
     return this.jdbcTemplate.query("select gg.name as groupname, gg.description as description, gg.display_extension as display_extension " +
       "from grouper_groups gg where gg.name in (:names)",
       new MapSqlParameterSource("names", Arrays.asList(groupNames)),

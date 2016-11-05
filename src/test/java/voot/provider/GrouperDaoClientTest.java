@@ -67,6 +67,12 @@ public class GrouperDaoClientTest {
     assertEquals(3, groups.size());
   }
 
+  @Test
+  public void testFindGroupsByNameEmpty() throws Exception {
+    List<Group> groups = subject.groupsByName();
+    assertEquals(0, groups.size());
+  }
+
   private void assertMembership(List<Group> groups, String groupId, Membership membership) {
     assertEquals(groupId, membership, groups.stream().filter(group -> group.id.equals(groupId)).collect(toList()).get(0).membership);
   }
