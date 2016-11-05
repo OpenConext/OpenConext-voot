@@ -57,8 +57,8 @@ public class ExternalGroupsServiceLinkedGroupsTest {
   public void before() {
     this.teamsDao = mock(TeamsDao.class);
 
-    grouperProvider = mock(GrouperProvider.class);
-    externalGroupProvider = mock(Provider.class);
+    this.grouperProvider = mock(GrouperProvider.class);
+    this.externalGroupProvider = mock(Provider.class);
 
     when(teamsDao.linkedExternalGroups(adminGrouperId)).thenReturn(asList(group(teachers)));
     when(teamsDao.linkedLocalGrouperGroupIds(teachers)).thenReturn(asList(adminGrouperId));
