@@ -1,8 +1,13 @@
 package voot.web;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.codehaus.jackson.map.util.Comparators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +26,8 @@ import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 import static voot.util.UrnUtils.getSchacHomeFromPersonUrn;
 
 @RestController

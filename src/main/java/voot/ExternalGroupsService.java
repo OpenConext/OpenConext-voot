@@ -10,15 +10,14 @@ import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static voot.util.StreamUtils.optionalFromList;
 import static voot.util.StreamUtils.optionalFromOptionalList;
@@ -61,7 +60,7 @@ public class ExternalGroupsService {
       groups.addAll(groupsFromGrouper);
     }
 
-    return groups;
+    return filterDuplicatesWithLowerImportance(groups);
   }
 
   public List<Group> getMyExternalGroups(String uid, String schacHomeOrganization) {
@@ -123,6 +122,14 @@ public class ExternalGroupsService {
       provider -> !provider.isExternalGroupProvider(),
       Provider::getAllGroups,
       Collections::<Group>emptyList).flatMap(Collection::stream).collect(toList());
+  }
+
+  protected List<Group> filterDuplicatesWithLowerImportance(List<Group> groups) {
+    return groups.stream().collect(groupingBy(group -> group.id)).values().stream()
+      .map(grouped -> {
+        grouped.sort(comparing(group -> group.membership));
+        return grouped.get(grouped.size() - 1);
+      }).collect(toList());
   }
 
   private <T> Stream<T> execute(Predicate<Provider> providerFilter, ProviderCallback<T> callback, ExceptionProviderCallback<T> exceptionCallback) {

@@ -14,6 +14,7 @@ import voot.web.VootController;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class MockProvider extends AbstractProvider {
 
@@ -100,7 +101,7 @@ public class MockProvider extends AbstractProvider {
   }
 
   private Group defaultGroup(String id) {
-    return new Group(id, "came from" + this.toString(), "description", SCHAC_HOME_ORGANIZATION, Membership.MEMBER);
+    return new Group(UUID.randomUUID().toString() + id, "came from" + this.toString(), "description", SCHAC_HOME_ORGANIZATION, Membership.MEMBER);
   }
 
   private Member defaultMember() {
