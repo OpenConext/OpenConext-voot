@@ -3,9 +3,7 @@ package voot;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static voot.MockProvider.SimulationMode.*;
 import static voot.provider.GroupProviderType.GROUPER;
 import static voot.provider.GroupProviderType.OPEN_SOCIAL_MEMBERS;
@@ -14,10 +12,8 @@ import static voot.provider.GroupProviderType.VOOT2;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import voot.provider.GroupProviderType;
 import voot.provider.Provider;
 import voot.provider.TeamsDao;
 import voot.valueobject.Group;
@@ -124,21 +120,25 @@ public class ExternalGroupsServiceTest {
     ExternalGroupsService externalGroupsService = externalGroupService(asList(
       new MockProvider(200L, Success, GROUPER)));
     List<Group> groups = externalGroupsService.filterDuplicatesWithLowerImportance(asList(
-      new Group("id1", null, null, null, Membership.ADMIN),
-      new Group("id2", null, null, null, Membership.MANAGER),
-      new Group("id2", null, null, null, Membership.ADMIN),
-      new Group("id2", null, null, null, Membership.MEMBER),
-      new Group("id3", null, null, null, Membership.MANAGER),
-      new Group("id3", null, null, null, Membership.MEMBER)
+      group("id1", Membership.ADMIN),
+      group("id2", Membership.MANAGER),
+      group("id2", Membership.ADMIN),
+      group("id2", Membership.MEMBER),
+      group("id3", Membership.MANAGER),
+      group("id3", Membership.MEMBER)
     ));
-    groups.sort(Comparator.comparing(group -> group.id));
-
     assertEquals(3, groups.size());
+
+    groups.sort(Comparator.comparing(group -> group.id));
     assertEquals(asList(
-      new Group("id1", null, null, null, Membership.ADMIN),
-      new Group("id2", null, null, null, Membership.ADMIN),
-      new Group("id3", null, null, null, Membership.MANAGER)
+      group("id1", Membership.ADMIN),
+      group("id2", Membership.ADMIN),
+      group("id3", Membership.MANAGER)
     ), groups);
+  }
+
+  private Group group(String id, Membership membership) {
+    return new Group(id, null, null, null, membership);
   }
 
   private ExternalGroupsService externalGroupService(List<Provider> providers) {
