@@ -1,14 +1,5 @@
 package voot;
 
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,13 +9,21 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
-
 import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 import voot.valueobject.Membership;
 import voot.web.VootController;
+
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.util.Collections.singleton;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VootControllerTest {
@@ -65,16 +64,16 @@ public class VootControllerTest {
 
   @Test
   public void testEmptyMyGroupsResult() throws Exception {
-    when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(Collections.emptyList());
-     List<Group> groups = subject.myGroups(authentication);
+    when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(Collections.emptySet());
+     Set<Group> groups = subject.myGroups(authentication);
     assertTrue(groups.size() == 0);
   }
 
   @Test
   public void testSingleMembershipPositiveResult() {
      Group group = group();
-    when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(singletonList(group));
-     List<Group> groups = subject.myGroups(authentication);
+    when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(singleton(group));
+     Set<Group> groups = subject.myGroups(authentication);
     assertTrue(groups.size() > 0);
   }
 
@@ -107,9 +106,9 @@ public class VootControllerTest {
   @Test
   public void testExternalGroups() throws Exception {
     setUpClientCredentials();
-    when(externalGroupsService.getMyExternalGroups("urn:collab:person:schac:admin", "schac")).thenReturn(singletonList(group()));
+    when(externalGroupsService.getMyExternalGroups("urn:collab:person:schac:admin", "schac")).thenReturn(singleton(group()));
 
-    List<Group> groups = subject.externalGroups("urn:collab:person:schac:admin", authentication);
+    Set<Group> groups = subject.externalGroups("urn:collab:person:schac:admin", authentication);
     assertEquals(1,groups.size());
   }
 
@@ -122,30 +121,32 @@ public class VootControllerTest {
   @Test
   public void testGetAllGroups() throws Exception {
     setUpClientCredentials();
-    when(externalGroupsService.getAllGroups()).thenReturn(singletonList(group()));
+    when(externalGroupsService.getAllGroups()).thenReturn(singleton(group()));
 
-    List<Group> groups = subject.allGroups(authentication);
+    Set<Group> groups = subject.allGroups(authentication);
     assertEquals(1,groups.size());
   }
 
   @Test
   public void testMembers() throws Exception {
     setUpClientCredentials("members");
-    when(externalGroupsService.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon")).thenReturn(singletonList(MockProvider.MEMBER));
+    when(externalGroupsService.getMembers("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon"))
+      .thenReturn(singleton(new Member("urn:collab:person:example.com:admin", "John Doe", "j.doe@example.com")));
 
-    List<Member> members = subject.members("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon", authentication);
+    Set<Member> members = subject.members("urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon", authentication);
     assertEquals(1, members.size());
-    assertEquals(MockProvider.MEMBER, members.get(0));
+    assertEquals("urn:collab:person:example.com:admin", members.stream().findFirst().get().id);
   }
 
   @Test
   public void testMembersIncExternal() throws Exception {
     setUpClientCredentials("members");
-    when(externalGroupsService.getMembers("personId","urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon")).thenReturn(singletonList(MockProvider.MEMBER));
+    when(externalGroupsService.getMembers("personId","urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon"))
+      .thenReturn(singleton(new Member("urn:collab:person:example.com:admin", "John Doe", "j.doe@example.com")));
 
-    List<Member> members = subject.membersIncExternalMembers("personId", "urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon", authentication);
+    Set<Member> members = subject.membersIncExternalMembers("personId", "urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon", authentication);
     assertEquals(1, members.size());
-    assertEquals(MockProvider.MEMBER, members.get(0));
+    assertEquals("urn:collab:person:example.com:admin", members.stream().findFirst().get().id);
   }
 
   private Group group() {

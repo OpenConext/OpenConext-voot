@@ -20,7 +20,6 @@ public class MockProvider extends AbstractProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(MockProvider.class);
   public static final String SCHAC_HOME_ORGANIZATION = "example.org";
-  public static final Member MEMBER = new Member("urn:collab:person:example.com:admin", "John Doe", "j.doe@example.com");
 
   public enum SimulationMode {Success, Timeout, Error, Empty}
 
@@ -105,6 +104,6 @@ public class MockProvider extends AbstractProvider {
   }
 
   private Member defaultMember() {
-    return MEMBER;
+    return new Member("urn:collab:person:example.com:admin", "John Doe", "j.doe-" + UUID.randomUUID().toString() + "@example.com");
   }
 }

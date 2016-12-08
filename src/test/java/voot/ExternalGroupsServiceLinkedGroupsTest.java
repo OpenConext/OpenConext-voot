@@ -6,26 +6,21 @@ import voot.provider.GrouperProvider;
 import voot.provider.Provider;
 import voot.provider.TeamsDao;
 import voot.valueobject.Group;
-import voot.valueobject.Member;
 import voot.valueobject.Membership;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
-import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static voot.MockProvider.SimulationMode.Error;
-import static voot.MockProvider.SimulationMode.*;
-import static voot.provider.GroupProviderType.*;
 import static voot.util.UrnUtils.extractLocalGroupId;
 
 /**
@@ -103,17 +98,17 @@ public class ExternalGroupsServiceLinkedGroupsTest {
 
   @Test
   public void testGetExternalTeamsLinkedToGrouperUser() throws Exception {
-    List<Group> groups = subject.getMyGroups("Joe", "surfnet.test");
+    Set<Group> groups = subject.getMyGroups("Joe", "surfnet.test");
     assertMyGroupsEquality(groups, admins);
   }
 
   @Test
   public void testGetGrouperTeamsLinkedToExternalUser() throws Exception {
-    List<Group> groups = subject.getMyGroups("Mary", "example.org");
+    Set<Group> groups = subject.getMyGroups("Mary", "example.org");
     assertMyGroupsEquality(groups, admins, teachers);
   }
 
-  private void assertMyGroupsEquality(List<Group> groups, String... names) {
+  private void assertMyGroupsEquality(Set<Group> groups, String... names) {
     assertEquals(new HashSet<>(groups.stream().map(group -> group.id).collect(toList())), new HashSet<>(asList(names)));
   }
 
