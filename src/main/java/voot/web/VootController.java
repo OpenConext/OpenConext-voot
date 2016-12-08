@@ -1,13 +1,5 @@
 package voot.web;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.codehaus.jackson.map.util.Comparators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +8,6 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-
 import voot.AccessDeniedException;
 import voot.ExternalGroupsService;
 import voot.ResourceNotFoundException;
@@ -26,8 +17,9 @@ import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import java.util.Optional;
+import java.util.Set;
+
 import static voot.util.UrnUtils.getSchacHomeFromPersonUrn;
 
 @RestController
@@ -43,14 +35,14 @@ public class VootController {
   }
 
   @RequestMapping(value = "/me/groups")
-  public List<Group> myGroups(OAuth2Authentication authentication) {
+  public Set<Group> myGroups(OAuth2Authentication authentication) {
     String schacHome = ((SchacHomeAuthentication) authentication.getUserAuthentication()).getSchacHomeAuthentication();
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
     LOG.debug("me/groups on behalf of uid: {}, schacHomeOrg: {}, accessToken: {}, clientId: {}", authentication.getName(), schacHome, accessToken, clientId);
 
-    List<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome);
+    Set<Group> myGroups = externalGroupsService.getMyGroups(authentication.getName(), schacHome);
 
     LOG.debug("me/groups result for uid {}: {}", authentication.getName(), myGroups);
     return myGroups;
@@ -90,7 +82,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/internal/groups/{userId:.+}")
-  public List<Group> internalGroups(@PathVariable String userId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
+  public Set<Group> internalGroups(@PathVariable String userId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -99,7 +91,7 @@ public class VootController {
     assertClientCredentialsClient(authentication, clientId);
 
     String schacHome = getSchacHomeFromPersonUrn(userId);
-    List<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome);
+    Set<Group> myGroups = externalGroupsService.getMyGroups(userId, schacHome);
 
     LOG.debug("internal/groups/{} result: {}", userId, myGroups);
 
@@ -107,7 +99,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/internal/external-groups/{userId:.+}")
-  public List<Group> externalGroups(@PathVariable String userId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
+  public Set<Group> externalGroups(@PathVariable String userId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -116,7 +108,7 @@ public class VootController {
     assertClientCredentialsClient(authentication, clientId);
 
     String schacHome = getSchacHomeFromPersonUrn(userId);
-    List<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome);
+    Set<Group> groups = externalGroupsService.getMyExternalGroups(userId, schacHome);
 
     LOG.debug("internal/external-groups/{} result: {}", userId, groups);
 
@@ -124,7 +116,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/internal/all-groups")
-  public List<Group> allGroups(OAuth2Authentication authentication) throws MalformedPersonUrnException {
+  public Set<Group> allGroups(OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -132,7 +124,7 @@ public class VootController {
 
     assertClientCredentialsClient(authentication, clientId);
 
-    List<Group> groups = externalGroupsService.getAllGroups();
+    Set<Group> groups = externalGroupsService.getAllGroups();
 
     LOG.debug("internal/all-groupsresult: {}", groups.size());
 
@@ -140,7 +132,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/members/{groupId:.+}")
-  public List<Member> members(@PathVariable String groupId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
+  public Set<Member> members(@PathVariable String groupId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -148,7 +140,7 @@ public class VootController {
 
     assertClientCredentialsClient(authentication, clientId);
 
-    List<Member> members = externalGroupsService.getMembers(groupId);
+    Set<Member> members = externalGroupsService.getMembers(groupId);
 
     LOG.debug("/members/{} result: {}", groupId, members);
 
@@ -156,7 +148,7 @@ public class VootController {
   }
 
   @RequestMapping(value = "/members/{personId:.+}/{groupId:.+}")
-  public List<Member> membersIncExternalMembers(@PathVariable String personId, @PathVariable String groupId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
+  public Set<Member> membersIncExternalMembers(@PathVariable String personId, @PathVariable String groupId, OAuth2Authentication authentication) throws MalformedPersonUrnException {
     String accessToken = ((OAuth2AuthenticationDetails) authentication.getDetails()).getTokenValue();
     String clientId = authentication.getOAuth2Request().getClientId();
 
@@ -164,7 +156,7 @@ public class VootController {
 
     assertClientCredentialsClient(authentication, clientId);
 
-    List<Member> members = externalGroupsService.getMembers(personId, groupId);
+    Set<Member> members = externalGroupsService.getMembers(personId, groupId);
 
     LOG.debug("/members/{}/{} result: {}", personId, groupId, members);
 

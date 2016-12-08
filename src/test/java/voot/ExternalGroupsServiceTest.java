@@ -1,24 +1,22 @@
 package voot;
 
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static voot.MockProvider.SimulationMode.*;
-import static voot.provider.GroupProviderType.GROUPER;
-import static voot.provider.GroupProviderType.OPEN_SOCIAL_MEMBERS;
-import static voot.provider.GroupProviderType.VOOT2;
-
-import java.util.*;
-import java.util.stream.IntStream;
-
 import org.junit.Test;
-
 import voot.provider.Provider;
 import voot.provider.TeamsDao;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 import voot.valueobject.Membership;
+
+import java.util.*;
+import java.util.stream.IntStream;
+
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static voot.MockProvider.SimulationMode.Error;
+import static voot.MockProvider.SimulationMode.*;
+import static voot.provider.GroupProviderType.*;
 
 public class ExternalGroupsServiceTest {
 
@@ -32,7 +30,7 @@ public class ExternalGroupsServiceTest {
     List<Provider> providers = new ArrayList<>();
     IntStream.rangeClosed(1, 10).forEach(i -> providers.add(new MockProvider(200L, Success, GROUPER)));
     ExternalGroupsService externalGroupsService = externalGroupService(providers);
-    final List<Group> result = externalGroupsService.getMyGroups("foo", "example.com");
+    Set<Group> result = externalGroupsService.getMyGroups("foo", "example.com");
     assertEquals(result.size(), providers.size());
   }
 
@@ -42,7 +40,7 @@ public class ExternalGroupsServiceTest {
     final MockProvider errorMockProvider = new MockProvider(200L, Error, GROUPER);
 
     ExternalGroupsService externalGroupsService = externalGroupService(asList(successMockProvider, errorMockProvider));
-    final List<Group> foo = externalGroupsService.getMyGroups("foo", "example.com");
+    Set<Group> foo = externalGroupsService.getMyGroups("foo", "example.com");
     assertTrue(foo.size() == 1);
   }
 
@@ -51,7 +49,7 @@ public class ExternalGroupsServiceTest {
     List<Provider> providers = new ArrayList<>();
     IntStream.rangeClosed(1, 10).forEach(i -> providers.add(new MockProvider(200L, i % 2 == 0 ? Success : Timeout, GROUPER)));
     ExternalGroupsService externalGroupsService = externalGroupService(providers);
-    final List<Group> foo = externalGroupsService.getMyGroups("foo", "example.com");
+    Set<Group> foo = externalGroupsService.getMyGroups("foo", "example.com");
     assertEquals(foo.size(), 5);
   }
 
@@ -71,7 +69,7 @@ public class ExternalGroupsServiceTest {
       new MockProvider(200L, Error, GROUPER));
 
     ExternalGroupsService externalGroupsService = externalGroupService(providers);
-    List<Group> groups = externalGroupsService.getMyExternalGroups("admin", "example.com");
+    Set<Group> groups = externalGroupsService.getMyExternalGroups("admin", "example.com");
     assertEquals(1, groups.size());
   }
 
@@ -84,9 +82,9 @@ public class ExternalGroupsServiceTest {
       new MockProvider(200L, Error, GROUPER));
 
     ExternalGroupsService externalGroupsService = externalGroupService(providers);
-    List<Member> members = externalGroupsService.getMembers("urn:collab:group:example.org:nl:surfnet:diensten:apachecon");
+    Set<Member> members = externalGroupsService.getMembers("urn:collab:group:example.org:nl:surfnet:diensten:apachecon");
     assertEquals(2, members.size());
-    assertEquals(MockProvider.MEMBER, members.get(0));
+    assertEquals("urn:collab:person:example.com:admin", members.stream().findFirst().get().id);
   }
 
   @Test
@@ -97,7 +95,7 @@ public class ExternalGroupsServiceTest {
     );
 
     ExternalGroupsService externalGroupsService = externalGroupService(providers);
-    List<Group> allGroups = externalGroupsService.getAllGroups();
+    Set<Group> allGroups = externalGroupsService.getAllGroups();
     assertEquals(1, allGroups.size());
   }
 
@@ -108,25 +106,25 @@ public class ExternalGroupsServiceTest {
     );
 
     ExternalGroupsService externalGroupsService = externalGroupService(providers);
-    List<Member> members = externalGroupsService.getMembers("personId",
+    Set<Member> members = externalGroupsService.getMembers("personId",
       "urn:collab:group:example.org:DIF-uc-test-surfteams-teams-3_grp");
 
     assertEquals(1, members.size());
-    assertEquals(MockProvider.MEMBER, members.get(0));
+    assertEquals("urn:collab:person:example.com:admin", members.stream().findFirst().get().id);
   }
 
   @Test
   public void testFilterDuplicatesWithLowerImportance() {
     ExternalGroupsService externalGroupsService = externalGroupService(asList(
       new MockProvider(200L, Success, GROUPER)));
-    List<Group> groups = externalGroupsService.filterDuplicatesWithLowerImportance(asList(
+    List<Group> groups = new ArrayList(externalGroupsService.filterDuplicatesWithLowerImportance(asList(
       group("id1", Membership.ADMIN),
       group("id2", Membership.MANAGER),
       group("id2", Membership.ADMIN),
       group("id2", Membership.MEMBER),
       group("id3", Membership.MANAGER),
       group("id3", Membership.MEMBER)
-    ));
+    )));
     assertEquals(3, groups.size());
 
     groups.sort(Comparator.comparing(group -> group.id));

@@ -6,7 +6,6 @@ import org.springframework.util.Assert;
 import voot.provider.GrouperProvider;
 import voot.provider.Provider;
 import voot.provider.TeamsDao;
-import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 
@@ -17,8 +16,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 import static voot.util.StreamUtils.optionalFromList;
 import static voot.util.StreamUtils.optionalFromOptionalList;
 import static voot.util.UrnUtils.extractLocalGroupId;
@@ -43,7 +41,7 @@ public class ExternalGroupsService {
     this.supportLinkedGrouperExternalGroups = supportLinkedGrouperExternalGroups;
   }
 
-  public List<Group> getMyGroups(String uid, String schacHomeOrganization) {
+  public Set<Group> getMyGroups(String uid, String schacHomeOrganization) {
     List<Group> groups = this.execute(
       provider -> provider.shouldBeQueriedForMemberships(schacHomeOrganization),
       provider -> provider.getGroupMemberships(uid),
@@ -63,25 +61,25 @@ public class ExternalGroupsService {
     return filterDuplicatesWithLowerImportance(groups);
   }
 
-  public List<Group> getMyExternalGroups(String uid, String schacHomeOrganization) {
+  public Set<Group> getMyExternalGroups(String uid, String schacHomeOrganization) {
     return this.execute(
       provider -> provider.isExternalGroupProvider() && provider.shouldBeQueriedForMemberships(schacHomeOrganization),
       provider -> provider.getGroupMemberships(uid),
-      Collections::<Group>emptyList).flatMap(Collection::stream).collect(toList());
+      Collections::<Group>emptyList).flatMap(Collection::stream).collect(toSet());
   }
 
-  public List<Member> getMembers(String groupId) {
+  public Set<Member> getMembers(String groupId) {
     return this.execute(
       provider -> provider.shouldBeQueriedForMembers(groupId),
       provider -> provider.getMembers(groupId),
-      Collections::<Member>emptyList).flatMap(Collection::stream).collect(toList());
+      Collections::<Member>emptyList).flatMap(Collection::stream).collect(toSet());
   }
 
-  public List<Member> getMembers(String personId, String groupId) {
+  public Set<Member> getMembers(String personId, String groupId) {
     return this.execute(
       provider -> provider.shouldBeQueriedForMembers(groupId),
       provider -> provider.getMembers(personId, groupId),
-      Collections::<Member>emptyList).flatMap(Collection::stream).collect(toList());
+      Collections::<Member>emptyList).flatMap(Collection::stream).collect(toSet());
   }
 
   public Optional<Group> getMyGroupById(String uid, String groupId) {
@@ -117,19 +115,19 @@ public class ExternalGroupsService {
   }
 
 
-  public List<Group> getAllGroups() {
+  public Set<Group> getAllGroups() {
     return this.execute(
       provider -> !provider.isExternalGroupProvider(),
       Provider::getAllGroups,
-      Collections::<Group>emptyList).flatMap(Collection::stream).collect(toList());
+      Collections::<Group>emptyList).flatMap(Collection::stream).collect(toSet());
   }
 
-  protected List<Group> filterDuplicatesWithLowerImportance(List<Group> groups) {
+  protected Set<Group> filterDuplicatesWithLowerImportance(List<Group> groups) {
     return groups.stream().collect(groupingBy(group -> group.id)).values().stream()
       .map(grouped -> {
         grouped.sort(comparing(group -> group.membership));
         return grouped.get(grouped.size() - 1);
-      }).collect(toList());
+      }).collect(toSet());
   }
 
   private <T> Stream<T> execute(Predicate<Provider> providerFilter, ProviderCallback<T> callback, ExceptionProviderCallback<T> exceptionCallback) {
