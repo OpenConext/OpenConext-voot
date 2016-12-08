@@ -7,21 +7,40 @@ import java.util.Objects;
 
 public class Membership implements Comparable<Membership> {
 
-  public static final Membership MEMBER = new Membership("member", 0);
-  public static final Membership MANAGER = new Membership("manager", 1);
-  public static final Membership ADMIN = new Membership("admin", 2);
+  public static final Membership MEMBER = new Membership("member");
+  public static final Membership MANAGER = new Membership("manager");
+  public static final Membership ADMIN = new Membership("admin");
 
   private final String basic;
+
   @JsonIgnore
-  private final Integer importance;
+  private Integer importance;
 
   public Membership(String basic) {
-    this(basic, 0);
-  }
+    this.basic = basic.toLowerCase();
+    switch (this.basic) {
+      case "prospect" : {
+        this.importance = 0;
+        break;
+      }
+      case "member" : {
+        this.importance = 1;
+        break;
+      }
+      case "manager" : {
+        this.importance = 2;
+        break;
+      }
+      case "admin" : {
+        this.importance = 3;
+        break;
+      }
+      case "owner" : {
+        this.importance = 4;
+        break;
+      }
+    }
 
-  private Membership(String basic, int importance) {
-    this.basic = basic;
-    this.importance = importance;
   }
 
   public String getBasic() {

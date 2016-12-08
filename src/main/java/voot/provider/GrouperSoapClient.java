@@ -106,10 +106,10 @@ public class GrouperSoapClient extends AbstractProvider implements GrouperProvid
       String soap = getTemplate("soap/FindGroupsLite.xml");
 
       ResponseEntity<String> response = getGrouperResponse(soap, URN_FIND_GROUPS_LITE);
-      List<Group> group = soapParser.parseFindAllGroups(response);
+      List<Group> groups = soapParser.parseFindAllGroups(response);
 
-      LOG.debug("getGroupMembership result: {} group.", group.size());
-      return group;
+      LOG.debug("getGroupMembership result: {} group.", groups.size());
+      return groups;
     } catch (Exception exception) {
       LOG.warn("Failed to invoke grouper, returning empty result.", exception);
       return Collections.emptyList();

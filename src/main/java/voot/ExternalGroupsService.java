@@ -62,10 +62,12 @@ public class ExternalGroupsService {
   }
 
   public Set<Group> getMyExternalGroups(String uid, String schacHomeOrganization) {
-    return this.execute(
+    List<Group> groups = this.execute(
       provider -> provider.isExternalGroupProvider() && provider.shouldBeQueriedForMemberships(schacHomeOrganization),
       provider -> provider.getGroupMemberships(uid),
-      Collections::<Group>emptyList).flatMap(Collection::stream).collect(toSet());
+      Collections::<Group>emptyList).flatMap(Collection::stream).collect(toList());
+
+    return filterDuplicatesWithLowerImportance(groups);
   }
 
   public Set<Member> getMembers(String groupId) {
@@ -124,10 +126,7 @@ public class ExternalGroupsService {
 
   protected Set<Group> filterDuplicatesWithLowerImportance(List<Group> groups) {
     return groups.stream().collect(groupingBy(group -> group.id)).values().stream()
-      .map(grouped -> {
-        grouped.sort(comparing(group -> group.membership));
-        return grouped.get(grouped.size() - 1);
-      }).collect(toSet());
+      .map(groupList -> groupList.stream().max(Comparator.comparing(group -> group.membership)).get()).collect(toSet());
   }
 
   private <T> Stream<T> execute(Predicate<Provider> providerFilter, ProviderCallback<T> callback, ExceptionProviderCallback<T> exceptionCallback) {
