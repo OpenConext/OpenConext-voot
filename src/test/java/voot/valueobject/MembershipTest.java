@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static voot.valueobject.Membership.ADMIN;
 import static voot.valueobject.Membership.MANAGER;
 import static voot.valueobject.Membership.MEMBER;

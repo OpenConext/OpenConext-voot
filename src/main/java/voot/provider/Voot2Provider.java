@@ -1,19 +1,20 @@
 package voot.provider;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-
 import voot.util.UrnUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 import voot.valueobject.Membership;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 public class Voot2Provider extends AbstractProvider {
 
@@ -37,14 +38,12 @@ public class Voot2Provider extends AbstractProvider {
     LOG.debug("Querying getGroupMemberships for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
 
     String localUid = UrnUtils.extractLocalUid(uid);
-    ResponseEntity<String> response = restTemplate.getForEntity(String.format(allMembershipsUrlTemplate, configuration.url), String.class, localUid);
+    return getGroups(localUid);
+  }
 
-    if (response.getStatusCode().is2xxSuccessful()) {
-      return parseGroups(response.getBody());
-    } else {
-      LOG.error("Failed to invoke getGroupMemberships {} for {}, returning empty result.", response, configuration);
-      return Collections.emptyList();
-    }
+  protected List<Group> getGroups(String localUid) {
+    ResponseEntity<String> response = restTemplate.getForEntity(String.format(allMembershipsUrlTemplate, configuration.url), String.class, localUid);
+    return handleResponse(response, this::parseGroups, "getGroupMemberships", emptyList());
   }
 
   @Override
@@ -60,15 +59,12 @@ public class Voot2Provider extends AbstractProvider {
     String localGroupId = UrnUtils.extractLocalGroupId(groupId);
 
     final String url = String.format(specificMembershipTemplate, configuration.url);
+
     LOG.debug("Invoking {} on provider {}", url, this);
+
     ResponseEntity<String> response = restTemplate.getForEntity(url, String.class, localUid, localGroupId);
 
-    if (response.getStatusCode().is2xxSuccessful()) {
-      return parseSingleGroup(response.getBody());
-    } else {
-      LOG.error("Failed to invoke getGroupMemberships {} for {}, returning empty result.", response, configuration);
-      return Optional.empty();
-    }
+    return handleResponse(response, this::parseSingleGroup, "getGroupMembership", Optional.empty());
   }
 
   @Override
@@ -84,12 +80,12 @@ public class Voot2Provider extends AbstractProvider {
   @SuppressWarnings("unchecked")
   protected List<Group> parseGroups(String response) {
     List<Map<String, Object>> maps = parseJson(response, List.class);
-    return maps.stream().map(this::parseGroup).collect(Collectors.toList());
+    return maps.stream().map(this::parseGroup).collect(toList());
   }
 
   @SuppressWarnings("unchecked")
   protected Optional<Group> parseSingleGroup(String response) {
-    return Optional.of(parseGroup(parseJson(response, Map.class)));
+    return Optional.of(this.parseGroup(this.parseJson(response, Map.class)));
   }
 
   private Group parseGroup(Map<String, Object> item) {

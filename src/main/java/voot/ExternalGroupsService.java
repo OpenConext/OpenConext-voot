@@ -3,21 +3,25 @@ package voot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
-import voot.provider.GrouperProvider;
 import voot.provider.Provider;
-import voot.provider.TeamsDao;
+import voot.provider.TeamsProvider;
 import voot.valueobject.Group;
 import voot.valueobject.Member;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.*;
-import static voot.util.StreamUtils.optionalFromList;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static voot.util.StreamUtils.optionalFromOptionalList;
 import static voot.util.UrnUtils.extractLocalGroupId;
 
@@ -27,17 +31,15 @@ public class ExternalGroupsService {
 
   private final List<Provider> providers;
   private final ForkJoinPool forkJoinPool;
-  private final Optional<GrouperProvider> grouperProvider;
-  private final TeamsDao teamsDao;
+  private final Optional<TeamsProvider> teamsProviderOptional;
   private final boolean supportLinkedGrouperExternalGroups;
 
-  public ExternalGroupsService(List<Provider> providers, TeamsDao teamsDao, boolean supportLinkedGrouperExternalGroups) {
+  public ExternalGroupsService(List<Provider> providers, boolean supportLinkedGrouperExternalGroups) {
     Assert.isTrue(providers.size() > 0, "No clients configured");
     this.providers = providers;
-    this.teamsDao = teamsDao;
     this.forkJoinPool = new ForkJoinPool(providers.size() * 20); // we're I/O bound.
-    this.grouperProvider = this.providers.stream().filter(provider -> provider instanceof GrouperProvider)
-      .map(GrouperProvider.class::cast).findAny();
+    this.teamsProviderOptional = this.providers.stream().filter(provider -> provider instanceof TeamsProvider)
+      .map(TeamsProvider.class::cast).findAny();
     this.supportLinkedGrouperExternalGroups = supportLinkedGrouperExternalGroups;
   }
 
@@ -47,15 +49,14 @@ public class ExternalGroupsService {
       provider -> provider.getGroupMemberships(uid),
       Collections::<Group>emptyList).flatMap(Collection::stream).collect(toList());
 
-    if (supportLinkedGrouperExternalGroups && grouperProvider.isPresent()) {
-      GrouperProvider grouper = grouperProvider.get();
-      String[] externalGroupIds = groups.stream()
-        .filter(group -> !grouper.isGrouperGroup(group.id))
+    if (supportLinkedGrouperExternalGroups && teamsProviderOptional.isPresent()) {
+      TeamsProvider teamsProvider = teamsProviderOptional.get();
+      List<String> externalGroupIds = groups.stream()
+        .filter(group -> !teamsProvider.isTeamsGroup(group.id))
         .map(group -> group.id)
-        .toArray(String[]::new);
-      String[] grouperGroupIds = teamsDao.linkedLocalGrouperGroupIds(externalGroupIds).stream().toArray(String[]::new);
-      List<Group> groupsFromGrouper = grouper.getGroupMembershipsForLocalGroupId(grouperGroupIds);
-      groups.addAll(groupsFromGrouper);
+        .collect(toList());
+      List<Group> linkedGroups = teamsProvider.linkedLocalTeamsGroup(externalGroupIds);
+      groups.addAll(linkedGroups);
     }
 
     return filterDuplicatesWithLowerImportance(groups);
@@ -94,28 +95,23 @@ public class ExternalGroupsService {
       provider -> provider.getGroupMembership(uid, groupId),
       Optional::<Group>empty).filter(Optional::isPresent).collect(toList());
 
-    if (groups.isEmpty() && tryExternalLinkedGroups && supportLinkedGrouperExternalGroups && grouperProvider.isPresent()) {
-      GrouperProvider grouper = this.grouperProvider.get();
+    if (groups.isEmpty() && tryExternalLinkedGroups && supportLinkedGrouperExternalGroups && teamsProviderOptional.isPresent()) {
+      TeamsProvider teamsProvider = this.teamsProviderOptional.get();
 
-      if (grouper.isGrouperGroup(groupId)) {
+      if (teamsProvider.isTeamsGroup(groupId)) {
         String localGroupId = extractLocalGroupId(groupId);
-        List<Group> externalGroups = teamsDao.linkedExternalGroups(localGroupId);
-        List<Optional<Group>> grouperGroups = externalGroups.stream()
-          .map(externalGroup -> doGetMyGroupById(uid, externalGroup.id, false))
+        List<String> externalGroupIds = teamsProvider.linkedExternalGroupIds(localGroupId);
+        List<Optional<Group>> externalGroups = externalGroupIds.stream()
+          .map(externalGroupId -> doGetMyGroupById(uid, externalGroupId, false))
           .collect(toList());
-        if (!grouperGroups.isEmpty()) {
-          groups.add(findGroupByLocalGroupId(grouper, localGroupId));
+        if (!externalGroups.isEmpty()) {
+          Optional<Group> group = teamsProvider.findByLocalGroupId(localGroupId);
+          groups.add(group);
         }
       }
     }
     return optionalFromOptionalList(groups);
   }
-
-  private Optional<Group> findGroupByLocalGroupId(GrouperProvider grouper, String localGroupId) {
-    List<Group> groupsFromGrouper = grouper.getGroupMembershipsForLocalGroupId(localGroupId);
-    return optionalFromList(groupsFromGrouper);
-  }
-
 
   public Set<Group> getAllGroups() {
     return this.execute(

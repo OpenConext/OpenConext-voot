@@ -11,17 +11,16 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import voot.util.UrnUtils;
-import voot.valueobject.Group;
 import voot.web.VootController;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 
 public abstract class AbstractProvider implements Provider {
@@ -48,6 +47,7 @@ public abstract class AbstractProvider implements Provider {
     this.configuration = configuration;
     try {
       this.restTemplate = new RestTemplate(getRequestFactory());
+      restTemplate.setErrorHandler(new ProviderResponseErrorHandler());
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
@@ -57,7 +57,7 @@ public abstract class AbstractProvider implements Provider {
 
   @Override
   public boolean isExternalGroupProvider() {
-    return !configuration.type.equals(GroupProviderType.GROUPER);
+    return !configuration.type.equals(GroupProviderType.TEAMS);
   }
 
   @Override
@@ -79,6 +79,15 @@ public abstract class AbstractProvider implements Provider {
       return objectMapper.readValue(json, t);
     } catch (IOException e) {
       throw new RuntimeException("Error parsing Json", e);
+    }
+  }
+
+  protected <T, U> T handleResponse(ResponseEntity<U> response, Function<U, T> parseFunction, String methodName, T defaultValue) {
+    if (response.getStatusCode().is2xxSuccessful()) {
+      return parseFunction.apply(response.getBody());
+    } else {
+      LOG.error("Failed to invoke {}. Reponse is {} with configuration {}, returning empty result.", methodName, response, configuration);
+      return defaultValue;
     }
   }
 

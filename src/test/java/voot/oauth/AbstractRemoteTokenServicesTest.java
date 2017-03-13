@@ -15,11 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static java.util.stream.IntStream.range;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractRemoteTokenServicesTest {
 

@@ -4,12 +4,13 @@ import org.springframework.http.ResponseEntity;
 import voot.util.UrnUtils;
 import voot.valueobject.Member;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
+
+@SuppressWarnings("unchecked")
 public class OpenSocialMembersClient extends OpenSocialClient {
 
   private final String membersTemplate;
@@ -34,12 +35,7 @@ public class OpenSocialMembersClient extends OpenSocialClient {
     ResponseEntity<String> response = restTemplate.getForEntity(url,
       String.class, localPersonId, localGroupId);
 
-    if (response.getStatusCode().is2xxSuccessful()) {
-      return parseMembers(response.getBody());
-    } else {
-      LOG.error("Failed to invoke getMembers {} for {}, returning empty result.", response, configuration);
-      return Collections.emptyList();
-    }
+    return handleResponse(response, this::parseMembers, "getMembers", emptyList());
   }
 
   private List<Member> parseMembers(String body) {

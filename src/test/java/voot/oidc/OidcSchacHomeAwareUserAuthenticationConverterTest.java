@@ -2,7 +2,6 @@ package voot.oidc;
 
 import org.junit.Test;
 import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
-import voot.authz.AuthzSchacHomeAwareUserAuthenticationConverter;
 import voot.oauth.AbstractSchacHomeAwareUserAuthenticationConverterTest;
 import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;

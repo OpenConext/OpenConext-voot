@@ -6,13 +6,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.MetricFilterAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.TraceWebFilterAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -31,10 +27,14 @@ import voot.oauth.CachedRemoteTokenServices;
 import voot.oauth.CompositeDecisionResourceServerTokenServices;
 import voot.oauth.DecisionResourceServerTokenServices;
 import voot.oidc.OidcRemoteTokenServices;
-import voot.provider.*;
+import voot.provider.GroupProviderType;
+import voot.provider.OpenSocialClient;
+import voot.provider.OpenSocialMembersClient;
+import voot.provider.Provider;
+import voot.provider.TeamsProviderClient;
+import voot.provider.Voot2Provider;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -52,19 +52,6 @@ public class VootServiceApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(VootServiceApplication.class, args);
-  }
-
-  @Bean(name = "grouperDataSource")
-  @Primary
-  @ConfigurationProperties(prefix = "spring.datasource")
-  public DataSource primaryDataSource() {
-    return DataSourceBuilder.create().build();
-  }
-
-  @Bean(name = "teamsDataSource")
-  @ConfigurationProperties(prefix = "spring.secondDatasource")
-  public DataSource secondaryDataSource() {
-    return DataSourceBuilder.create().build();
   }
 
   @Bean
@@ -97,15 +84,15 @@ public class VootServiceApplication {
           return new Voot2Provider(configuration);
         case OPEN_SOCIAL:
           return new OpenSocialClient(configuration);
-        case GROUPER:
-          return new GrouperSoapClient(configuration, primaryDataSource());
+        case TEAMS:
+          return new TeamsProviderClient(configuration);
         case OPEN_SOCIAL_MEMBERS:
           return new OpenSocialMembersClient(configuration);
         default:
           throw new IllegalArgumentException("Unknown external provider-type: " + type);
       }
     }).collect(Collectors.toList());
-    return new ExternalGroupsService(groupClients, new TeamsDaoClient(secondaryDataSource()), supportLinkedGrouperExternalGroups);
+    return new ExternalGroupsService(groupClients, supportLinkedGrouperExternalGroups);
   }
 
   @Configuration

@@ -12,12 +12,15 @@ import org.springframework.web.client.RestTemplate;
 import voot.oidc.OidcRemoteTokenServices;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CachedRemoteTokenServicesTest {
 

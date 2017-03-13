@@ -1,21 +1,12 @@
 package voot.authz;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.core.Authentication;
-import org.springframework.util.StreamUtils;
 import voot.oauth.AbstractSchacHomeAwareUserAuthenticationConverterTest;
 import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.springframework.util.StreamUtils.copyToString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class AuthzSchacHomeAwareUserAuthenticationConverterTest extends AbstractSchacHomeAwareUserAuthenticationConverterTest{
 
