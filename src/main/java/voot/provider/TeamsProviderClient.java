@@ -9,10 +9,12 @@ import voot.valueobject.Member;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 public class TeamsProviderClient extends Voot2Provider implements TeamsProvider {
 
@@ -50,7 +52,7 @@ public class TeamsProviderClient extends Voot2Provider implements TeamsProvider 
 
   @Override
   public List<String> linkedExternalGroupIds(String... teamIds) {
-    URI uri = UriComponentsBuilder.fromHttpUrl(String.format(configuration.url, "%s/linked-externals"))
+    URI uri = UriComponentsBuilder.fromHttpUrl(String.format("%s/linked-externals", configuration.url))
       .queryParam("team-ids", String.join(",", teamIds))
       .build().encode().toUri();
     ResponseEntity<List> response = restTemplate.getForEntity(uri, List.class);
@@ -64,12 +66,21 @@ public class TeamsProviderClient extends Voot2Provider implements TeamsProvider 
 
   @Override
   public List<Member> getMembers(String groupId) {
-    throw new IllegalArgumentException("Voot2Providers do not support getting members");
+    String uri = String.format( "%s/members/{groupId}",configuration.url);
+    ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class, groupId);
+    return handleResponse(response, this::parseMembers, "getMembers", emptyList());
   }
 
   @Override
   public List<Group> getAllGroups() {
-    return emptyList();
+    String uri = String.format("%s/groups", configuration.url);
+    ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+    return handleResponse(response, this::parseGroups, "getAllGroups", emptyList());
+  }
+
+  private List<Member> parseMembers(String response) {
+    List<Map<String, String>> maps = parseJson(response, List.class);
+    return maps.stream().map(map -> new Member(map.get("id"),map.get("name"),map.get("email"))).collect(toList());
   }
 
 }
