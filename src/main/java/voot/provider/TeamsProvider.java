@@ -16,6 +16,6 @@ public interface TeamsProvider extends Provider {
 
   List<Group> linkedLocalTeamsGroup(Collection<String> fullyQualifiedExternalGroupIds) ;
 
-  List<String> linkedExternalGroupIds(String... teamIds);
+  List<String> linkedExternalGroupIds(String localGroupId);
 
 }

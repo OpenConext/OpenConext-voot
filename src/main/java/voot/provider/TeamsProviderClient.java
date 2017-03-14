@@ -51,9 +51,10 @@ public class TeamsProviderClient extends Voot2Provider implements TeamsProvider 
   }
 
   @Override
-  public List<String> linkedExternalGroupIds(String... teamIds) {
+  @SuppressWarnings("unchecked")
+  public List<String> linkedExternalGroupIds(String localGroupId) {
     URI uri = UriComponentsBuilder.fromHttpUrl(String.format("%s/linked-externals", configuration.url))
-      .queryParam("team-ids", String.join(",", teamIds))
+      .queryParam("team-ids", localGroupId)
       .build().encode().toUri();
     ResponseEntity<List> response = restTemplate.getForEntity(uri, List.class);
     return handleResponse(response, s -> s, "findByLocalGroupId", emptyList());

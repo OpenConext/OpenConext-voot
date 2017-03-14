@@ -27,6 +27,7 @@ public class CachedRemoteTokenServicesTest {
   private static ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
+  @SuppressWarnings("unchecked")
   public void testLoadAuthentication() throws Exception {
     OidcRemoteTokenServices tokenServices = new OidcRemoteTokenServices("http://dummy", "clientId", "secret");
     RestTemplate restTemplate = mock(RestTemplate.class);
@@ -37,7 +38,7 @@ public class CachedRemoteTokenServicesTest {
     InputStream inputStream = new ClassPathResource("json/oidc/introspect.success.json").getInputStream();
 
     Map<String, Object> map = objectMapper.readValue(inputStream, Map.class);
-    @SuppressWarnings("unchecked")
+
     ResponseEntity<Map> response = new ResponseEntity(map, HttpStatus.OK);
 
     when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(Map.class))).thenReturn(response);

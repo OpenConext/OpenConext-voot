@@ -78,7 +78,7 @@ public class TeamsProviderClientTest {
   @Test
   public void linkedExternalGroupIds() throws Exception {
     stubResponse("/linked-externals", "json/teams/external_team_ids.json");
-    List<String> externalGroupIds = subject.linkedExternalGroupIds("urn:collab:group:avans:test-team", "urn:collab:group:avans:test-team-2");
+    List<String> externalGroupIds = subject.linkedExternalGroupIds("urn:collab:group:avans:test-team");
     assertEquals(2, externalGroupIds.size());
   }
 
