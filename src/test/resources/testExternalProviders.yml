@@ -8,5 +8,5 @@ externalGroupProviders:
       },
       schacHomeOrganization: "surfteams.nl",
       name: "Foo",
-      timeoutMillis: 1000
+      timeoutMillis: 10000
      }
