@@ -96,7 +96,17 @@ public class Voot2Provider extends AbstractProvider {
       (String) item.get("displayName"),
       (String) item.get("description"),
       configuration.name,
-      item.containsKey("membership") ? new Membership((String) ((Map) item.get("membership")).get("basic")) : Membership.MEMBER);
+      parseMembership(item.get("membership")));
+  }
+
+  private Membership parseMembership(Object membership) {
+    if (membership instanceof String) {
+      return new Membership(String.class.cast(membership));
+    }
+    if (membership instanceof Map) {
+      return new Membership(String.class.cast(Map.class.cast(membership).get("basic")));
+    }
+    return Membership.MEMBER;
   }
 
 
