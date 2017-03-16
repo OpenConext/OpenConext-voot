@@ -36,12 +36,7 @@ public class Voot2Provider extends AbstractProvider {
   @Override
   public List<Group> getGroupMemberships(final String uid) {
     LOG.debug("Querying getGroupMemberships for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
-
-    String localUid = UrnUtils.extractLocalUid(uid);
-    return getGroups(localUid);
-  }
-
-  protected List<Group> getGroups(String localUid) {
+    String localUid = personUrnFromFullyQualifiedUrn(uid);
     ResponseEntity<String> response = restTemplate.getForEntity(String.format(allMembershipsUrlTemplate, configuration.url), String.class, localUid);
     return handleResponse(response, this::parseGroups, "getGroupMemberships", emptyList());
   }
@@ -55,7 +50,7 @@ public class Voot2Provider extends AbstractProvider {
   public Optional<Group> getGroupMembership(final String uid, final String groupId) {
     LOG.debug("Querying getGroupMembership for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
 
-    String localUid = UrnUtils.extractLocalUid(uid);
+    String localUid = personUrnFromFullyQualifiedUrn(uid);
     String localGroupId = UrnUtils.extractLocalGroupId(groupId);
 
     final String url = String.format(specificMembershipTemplate, configuration.url);
@@ -65,6 +60,13 @@ public class Voot2Provider extends AbstractProvider {
     ResponseEntity<String> response = restTemplate.getForEntity(url, String.class, localUid, localGroupId);
 
     return handleResponse(response, this::parseSingleGroup, "getGroupMembership", Optional.empty());
+  }
+
+  /**
+   * Default VOOT providers use the local part of the urn
+   */
+  protected String personUrnFromFullyQualifiedUrn(String uid) {
+    return UrnUtils.extractLocalUid(uid);
   }
 
   @Override

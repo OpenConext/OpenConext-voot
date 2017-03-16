@@ -79,6 +79,14 @@ public class TeamsProviderClient extends Voot2Provider implements TeamsProvider 
     return handleResponse(response, this::parseGroups, "getAllGroups", emptyList());
   }
 
+  /**
+   * Teams use the fully qualified person urn
+   */
+  @Override
+  protected String personUrnFromFullyQualifiedUrn(String uid) {
+    return uid;
+  }
+
   private List<Member> parseMembers(String response) {
     List<Map<String, String>> maps = parseJson(response, List.class);
     return maps.stream().map(map -> new Member(map.get("id"),map.get("name"),map.get("email"))).collect(toList());
