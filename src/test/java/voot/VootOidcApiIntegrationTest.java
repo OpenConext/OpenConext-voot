@@ -1,8 +1,10 @@
 package voot;
 
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,11 +55,11 @@ public class VootOidcApiIntegrationTest {
 
   protected TestRestTemplate client = new TestRestTemplate();
 
-  @Rule
-  public WireMockRule authorizationServerMock = new WireMockRule(MOCK_AUTHORIZATION_SERVER_PORT);
+  @ClassRule
+  public static WireMockClassRule authorizationServerMock = new WireMockClassRule(MOCK_AUTHORIZATION_SERVER_PORT);
 
-  @Rule
-  public WireMockRule vootProviderMock = new WireMockRule(MOCK_VOOT_PROVIDER_PORT);
+  @ClassRule
+  public static WireMockClassRule vootProviderMock = new WireMockClassRule(MOCK_VOOT_PROVIDER_PORT);
 
   @Value("${local.server.port}")
   int port;
