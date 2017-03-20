@@ -11,11 +11,11 @@ externalGroupProviders:
       timeoutMillis: 2000
      }
   - {
-      type: "grouper",
-      url: "https://grouper.vm.openconext.org/grouper-ws/services/GrouperService_v2_0",
+      type: "teams",
+      url: "https://teams.vm.openconext.org/api/voot",
       credentials: {
-        username: "gadget",
-        secret: "gadget"
+        username: "voot",
+        secret: "secret"
       },
       schacHomeOrganization: "surfnet.nl",
       name: "SURFteams",
