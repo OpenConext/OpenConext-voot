@@ -26,6 +26,7 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 
@@ -173,7 +174,7 @@ public class VootOidcApiIntegrationTest {
     ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(plainHeaders), String.class);
 
     assertEquals(HttpStatus.UNAUTHORIZED, entity.getStatusCode());
-    assertTrue(entity.getBody().contains("Full authentication is required to access this resource"));
+    assertNull(entity.getBody());
   }
 
   @Test

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import voot.oauth.DecisionResourceServerTokenServices;
@@ -54,7 +56,16 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
       .build().toUriString();
 
     HttpEntity<Object> entity = new HttpEntity<>(headersForIntrospection());
-    Map<String, Object> map = restTemplate.exchange(introspectUri, HttpMethod.GET, entity, Map.class).getBody();
+    Map<String, Object> map;
+    try {
+      map = restTemplate.exchange(introspectUri, HttpMethod.GET, entity, Map.class).getBody();
+    } catch (HttpClientErrorException e) {
+      if (e.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+        throw new InvalidTokenException(accessToken);
+      } else {
+        throw e;
+      }
+    }
 
     if (map.containsKey("error")) {
       LOG.warn("introspect returned error: " + map.get("error"));

@@ -12,16 +12,26 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
+import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
+import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
+import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -142,7 +152,36 @@ public class VootServiceApplication {
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
-      resources.resourceId("groups").tokenServices(resourceServerTokenServices()).tokenExtractor(tokenExtractor());
+      resources.resourceId("groups")
+        .tokenServices(resourceServerTokenServices())
+        .tokenExtractor(tokenExtractor())
+        .authenticationEntryPoint(authenticationEntryPoint());
+    }
+
+    private OAuth2AuthenticationEntryPoint authenticationEntryPoint() {
+      DefaultWebResponseExceptionTranslator exceptionTranslator = new DefaultWebResponseExceptionTranslator() {
+        @Override
+        public ResponseEntity<OAuth2Exception> translate(Exception e) throws Exception {
+          ResponseEntity<OAuth2Exception> responseEntity = super.translate(e);
+          if (responseEntity.getStatusCode().equals(HttpStatus.UNAUTHORIZED) &&
+            "Full authentication is required to access this resource".equals(e.getMessage())) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.putAll(responseEntity.getHeaders());
+            headers.put("WWW-Authenticate", Arrays.asList("Bearer realm=\"groups\""));
+            return new ResponseEntity<>(headers, responseEntity.getStatusCode());
+
+          }
+          return responseEntity;
+        }
+      };
+      OAuth2AuthenticationEntryPoint authenticationEntryPoint = new OAuth2AuthenticationEntryPoint(){
+        @Override
+        protected ResponseEntity<OAuth2Exception> enhanceResponse(ResponseEntity<OAuth2Exception> response, Exception exception) {
+          return response;
+        }
+      };
+      authenticationEntryPoint.setExceptionTranslator(exceptionTranslator);
+      return authenticationEntryPoint;
     }
 
     private DecisionResourceServerTokenServices resourceServerTokenServices() {
@@ -191,4 +230,5 @@ public class VootServiceApplication {
     }
 
   }
+
 }
