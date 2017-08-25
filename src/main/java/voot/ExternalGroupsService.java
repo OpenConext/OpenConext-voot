@@ -55,8 +55,10 @@ public class ExternalGroupsService {
         .filter(group -> !teamsProvider.isTeamsGroup(group.id))
         .map(group -> group.id)
         .collect(toList());
-      List<Group> linkedGroups = teamsProvider.linkedLocalTeamsGroup(externalGroupIds);
-      groups.addAll(linkedGroups);
+      if (!externalGroupIds.isEmpty()) {
+        List<Group> linkedGroups = teamsProvider.linkedLocalTeamsGroup(externalGroupIds);
+        groups.addAll(linkedGroups);
+      }
     }
 
     return filterDuplicatesWithLowerImportance(groups);
