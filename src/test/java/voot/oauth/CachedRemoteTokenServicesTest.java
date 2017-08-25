@@ -12,18 +12,22 @@ import org.springframework.web.client.RestTemplate;
 import voot.oidc.OidcRemoteTokenServices;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CachedRemoteTokenServicesTest {
 
   private static ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
+  @SuppressWarnings("unchecked")
   public void testLoadAuthentication() throws Exception {
     OidcRemoteTokenServices tokenServices = new OidcRemoteTokenServices("http://dummy", "clientId", "secret");
     RestTemplate restTemplate = mock(RestTemplate.class);
@@ -34,7 +38,7 @@ public class CachedRemoteTokenServicesTest {
     InputStream inputStream = new ClassPathResource("json/oidc/introspect.success.json").getInputStream();
 
     Map<String, Object> map = objectMapper.readValue(inputStream, Map.class);
-    @SuppressWarnings("unchecked")
+
     ResponseEntity<Map> response = new ResponseEntity(map, HttpStatus.OK);
 
     when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(Map.class))).thenReturn(response);

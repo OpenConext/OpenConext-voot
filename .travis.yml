@@ -1,11 +1,10 @@
 language: java
+sudo: false
+
 jdk:
   - oraclejdk8
-services:
-  - mysql
-before_install:
-  - pip install --user codecov
-  - mysql -e "create database IF NOT EXISTS grouper_local; grant all on grouper_local.* to 'root';" -uroot
-after_success:
-  - codecov
 
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer

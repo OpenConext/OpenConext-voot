@@ -6,32 +6,24 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.MetricFilterAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.TraceWebFilterAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
-import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
-import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -41,10 +33,14 @@ import voot.oauth.CachedRemoteTokenServices;
 import voot.oauth.CompositeDecisionResourceServerTokenServices;
 import voot.oauth.DecisionResourceServerTokenServices;
 import voot.oidc.OidcRemoteTokenServices;
-import voot.provider.*;
+import voot.provider.GroupProviderType;
+import voot.provider.OpenSocialClient;
+import voot.provider.OpenSocialMembersClient;
+import voot.provider.Provider;
+import voot.provider.TeamsProviderClient;
+import voot.provider.Voot2Provider;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -64,19 +60,6 @@ public class VootServiceApplication {
     SpringApplication.run(VootServiceApplication.class, args);
   }
 
-  @Bean(name = "grouperDataSource")
-  @Primary
-  @ConfigurationProperties(prefix = "spring.datasource")
-  public DataSource primaryDataSource() {
-    return DataSourceBuilder.create().build();
-  }
-
-  @Bean(name = "teamsDataSource")
-  @ConfigurationProperties(prefix = "spring.secondDatasource")
-  public DataSource secondaryDataSource() {
-    return DataSourceBuilder.create().build();
-  }
-
   @Bean
   @Autowired
   public ExternalGroupsService externalGroupsService(
@@ -94,8 +77,7 @@ public class VootServiceApplication {
       final String schacHomeOrganization = (String) entryMap.get("schacHomeOrganization");
       final String name = (String) entryMap.get("name");
       final Integer timeoutMillis = (Integer) entryMap.get("timeoutMillis");
-      @SuppressWarnings("unchecked")
-      final Map<String, Object> rawCredentials = (Map<String, Object>) entryMap.get("credentials");
+      @SuppressWarnings("unchecked") final Map<String, Object> rawCredentials = (Map<String, Object>) entryMap.get("credentials");
       String username = (String) rawCredentials.get("username");
       String secret = (String) rawCredentials.get("secret");
 
@@ -107,15 +89,15 @@ public class VootServiceApplication {
           return new Voot2Provider(configuration);
         case OPEN_SOCIAL:
           return new OpenSocialClient(configuration);
-        case GROUPER:
-          return new GrouperSoapClient(configuration, primaryDataSource());
+        case TEAMS:
+          return new TeamsProviderClient(configuration);
         case OPEN_SOCIAL_MEMBERS:
           return new OpenSocialMembersClient(configuration);
         default:
           throw new IllegalArgumentException("Unknown external provider-type: " + type);
       }
     }).collect(Collectors.toList());
-    return new ExternalGroupsService(groupClients, new TeamsDaoClient(secondaryDataSource()), supportLinkedGrouperExternalGroups);
+    return new ExternalGroupsService(groupClients, supportLinkedGrouperExternalGroups);
   }
 
   @Configuration
@@ -174,7 +156,7 @@ public class VootServiceApplication {
           return responseEntity;
         }
       };
-      OAuth2AuthenticationEntryPoint authenticationEntryPoint = new OAuth2AuthenticationEntryPoint(){
+      OAuth2AuthenticationEntryPoint authenticationEntryPoint = new OAuth2AuthenticationEntryPoint() {
         @Override
         protected ResponseEntity<OAuth2Exception> enhanceResponse(ResponseEntity<OAuth2Exception> response, Exception exception) {
           return response;

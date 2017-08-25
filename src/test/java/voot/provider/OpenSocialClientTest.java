@@ -3,19 +3,15 @@ package voot.provider;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.StreamUtils;
-
 import voot.provider.Provider.Configuration;
 import voot.valueobject.Group;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class OpenSocialClientTest extends AbstractOpenSocialClientTest {
 

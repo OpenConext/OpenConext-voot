@@ -1,0 +1,13 @@
+[
+  {
+    "id": "urn:collab:person:surfteams.nl:admin",
+    "name": "Admin 1",
+    "email": "admin@example.org"
+  },
+  {
+    "id": "urn:collab:person:surfteams.nl:admin2",
+    "name": "Admin 2",
+    "email": "admin2@example.org"
+  }
+
+]

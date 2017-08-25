@@ -1,14 +1,12 @@
 package voot.util;
 
+import org.junit.Test;
+import voot.web.VootController;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static voot.util.UrnUtils.getSchacHomeFromGroupUrn;
 import static voot.util.UrnUtils.getSchacHomeFromPersonUrn;
-
-import org.junit.Test;
-import voot.web.VootController;
-
-import java.util.Optional;
 
 
 public class UrnUtilsTest {

@@ -2,15 +2,17 @@ package voot.authz;
 
 import org.junit.Test;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
-import voot.authz.AuthzSchacHomeAwareUserAuthenticationConverter;
 import voot.oauth.AbstractRemoteTokenServicesTest;
 import voot.oauth.DecisionResourceServerTokenServices;
 
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.util.stream.IntStream.range;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class AuthzResourceServerTokenServicesTest extends AbstractRemoteTokenServicesTest {
 

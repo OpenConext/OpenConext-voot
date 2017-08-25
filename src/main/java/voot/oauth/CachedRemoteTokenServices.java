@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 public class CachedRemoteTokenServices implements DecisionResourceServerTokenServices {
@@ -27,8 +26,12 @@ public class CachedRemoteTokenServices implements DecisionResourceServerTokenSer
 
   public CachedRemoteTokenServices(DecisionResourceServerTokenServices tokenServices, long durationMilliseconds, long expiryIntervalCheckMilliseconds) {
     this.tokenServices = tokenServices;
-    Assert.isTrue(durationMilliseconds > 0 && durationMilliseconds < 1000 * 60 * 61);
-    Assert.isTrue(expiryIntervalCheckMilliseconds > 0 && expiryIntervalCheckMilliseconds < 1000 * 60 * 61);
+    Assert.isTrue(
+      durationMilliseconds > 0 && durationMilliseconds < 1000 * 60 * 61,
+      "durationMilliseconds must be between 0 and 3660000");
+    Assert.isTrue(
+      expiryIntervalCheckMilliseconds > 0 && expiryIntervalCheckMilliseconds < 1000 * 60 * 61,
+      "expiryIntervalCheckMilliseconds  must be between 0 and 3660000");
     this.duration = durationMilliseconds;
     newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::clearExpiredAuthentications, 0, expiryIntervalCheckMilliseconds, TimeUnit.MILLISECONDS);
   }

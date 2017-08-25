@@ -1,22 +1,26 @@
 package voot;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.*;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
@@ -24,15 +28,20 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = VootServiceApplication.class)
-@WebIntegrationTest(value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oidc.checkToken.endpoint.url=http://localhost:12121/introspect", "checkToken.cache=false", "flyway.enabled=true"}, randomPort = true)
+@RunWith(SpringRunner.class)
+@SpringBootTest(
+  webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+  value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oidc.checkToken.endpoint.url=http://localhost:12121/introspect", "checkToken.cache=false"}
+)
 public class VootOidcApiIntegrationTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(VootOidcApiIntegrationTest.class);
@@ -47,11 +56,11 @@ public class VootOidcApiIntegrationTest {
 
   protected TestRestTemplate client = new TestRestTemplate();
 
-  @Rule
-  public WireMockRule authorizationServerMock = new WireMockRule(MOCK_AUTHORIZATION_SERVER_PORT);
+  @ClassRule
+  public static WireMockClassRule authorizationServerMock = new WireMockClassRule(MOCK_AUTHORIZATION_SERVER_PORT);
 
-  @Rule
-  public WireMockRule vootProviderMock = new WireMockRule(MOCK_VOOT_PROVIDER_PORT);
+  @ClassRule
+  public static WireMockClassRule vootProviderMock = new WireMockClassRule(MOCK_VOOT_PROVIDER_PORT);
 
   @Value("${local.server.port}")
   int port;

@@ -2,7 +2,6 @@ package voot.valueobject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.Comparator;
 import java.util.Objects;
 
 public class Membership implements Comparable<Membership> {
