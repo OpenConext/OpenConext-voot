@@ -1,6 +1,7 @@
 package voot.oauth;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -39,6 +40,11 @@ public abstract class AbstractRemoteTokenServicesTest {
   protected abstract String getFailureCheckTokenJsonPath();
   protected abstract String getErrorCheckTokenJsonPath();
   protected abstract String getSuccesCheckTokenClientCredentialsJsonPath();
+
+  @BeforeClass
+  public static void disableKeepAlive() {
+    System.setProperty("http.keepAlive", "false");
+  }
 
   @Test
   public void testLoadAuthenticationSuccess() throws Exception {
