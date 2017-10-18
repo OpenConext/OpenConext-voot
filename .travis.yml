@@ -8,3 +8,6 @@ addons:
   apt:
     packages:
       - oracle-java8-installer
+
+script:
+-  mvn test -B -Dhttp.keepAlive="false"
