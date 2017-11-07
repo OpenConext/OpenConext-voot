@@ -77,9 +77,7 @@ https://voot.example.org/internal/external-groups/${fully qualified person urn}
 https://voot.example.org/internal/groups/${fully qualified person urn}/${fully qualified group name}
 ```
 
-The first internal endpoint is used by OpenConext Teams to fetch all external (e.g. no grouper) teams. The second one is used by internal
-applications that need to verify the membership of a person in a specific group. EngineBlock uses this endpoint to check the GroupVO
-authorization.
+The first internal endpoint is used by OpenConext Teams to fetch all external (e.g. no grouper) teams.
 
 An additional endpoint is implemented to retrieve all members of a group:
 
