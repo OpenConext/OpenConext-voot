@@ -70,19 +70,22 @@ https://voot.example.org/me/groups
 https://voot.example.org/me/groups/${fully qualified group name}
 ```
 
-Two additional endpoints are implemented for internal use. They are secured by Client Credentials:
+Some endpoints are implemented for internal use. They are secured by Client Credentials:
 
 ```
 https://voot.example.org/internal/external-groups/${fully qualified person urn}
 https://voot.example.org/internal/groups/${fully qualified person urn}/${fully qualified group name}
+https://voot.example.org/internal/groups/${fully qualified person urn}
+https://voot.example.org/internal/all-groups
 ```
 
-The first internal endpoint is used by OpenConext Teams to fetch all external (e.g. no grouper) teams.
+The first internal endpoint is used by OpenConext Teams to fetch all external teams.
 
-An additional endpoint is implemented to retrieve all members of a group:
+An additional endpoint (requiring Client Credentials) is implemented to retrieve all members of a group:
 
 ```
 https://voot.example.org/members/${fully qualified group name}
+https://voot.example.org/members/${fully qualified person urn}/${fully qualified group name}
 ```
 
 
