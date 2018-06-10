@@ -135,7 +135,7 @@ public class ExternalGroupsService {
           try {
             return callback.execute(provider);
           } catch (RuntimeException e) {
-            LOG.warn("Provider {} threw exception: {} ", provider, e);
+            LOG.error(String.format("Provider %s threw Exception", provider), e);
             return exceptionCallback.result();
           }
         })).get();
