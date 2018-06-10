@@ -1,6 +1,7 @@
 package voot.authz;
 
 import org.junit.Test;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import voot.oauth.AbstractRemoteTokenServicesTest;
 import voot.oauth.DecisionResourceServerTokenServices;
@@ -58,7 +59,7 @@ public class AuthzResourceServerTokenServicesTest extends AbstractRemoteTokenSer
     return "json/authz/check_token.client_credentials.json";
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = InvalidTokenException.class)
   public void testLoadAuthenticationFailure() throws Exception {
     introspect(getFailureCheckTokenJsonPath());
   }

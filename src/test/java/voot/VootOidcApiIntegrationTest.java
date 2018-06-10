@@ -169,7 +169,7 @@ public class VootOidcApiIntegrationTest {
     String url = "http://localhost:" + port + "/me/groups";
     ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(oauthHeaders), String.class);
 
-    assertTrue(HttpStatus.FORBIDDEN.equals(entity.getStatusCode()));
+    assertEquals(HttpStatus.FORBIDDEN, entity.getStatusCode());
     assertTrue(entity.getBody().contains("Insufficient scope for this resource"));
   }
 

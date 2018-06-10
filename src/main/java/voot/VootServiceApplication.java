@@ -156,12 +156,7 @@ public class VootServiceApplication {
           return responseEntity;
         }
       };
-      OAuth2AuthenticationEntryPoint authenticationEntryPoint = new OAuth2AuthenticationEntryPoint() {
-        @Override
-        protected ResponseEntity<OAuth2Exception> enhanceResponse(ResponseEntity<OAuth2Exception> response, Exception exception) {
-          return response;
-        }
-      };
+      OAuth2AuthenticationEntryPoint authenticationEntryPoint = new SilentOAuth2AuthenticationEntryPoint();
       authenticationEntryPoint.setExceptionTranslator(exceptionTranslator);
       return authenticationEntryPoint;
     }

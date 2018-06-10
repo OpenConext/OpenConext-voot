@@ -24,6 +24,7 @@ import static voot.provider.GroupProviderType.OPEN_SOCIAL_MEMBERS;
 import static voot.provider.GroupProviderType.TEAMS;
 import static voot.provider.GroupProviderType.VOOT2;
 
+@SuppressWarnings("unchecked")
 public class ExternalGroupsServiceTest {
 
   @Test(expected = IllegalArgumentException.class)
