@@ -2,7 +2,9 @@ package voot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
+import org.springframework.web.client.HttpClientErrorException;
 import voot.provider.Provider;
 import voot.provider.TeamsProvider;
 import voot.valueobject.Group;
@@ -135,7 +137,15 @@ public class ExternalGroupsService {
           try {
             return callback.execute(provider);
           } catch (RuntimeException e) {
-            LOG.error(String.format("Provider %s threw Exception", provider), e);
+            if (e instanceof HttpClientErrorException) {
+              HttpClientErrorException httpClientErrorException = (HttpClientErrorException) e;
+              if (HttpStatus.NOT_FOUND.equals(httpClientErrorException.getStatusCode())) {
+                //broken window syndrome as some GroupProviders are poorly implemented
+                LOG.info(String.format("Provider %s threw Exception", provider), e);
+              }
+            } else {
+              LOG.error(String.format("Provider %s threw Exception", provider), e);
+            }
             return exceptionCallback.result();
           }
         })).get();
