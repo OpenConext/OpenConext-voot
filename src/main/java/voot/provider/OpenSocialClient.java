@@ -22,7 +22,7 @@ public class OpenSocialClient extends Voot2Provider {
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> groups = (List) parseJson(response, Map.class).get("entry");
     if (groups == null) {
-      LOG.error("Null response for groups while parsing {}", response);
+      LOG.info("Null response for groups while parsing {}", response);
       return new ArrayList<>();
     }
     return groups.stream().map(map -> {

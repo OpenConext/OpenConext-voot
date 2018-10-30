@@ -137,15 +137,8 @@ public class ExternalGroupsService {
           try {
             return callback.execute(provider);
           } catch (RuntimeException e) {
-            if (e instanceof HttpClientErrorException) {
-              HttpClientErrorException httpClientErrorException = (HttpClientErrorException) e;
-              if (HttpStatus.NOT_FOUND.equals(httpClientErrorException.getStatusCode())) {
-                //broken window syndrome as some GroupProviders are poorly implemented
-                LOG.info(String.format("Provider %s threw Exception", provider), e);
-              }
-            } else {
-              LOG.error(String.format("Provider %s threw Exception", provider), e);
-            }
+            //broken window syndrome as some GroupProviders are poorly implemented
+            LOG.warn(String.format("Provider %s threw Exception", provider), e);
             return exceptionCallback.result();
           }
         })).get();

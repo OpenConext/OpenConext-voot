@@ -86,7 +86,7 @@ public abstract class AbstractProvider implements Provider {
     if (response.getStatusCode().is2xxSuccessful()) {
       return parseFunction.apply(response.getBody());
     } else {
-      LOG.error("Failed to invoke {}. Reponse is {} with configuration {}, returning empty result.", methodName, response, configuration);
+      LOG.warn("Failed to invoke {}. Reponse is {} with configuration {}, returning empty result.", methodName, response, configuration);
       return defaultValue;
     }
   }
