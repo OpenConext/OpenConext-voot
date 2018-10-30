@@ -3,6 +3,7 @@ package voot.provider;
 import voot.valueobject.Group;
 import voot.valueobject.Membership;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,6 +21,10 @@ public class OpenSocialClient extends Voot2Provider {
   protected List<Group> parseGroups(String response) {
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> groups = (List) parseJson(response, Map.class).get("entry");
+    if (groups == null) {
+      LOG.error("Null response for groups while parsing {}", response);
+      return new ArrayList<>();
+    }
     return groups.stream().map(map -> {
       Object idHolder = map.get("id");
       //deprecated Open Social protocol has compound ID
