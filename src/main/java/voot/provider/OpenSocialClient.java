@@ -1,5 +1,6 @@
 package voot.provider;
 
+import org.springframework.util.CollectionUtils;
 import voot.valueobject.Group;
 import voot.valueobject.Membership;
 
@@ -21,9 +22,7 @@ public class OpenSocialClient extends Voot2Provider {
   protected List<Group> parseGroups(String response) {
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> groups = (List) parseJson(response, Map.class).get("entry");
-    //TODO for avans - they don't send an empty array - check totalResults == 0
-    if (groups == null) {
-      LOG.info("Null response for groups while parsing {}", response);
+    if (CollectionUtils.isEmpty(groups)) {
       return new ArrayList<>();
     }
     return groups.stream().map(map -> {

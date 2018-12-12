@@ -71,6 +71,14 @@ public class OpenSocialClientTest extends AbstractOpenSocialClientTest {
     assertFalse(group.isPresent());
   }
 
+  @Test
+  public void testGetMembershipWithoutEntry() throws Exception {
+    stubCall("groups/" + UID + "/" + GROUP_ID, "json/opensocial/open_social_groups_no_results.json");
+    Optional<Group> group = subject.getGroupMembership(admin, GROUP_URN);
+
+    assertFalse(group.isPresent());
+  }
+
   private void assertGroups(List<Group> memberships) {
     assertEquals(2, memberships.size());
 
