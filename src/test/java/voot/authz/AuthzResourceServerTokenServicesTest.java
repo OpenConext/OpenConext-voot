@@ -59,7 +59,7 @@ public class AuthzResourceServerTokenServicesTest extends AbstractRemoteTokenSer
     return "json/authz/check_token.client_credentials.json";
   }
 
-  @Test(expected = InvalidTokenException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testLoadAuthenticationFailure() throws Exception {
     introspect(getFailureCheckTokenJsonPath());
   }
