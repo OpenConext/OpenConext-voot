@@ -29,7 +29,7 @@ public class CachedRemoteTokenServicesTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testLoadAuthentication() throws Exception {
-    OidcRemoteTokenServices tokenServices = new OidcRemoteTokenServices("http://dummy", "clientId", "secret");
+    OidcRemoteTokenServices tokenServices = new OidcRemoteTokenServices("http://dummy", "clientId", "secret", "https://oidc.test2.surfconext.nl", "schac_home");
     RestTemplate restTemplate = mock(RestTemplate.class);
     tokenServices.setRestTemplate(restTemplate);
 

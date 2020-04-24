@@ -32,20 +32,24 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
   private String checkTokenEndpointUrl;
   private String clientId;
   private String clientSecret;
+  private String issuer;
 
   private AccessTokenConverter accessTokenConverter;
 
   private RestTemplate restTemplate;
+  private MultiValueMap<String, String> httpHeaders;
 
-  public OidcRemoteTokenServices(String checkTokenEndpointUrl, String clientId, String clientSecret) {
+  public OidcRemoteTokenServices(String checkTokenEndpointUrl, String clientId, String clientSecret, String issuer, String schacHomeOrganizationKey) {
     this.checkTokenEndpointUrl = checkTokenEndpointUrl;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
+    this.issuer = issuer;
 
     this.restTemplate = new RestTemplate();
     accessTokenConverter = new DefaultAccessTokenConverter();
-    ((DefaultAccessTokenConverter) accessTokenConverter).setUserTokenConverter(new OidcSchacHomeAwareUserAuthenticationConverter());
-
+    ((DefaultAccessTokenConverter) accessTokenConverter)
+      .setUserTokenConverter(new OidcSchacHomeAwareUserAuthenticationConverter(schacHomeOrganizationKey, "client_id", "unspecified_id"));
+    this.httpHeaders = headersForIntrospection();
   }
 
   @Override
@@ -55,7 +59,7 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
       .queryParam("token", accessToken)
       .build().toUriString();
 
-    HttpEntity<Object> entity = new HttpEntity<>(headersForIntrospection());
+    HttpEntity<Object> entity = new HttpEntity<>(this.httpHeaders);
     Map<String, Object> map;
     try {
       map = restTemplate.exchange(introspectUri, HttpMethod.GET, entity, Map.class).getBody();
@@ -109,6 +113,6 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
   @Override
   public boolean canHandle(String accessToken) {
     //we don't do UUIDs
-    return !uuidPattern.matcher(accessToken).matches();
+    return !isUUID(accessToken) && getIssuer(accessToken).map(iss -> this.issuer.equalsIgnoreCase(iss)).orElse(false);
   }
 }

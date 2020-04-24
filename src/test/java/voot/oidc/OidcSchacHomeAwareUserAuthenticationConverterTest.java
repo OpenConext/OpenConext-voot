@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 public class OidcSchacHomeAwareUserAuthenticationConverterTest extends AbstractSchacHomeAwareUserAuthenticationConverterTest{
 
-  private OidcSchacHomeAwareUserAuthenticationConverter subject = new OidcSchacHomeAwareUserAuthenticationConverter();
+  private OidcSchacHomeAwareUserAuthenticationConverter subject = new OidcSchacHomeAwareUserAuthenticationConverter("schac_home", "client_id", "unspecified_id");
 
   @Test
   public void testExtractAuthenticationUserAuthentication() throws Exception {

@@ -19,7 +19,7 @@ public class AuthzResourceServerTokenServices extends RemoteTokenServices implem
   @Override
   public boolean canHandle(String accessToken) {
     //we only handle UUIDs
-    return uuidPattern.matcher(accessToken).matches();
+    return isUUID(accessToken);
   }
 
 }

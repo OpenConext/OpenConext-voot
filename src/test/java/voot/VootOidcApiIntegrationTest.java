@@ -1,11 +1,11 @@
 package voot;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -79,7 +79,10 @@ public class VootOidcApiIntegrationTest {
   }
 
   protected String getAccessToken() {
-    return "TOKEN_VALUE";
+    JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder().issuer("https://oidc.test2.surfconext.nl/");
+    JWTClaimsSet claimsSet = builder.build();
+    PlainJWT jwt = new PlainJWT(claimsSet);
+    return jwt.serialize();
   }
 
   protected void stubOAuthCheckTokenUser() throws IOException {

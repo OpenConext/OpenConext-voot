@@ -1,5 +1,10 @@
 package voot;
 
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.PlainJWT;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +33,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class VootControllerTest {
 
-  private static final String TOKEN_VALUE = "token_value";
   private static final String GROUP_URN = "urn:collab:group:schachome:nl:surfnet:diensten:foo";
 
   @Mock
@@ -50,6 +54,13 @@ public class VootControllerTest {
   private final static String UID = "foo";
   private final static String SCHAC_HOME = "surfnet.nl";
 
+  private String jwtAccessToken() {
+    JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder().issuer("https://oidc.test2.surfconext.nl/");
+    JWTClaimsSet claimsSet = builder.build();
+    PlainJWT jwt = new PlainJWT(claimsSet);
+    return jwt.serialize();
+  }
+
   @Before
   public void before() {
     subject = new VootController(externalGroupsService);
@@ -58,7 +69,7 @@ public class VootControllerTest {
     when(authentication.getUserAuthentication()).thenReturn(userAuthentication);
     when(userAuthentication.getSchacHomeAuthentication()).thenReturn(SCHAC_HOME);
     when(authentication.getDetails()).thenReturn(authDetails);
-    when(authDetails.getTokenValue()).thenReturn(TOKEN_VALUE);
+    when(authDetails.getTokenValue()).thenReturn(jwtAccessToken());
     when(authentication.getOAuth2Request()).thenReturn(authRequest);
   }
 

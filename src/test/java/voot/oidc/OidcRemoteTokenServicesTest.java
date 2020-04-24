@@ -18,7 +18,7 @@ public class OidcRemoteTokenServicesTest extends AbstractRemoteTokenServicesTest
 
   @Override
   protected DecisionResourceServerTokenServices getRemoteTokenServices() {
-    return new OidcRemoteTokenServices("http://localhost:" + PORT + "/introspect", "clientId", "secret");
+    return new OidcRemoteTokenServices("http://localhost:" + PORT + "/introspect", "clientId", "secret", "https://oidc.test2.surfconext.nl", "schac_home");
   }
 
   @Override
@@ -66,5 +66,8 @@ public class OidcRemoteTokenServicesTest extends AbstractRemoteTokenServicesTest
     range(0, 10).forEach(nbr -> assertFalse(getSubject().canHandle(UUID.randomUUID().toString())));
   }
 
-
+  @Test
+  public void testCanHandleJWT() {
+    assertFalse(getSubject().canHandle("nope"));
+  }
 }

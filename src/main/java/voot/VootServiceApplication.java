@@ -123,6 +123,21 @@ public class VootServiceApplication {
     @Value("${oidc.checkToken.secret}")
     private String oidcCheckTokenSecret;
 
+    @Value("${oidc.checkToken.issuer}")
+    private String oidcCheckTokenIssuer;
+
+    @Value("${oidcng.checkToken.endpoint.url}")
+    private String oidcngCheckTokenEndpointUrl;
+
+    @Value("${oidcng.checkToken.clientId}")
+    private String oidcngCheckTokenClientId;
+
+    @Value("${oidcng.checkToken.secret}")
+    private String oidcngCheckTokenSecret;
+
+    @Value("${oidcng.checkToken.issuer}")
+    private String oidcngCheckTokenIssuer;
+
     @Value("${checkToken.cache}")
     private boolean checkTokenCache;
 
@@ -163,7 +178,7 @@ public class VootServiceApplication {
 
     private DecisionResourceServerTokenServices resourceServerTokenServices() {
       CompositeDecisionResourceServerTokenServices tokenServices = new CompositeDecisionResourceServerTokenServices(
-        Arrays.asList(oidcResourceServerTokenServices(), authzResourceServerTokenServices())
+        Arrays.asList(oidcResourceServerTokenServices(), oidcNgResourceServerTokenServices(), authzResourceServerTokenServices())
       );
       return checkTokenCache ?
         new CachedRemoteTokenServices(tokenServices, checkTokenCacheDurationMilliseconds, expiryIntervalCheckMilliseconds) :
@@ -171,7 +186,11 @@ public class VootServiceApplication {
     }
 
     private DecisionResourceServerTokenServices oidcResourceServerTokenServices() {
-      return new OidcRemoteTokenServices(oidcCheckTokenEndpointUrl, oidcCheckTokenClientId, oidcCheckTokenSecret);
+      return new OidcRemoteTokenServices(oidcCheckTokenEndpointUrl, oidcCheckTokenClientId, oidcCheckTokenSecret, oidcCheckTokenIssuer, "schac_home");
+    }
+
+    private DecisionResourceServerTokenServices oidcNgResourceServerTokenServices() {
+      return new OidcRemoteTokenServices(oidcngCheckTokenEndpointUrl, oidcngCheckTokenClientId, oidcngCheckTokenSecret, oidcngCheckTokenIssuer, "schac_home_organization");
     }
 
     private DecisionResourceServerTokenServices authzResourceServerTokenServices() {

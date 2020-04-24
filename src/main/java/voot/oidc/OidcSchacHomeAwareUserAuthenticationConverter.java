@@ -16,24 +16,30 @@ import static java.util.Collections.singleton;
 
 public class OidcSchacHomeAwareUserAuthenticationConverter extends DefaultUserAuthenticationConverter {
 
-  private static final String SCHAC_HOME_KEY = "schac_home";
-  private static final String CLIENT_ID = "client_id";
-  private static final String UNSPECIFIED_ID = "unspecified_id";
+  private String schacHomeKey;
+  private String clientIdKey;
+  private String unspecifiedIdKey;
 
   private static final Set<GrantedAuthority> DEFAULT_AUTHORITIES = singleton(new SimpleGrantedAuthority("ROLE_USER"));
 
+  public OidcSchacHomeAwareUserAuthenticationConverter(String schacHomeKey, String clientIdKey, String unspecifiedIdKey) {
+    this.schacHomeKey = schacHomeKey;
+    this.clientIdKey = clientIdKey;
+    this.unspecifiedIdKey = unspecifiedIdKey;
+  }
+
   @Override
   public Authentication extractAuthentication(final Map<String, ?> authenticationAttributes) {
-    if (!authenticationAttributes.containsKey(UNSPECIFIED_ID) &&
-      authenticationAttributes.containsKey(CLIENT_ID)) {
-      return new ClientCredentialsAuthentication((String) authenticationAttributes.get(CLIENT_ID), DEFAULT_AUTHORITIES);
-    } else if (authenticationAttributes.containsKey(UNSPECIFIED_ID) &&
-      authenticationAttributes.containsKey(SCHAC_HOME_KEY)) {
-      return new SchacHomeAuthentication((String) authenticationAttributes.get(SCHAC_HOME_KEY),
-        authenticationAttributes.get(UNSPECIFIED_ID), "N/A", DEFAULT_AUTHORITIES);
+    if (!authenticationAttributes.containsKey(unspecifiedIdKey) &&
+      authenticationAttributes.containsKey(clientIdKey)) {
+      return new ClientCredentialsAuthentication((String) authenticationAttributes.get(clientIdKey), DEFAULT_AUTHORITIES);
+    } else if (authenticationAttributes.containsKey(unspecifiedIdKey) &&
+      authenticationAttributes.containsKey(schacHomeKey)) {
+      return new SchacHomeAuthentication((String) authenticationAttributes.get(schacHomeKey),
+        authenticationAttributes.get(unspecifiedIdKey), "N/A", DEFAULT_AUTHORITIES);
     }
     throw new InvalidClientException(String.format("Unsupported client authentication. Must contain either %s or %s and %s",
-      CLIENT_ID, UNSPECIFIED_ID, SCHAC_HOME_KEY));
+      clientIdKey, unspecifiedIdKey, schacHomeKey));
   }
 
 }
