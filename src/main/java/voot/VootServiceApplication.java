@@ -32,6 +32,7 @@ import voot.authz.AuthzSchacHomeAwareUserAuthenticationConverter;
 import voot.oauth.CachedRemoteTokenServices;
 import voot.oauth.CompositeDecisionResourceServerTokenServices;
 import voot.oauth.DecisionResourceServerTokenServices;
+import voot.oidcng.OidcNGRemoteTokenServices;
 import voot.oidc.OidcRemoteTokenServices;
 import voot.provider.GroupProviderType;
 import voot.provider.OpenSocialClient;
@@ -190,7 +191,7 @@ public class VootServiceApplication {
     }
 
     private DecisionResourceServerTokenServices oidcNgResourceServerTokenServices() {
-      return new OidcRemoteTokenServices(oidcngCheckTokenEndpointUrl, oidcngCheckTokenClientId, oidcngCheckTokenSecret, oidcngCheckTokenIssuer, "schac_home_organization");
+      return new OidcNGRemoteTokenServices(oidcngCheckTokenEndpointUrl, oidcngCheckTokenClientId, oidcngCheckTokenSecret, oidcngCheckTokenIssuer, "schac_home_organization");
     }
 
     private DecisionResourceServerTokenServices authzResourceServerTokenServices() {

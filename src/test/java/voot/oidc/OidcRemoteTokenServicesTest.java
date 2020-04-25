@@ -13,6 +13,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.util.stream.IntStream.range;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static voot.JWTAccessToken.jwtAccessToken;
 
 public class OidcRemoteTokenServicesTest extends AbstractRemoteTokenServicesTest {
 
@@ -67,7 +69,14 @@ public class OidcRemoteTokenServicesTest extends AbstractRemoteTokenServicesTest
   }
 
   @Test
-  public void testCanHandleJWT() {
+  public void testCanNotHandleJWT() {
     assertFalse(getSubject().canHandle("nope"));
   }
+
+  @Test
+  public void testCanHandleJWT() {
+    String accessToken = jwtAccessToken("https://oidc.test2.surfconext.nl");
+    assertTrue(getSubject().canHandle(accessToken));
+  }
+
 }

@@ -23,7 +23,10 @@ import voot.oauth.DecisionResourceServerTokenServices;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class OidcRemoteTokenServices implements DecisionResourceServerTokenServices {
 
@@ -32,18 +35,18 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
   private String checkTokenEndpointUrl;
   private String clientId;
   private String clientSecret;
-  private String issuer;
+  private List<String> issuers;
 
   private AccessTokenConverter accessTokenConverter;
 
   private RestTemplate restTemplate;
-  private MultiValueMap<String, String> httpHeaders;
+  private HttpHeaders httpHeaders;
 
   public OidcRemoteTokenServices(String checkTokenEndpointUrl, String clientId, String clientSecret, String issuer, String schacHomeOrganizationKey) {
     this.checkTokenEndpointUrl = checkTokenEndpointUrl;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
-    this.issuer = issuer;
+    this.issuers = Stream.of(issuer.split(",")).map(String::trim).collect(Collectors.toList());
 
     this.restTemplate = new RestTemplate();
     accessTokenConverter = new DefaultAccessTokenConverter();
@@ -55,14 +58,9 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
   @Override
   @SuppressWarnings("unchecked")
   public OAuth2Authentication loadAuthentication(String accessToken) throws AuthenticationException, InvalidTokenException {
-    String introspectUri = UriComponentsBuilder.fromHttpUrl(checkTokenEndpointUrl)
-      .queryParam("token", accessToken)
-      .build().toUriString();
-
-    HttpEntity<Object> entity = new HttpEntity<>(this.httpHeaders);
     Map<String, Object> map;
     try {
-      map = restTemplate.exchange(introspectUri, HttpMethod.GET, entity, Map.class).getBody();
+      map = introspection(accessToken);
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
         throw new InvalidTokenException(accessToken);
@@ -92,6 +90,15 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
     return accessTokenConverter.extractAuthentication(map);
   }
 
+  protected Map<String, Object> introspection(String accessToken) {
+    String introspectUri = UriComponentsBuilder.fromHttpUrl(checkTokenEndpointUrl)
+      .queryParam("token", accessToken)
+      .build().toUriString();
+
+    HttpEntity<Object> entity = new HttpEntity<>(this.httpHeaders);
+    return restTemplate.exchange(introspectUri, HttpMethod.GET, entity, Map.class).getBody();
+  }
+
   @Override
   public OAuth2AccessToken readAccessToken(String accessToken) {
     return new DefaultOAuth2AccessToken(accessToken);
@@ -101,7 +108,7 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
     this.restTemplate = restTemplate;
   }
 
-  private MultiValueMap<String, String> headersForIntrospection() {
+  protected HttpHeaders headersForIntrospection() {
     HttpHeaders headers = new HttpHeaders();
     String basicAuthz = clientId + ":" + clientSecret;
     String authenticationCredentials = "Basic " + new String(Base64.encode(basicAuthz.getBytes(Charset.forName("UTF-8"))));
@@ -113,6 +120,19 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
   @Override
   public boolean canHandle(String accessToken) {
     //we don't do UUIDs
-    return !isUUID(accessToken) && getIssuer(accessToken).map(iss -> this.issuer.equalsIgnoreCase(iss)).orElse(false);
+    return !isUUID(accessToken) && getIssuer(accessToken).map(iss ->
+      this.issuers.contains(iss)).orElse(false);
+  }
+
+  public String getCheckTokenEndpointUrl() {
+    return checkTokenEndpointUrl;
+  }
+
+  public MultiValueMap<String, String> getHttpHeaders() {
+    return httpHeaders;
+  }
+
+  public RestTemplate getRestTemplate() {
+    return restTemplate;
   }
 }

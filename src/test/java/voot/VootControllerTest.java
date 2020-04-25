@@ -1,10 +1,5 @@
 package voot;
 
-import com.nimbusds.jose.JOSEObjectType;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.JWTParser;
-import com.nimbusds.jwt.PlainJWT;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +24,7 @@ import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
+import static voot.JWTAccessToken.jwtAccessToken;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VootControllerTest {
@@ -54,13 +50,6 @@ public class VootControllerTest {
   private final static String UID = "foo";
   private final static String SCHAC_HOME = "surfnet.nl";
 
-  private String jwtAccessToken() {
-    JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder().issuer("https://oidc.test2.surfconext.nl/");
-    JWTClaimsSet claimsSet = builder.build();
-    PlainJWT jwt = new PlainJWT(claimsSet);
-    return jwt.serialize();
-  }
-
   @Before
   public void before() {
     subject = new VootController(externalGroupsService);
@@ -69,22 +58,22 @@ public class VootControllerTest {
     when(authentication.getUserAuthentication()).thenReturn(userAuthentication);
     when(userAuthentication.getSchacHomeAuthentication()).thenReturn(SCHAC_HOME);
     when(authentication.getDetails()).thenReturn(authDetails);
-    when(authDetails.getTokenValue()).thenReturn(jwtAccessToken());
+    when(authDetails.getTokenValue()).thenReturn(jwtAccessToken("https://oidc.test2.surfconext.nl/"));
     when(authentication.getOAuth2Request()).thenReturn(authRequest);
   }
 
   @Test
   public void testEmptyMyGroupsResult() throws Exception {
     when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(Collections.emptySet());
-     Set<Group> groups = subject.myGroups(authentication);
+    Set<Group> groups = subject.myGroups(authentication);
     assertTrue(groups.size() == 0);
   }
 
   @Test
   public void testSingleMembershipPositiveResult() {
-     Group group = group();
+    Group group = group();
     when(externalGroupsService.getMyGroups(UID, SCHAC_HOME)).thenReturn(singleton(group));
-     Set<Group> groups = subject.myGroups(authentication);
+    Set<Group> groups = subject.myGroups(authentication);
     assertTrue(groups.size() > 0);
   }
 
@@ -111,7 +100,7 @@ public class VootControllerTest {
     when(externalGroupsService.getMyGroupById(UID, GROUP_URN)).thenReturn(Optional.of(group()));
 
     Group group = subject.internalSpecificGroup(UID, GROUP_URN, authentication);
-    assertEquals("id",group.id);
+    assertEquals("id", group.id);
   }
 
   @Test
@@ -120,7 +109,7 @@ public class VootControllerTest {
     when(externalGroupsService.getMyExternalGroups("urn:collab:person:schac:admin", "schac")).thenReturn(singleton(group()));
 
     Set<Group> groups = subject.externalGroups("urn:collab:person:schac:admin", authentication);
-    assertEquals(1,groups.size());
+    assertEquals(1, groups.size());
   }
 
   @Test(expected = VootController.MalformedPersonUrnException.class)
@@ -135,7 +124,7 @@ public class VootControllerTest {
     when(externalGroupsService.getAllGroups()).thenReturn(singleton(group()));
 
     Set<Group> groups = subject.allGroups(authentication);
-    assertEquals(1,groups.size());
+    assertEquals(1, groups.size());
   }
 
   @Test
@@ -152,7 +141,7 @@ public class VootControllerTest {
   @Test
   public void testMembersIncExternal() throws Exception {
     setUpClientCredentials("members");
-    when(externalGroupsService.getMembers("personId","urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon"))
+    when(externalGroupsService.getMembers("personId", "urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon"))
       .thenReturn(singleton(new Member("urn:collab:person:example.com:admin", "John Doe", "j.doe@example.com")));
 
     Set<Member> members = subject.membersIncExternalMembers("personId", "urn:collab:group:surfteams.nl:nl:surfnet:diensten:apachecon", authentication);

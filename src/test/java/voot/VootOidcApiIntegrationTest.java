@@ -1,8 +1,6 @@
 package voot;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.PlainJWT;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -36,6 +34,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static voot.JWTAccessToken.jwtAccessToken;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -72,17 +71,15 @@ public class VootOidcApiIntegrationTest {
   public void before() throws Exception {
     oauthHeaders = new HttpHeaders();
     oauthHeaders.add("Accept", MediaType.APPLICATION_JSON_VALUE);
-    oauthHeaders.add("Authorization", "Bearer " + getAccessToken());
+    oauthHeaders.add("Authorization",
+      "Bearer " + getAccessToken());
 
     stubOAuthCheckTokenUser();
 
   }
 
   protected String getAccessToken() {
-    JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder().issuer("https://oidc.test2.surfconext.nl/");
-    JWTClaimsSet claimsSet = builder.build();
-    PlainJWT jwt = new PlainJWT(claimsSet);
-    return jwt.serialize();
+    return jwtAccessToken("https://oidc.test2.surfconext.nl/");
   }
 
   protected void stubOAuthCheckTokenUser() throws IOException {
