@@ -174,6 +174,16 @@ public class VootOidcApiIntegrationTest {
   }
 
   @Test
+  public void testScopeCommaSeparated() throws IOException {
+    doStubOAuthCheckToken("json/oidc/introspect.comma_separated_scope.json");
+
+    String url = "http://localhost:" + port + "/me/groups";
+    ResponseEntity<String> entity = client.exchange(url, HttpMethod.GET, new HttpEntity<>(oauthHeaders), String.class);
+
+    assertEquals(HttpStatus.FORBIDDEN, entity.getStatusCode());
+  }
+
+  @Test
   public void testUnauthorizedAccess() throws IOException {
     String url = "http://localhost:" + port + "/me/groups";
 
