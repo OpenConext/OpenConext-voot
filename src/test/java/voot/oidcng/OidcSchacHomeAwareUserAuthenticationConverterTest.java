@@ -1,10 +1,11 @@
-package voot.oidc;
+package voot.oidcng;
 
 import org.junit.Test;
 import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
 import voot.oauth.AbstractSchacHomeAwareUserAuthenticationConverterTest;
 import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;
+import voot.oidc.OidcSchacHomeAwareUserAuthenticationConverter;
 
 import java.util.HashMap;
 
@@ -13,11 +14,12 @@ import static org.junit.Assert.assertTrue;
 
 public class OidcSchacHomeAwareUserAuthenticationConverterTest extends AbstractSchacHomeAwareUserAuthenticationConverterTest{
 
-  private OidcSchacHomeAwareUserAuthenticationConverter subject = new OidcSchacHomeAwareUserAuthenticationConverter("schac_home", "client_id", "unspecified_id");
+  private OidcSchacHomeAwareUserAuthenticationConverter subject = new OidcSchacHomeAwareUserAuthenticationConverter(
+    "schac_home_organization", "client_id", "unspecified_id");
 
   @Test
   public void testExtractAuthenticationUserAuthentication() throws Exception {
-    SchacHomeAuthentication authentication = (SchacHomeAuthentication) subject.extractAuthentication(readJson("json/oidc/introspect.success.json"));
+    SchacHomeAuthentication authentication = (SchacHomeAuthentication) subject.extractAuthentication(readJson("json/oidcng/introspect.success.json"));
     assertTrue(authentication.isAuthenticated());
     assertEquals("urn:collab:person:example.com:admin", authentication.getName());
     assertEquals("surfteams.nl", authentication.getSchacHomeAuthentication());
@@ -25,7 +27,7 @@ public class OidcSchacHomeAwareUserAuthenticationConverterTest extends AbstractS
 
   @Test
   public void testExtractAuthenticationClientCredentialsAuthentication() throws Exception {
-    ClientCredentialsAuthentication authentication = (ClientCredentialsAuthentication) subject.extractAuthentication(readJson("json/oidc/introspect.client_credentials.json"));
+    ClientCredentialsAuthentication authentication = (ClientCredentialsAuthentication) subject.extractAuthentication(readJson("json/oidcng/introspect.client_credentials.json"));
     assertTrue(authentication.isAuthenticated());
     assertEquals("https@//oidc.localhost.surfconext.nl", authentication.getName());
   }

@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import voot.oauth.AbstractRemoteTokenServicesTest;
 import voot.oauth.DecisionResourceServerTokenServices;
-import voot.oidc.OidcRemoteTokenServicesTest;
 
 import java.util.UUID;
 
@@ -20,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static voot.JWTAccessToken.jwtAccessToken;
 
-public class OidcNGRemoteTokenServicesTest extends OidcRemoteTokenServicesTest {
+public class OidcNGRemoteTokenServicesTest extends AbstractRemoteTokenServicesTest {
 
   @Override
   protected DecisionResourceServerTokenServices getRemoteTokenServices() {
@@ -53,9 +52,44 @@ public class OidcNGRemoteTokenServicesTest extends OidcRemoteTokenServicesTest {
   }
 
   @Test
-  @Override
   public void testCanHandleJWT() {
     String accessToken = jwtAccessToken("https://localhost.issuer");
     assertTrue(getSubject().canHandle(accessToken));
   }
+
+  @Override
+  protected String getUnspecifiedNameId() {
+    return "urn:collab:person:example.com:admin";
+  }
+
+  @Override
+  protected String getClientId() {
+    return "https@//oidc.localhost.surfconext.nl";
+  }
+
+  @Override
+  protected String getFailureCheckTokenJsonPath() {
+    return "json/oidcng/introspect.failure.json";
+  }
+
+  @Override
+  protected String getErrorCheckTokenJsonPath() {
+    return "json/oidcng/introspect.error.json";
+  }
+
+  @Test(expected = InvalidTokenException.class)
+  public void testLoadAuthenticationFailure() throws Exception {
+    introspect(getFailureCheckTokenJsonPath());
+  }
+
+  @Test
+  public void testCanHandle() {
+    range(0, 10).forEach(nbr -> assertFalse(getSubject().canHandle(UUID.randomUUID().toString())));
+  }
+
+  @Test
+  public void testCanNotHandleJWT() {
+    assertFalse(getSubject().canHandle("nope"));
+  }
+
 }

@@ -29,13 +29,13 @@ public class CachedRemoteTokenServicesTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testLoadAuthentication() throws Exception {
-    OidcRemoteTokenServices tokenServices = new OidcRemoteTokenServices("http://dummy", "clientId", "secret", "https://oidc.test2.surfconext.nl", "schac_home");
+    OidcRemoteTokenServices tokenServices = new OidcRemoteTokenServices("http://dummy", "clientId", "secret", "https://oidc.test2.surfconext.nl", "schac_home_organization");
     RestTemplate restTemplate = mock(RestTemplate.class);
     tokenServices.setRestTemplate(restTemplate);
 
     CachedRemoteTokenServices remoteTokenServices = new CachedRemoteTokenServices(tokenServices, 200, 150);
 
-    InputStream inputStream = new ClassPathResource("json/oidc/introspect.success.json").getInputStream();
+    InputStream inputStream = new ClassPathResource("json/oidcng/introspect.success.json").getInputStream();
 
     Map<String, Object> map = objectMapper.readValue(inputStream, Map.class);
 

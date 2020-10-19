@@ -29,6 +29,7 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.junit.Assert.assertEquals;
@@ -39,7 +40,11 @@ import static voot.JWTAccessToken.jwtAccessToken;
 @RunWith(SpringRunner.class)
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-  value = {"externalProviders.config.path=classpath:/testExternalProviders.yml", "oidc.checkToken.endpoint.url=http://localhost:12121/introspect", "checkToken.cache=false"}
+  value = {
+    "externalProviders.config.path=classpath:/testExternalProviders.yml",
+    "oidcng.checkToken.endpoint.url=http://localhost:12121/introspect",
+    "checkToken.cache=false"
+  }
 )
 public class VootOidcApiIntegrationTest {
 
@@ -79,25 +84,25 @@ public class VootOidcApiIntegrationTest {
   }
 
   protected String getAccessToken() {
-    return jwtAccessToken("https://oidc.test2.surfconext.nl/");
+    return jwtAccessToken("https://connect.test2.surfconext.nl");
   }
 
   protected void stubOAuthCheckTokenUser() throws IOException {
-    doStubOAuthCheckToken("json/oidc/introspect.success.json");
+    doStubOAuthCheckToken("json/oidcng/introspect.success.json");
   }
 
   protected void stubOAuthCheckTokenClientCredentials() throws IOException {
-    doStubOAuthCheckToken("json/oidc/introspect.client_credentials.json");
+    doStubOAuthCheckToken("json/oidcng/introspect.client_credentials.json");
   }
 
   protected void stubOAuthCheckTokenMissingScope() throws IOException {
-    doStubOAuthCheckToken("json/oidc/introspect.missing_scope.json");
+    doStubOAuthCheckToken("json/oidcng/introspect.missing_scope.json");
   }
 
   private void doStubOAuthCheckToken(String path) throws IOException {
     InputStream inputStream = new ClassPathResource(path).getInputStream();
     String json = StreamUtils.copyToString(inputStream, Charset.forName("UTF-8"));
-    authorizationServerMock.stubFor(get(urlPathEqualTo("/introspect")).willReturn(
+    authorizationServerMock.stubFor(post(urlPathEqualTo("/introspect")).willReturn(
       aResponse().
         withStatus(200).
         withHeader("Content-type", "application/json").

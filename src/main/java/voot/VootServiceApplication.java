@@ -115,18 +115,6 @@ public class VootServiceApplication {
     @Value("${authz.checkToken.secret}")
     private String authzCheckTokenSecret;
 
-    @Value("${oidc.checkToken.endpoint.url}")
-    private String oidcCheckTokenEndpointUrl;
-
-    @Value("${oidc.checkToken.clientId}")
-    private String oidcCheckTokenClientId;
-
-    @Value("${oidc.checkToken.secret}")
-    private String oidcCheckTokenSecret;
-
-    @Value("${oidc.checkToken.issuer}")
-    private String oidcCheckTokenIssuer;
-
     @Value("${oidcng.checkToken.endpoint.url}")
     private String oidcngCheckTokenEndpointUrl;
 
@@ -179,15 +167,11 @@ public class VootServiceApplication {
 
     private DecisionResourceServerTokenServices resourceServerTokenServices() {
       CompositeDecisionResourceServerTokenServices tokenServices = new CompositeDecisionResourceServerTokenServices(
-        Arrays.asList(oidcResourceServerTokenServices(), oidcNgResourceServerTokenServices(), authzResourceServerTokenServices())
+        Arrays.asList(oidcNgResourceServerTokenServices(), authzResourceServerTokenServices())
       );
       return checkTokenCache ?
         new CachedRemoteTokenServices(tokenServices, checkTokenCacheDurationMilliseconds, expiryIntervalCheckMilliseconds) :
         tokenServices;
-    }
-
-    private DecisionResourceServerTokenServices oidcResourceServerTokenServices() {
-      return new OidcRemoteTokenServices(oidcCheckTokenEndpointUrl, oidcCheckTokenClientId, oidcCheckTokenSecret, oidcCheckTokenIssuer, "schac_home");
     }
 
     private DecisionResourceServerTokenServices oidcNgResourceServerTokenServices() {

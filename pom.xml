@@ -4,7 +4,7 @@
 
   <groupId>org.openconext</groupId>
   <artifactId>voot-service</artifactId>
-  <version>3.1.0</version>
+  <version>4.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>voot-service</name>
@@ -136,7 +136,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.1</version>
+        <version>0.8.6</version>
         <executions>
           <execution>
             <goals>
