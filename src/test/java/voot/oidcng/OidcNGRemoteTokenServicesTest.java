@@ -23,7 +23,7 @@ public class OidcNGRemoteTokenServicesTest extends AbstractRemoteTokenServicesTe
 
   @Override
   protected DecisionResourceServerTokenServices getRemoteTokenServices() {
-    return new OidcNGRemoteTokenServices(
+    return new RemoteTokenServices(
       "http://localhost:" + PORT + "/oidc/introspect",
       "clientId",
       "secret",

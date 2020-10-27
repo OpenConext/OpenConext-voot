@@ -1,4 +1,4 @@
-package voot.oidc;
+package voot.oidcng;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,6 +6,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -15,10 +17,10 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 import voot.oauth.DecisionResourceServerTokenServices;
 
 import java.nio.charset.Charset;
@@ -28,9 +30,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class OidcRemoteTokenServices implements DecisionResourceServerTokenServices {
+public class RemoteTokenServices implements DecisionResourceServerTokenServices {
 
-  private static Logger LOG = LoggerFactory.getLogger(OidcRemoteTokenServices.class);
+  private static Logger LOG = LoggerFactory.getLogger(RemoteTokenServices.class);
 
   private String checkTokenEndpointUrl;
   private String clientId;
@@ -42,7 +44,7 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
   private RestTemplate restTemplate;
   private HttpHeaders httpHeaders;
 
-  public OidcRemoteTokenServices(String checkTokenEndpointUrl, String clientId, String clientSecret, String issuer, String schacHomeOrganizationKey) {
+  public RemoteTokenServices(String checkTokenEndpointUrl, String clientId, String clientSecret, String issuer, String schacHomeOrganizationKey) {
     this.checkTokenEndpointUrl = checkTokenEndpointUrl;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
@@ -51,8 +53,28 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
     this.restTemplate = new RestTemplate();
     accessTokenConverter = new DefaultAccessTokenConverter();
     ((DefaultAccessTokenConverter) accessTokenConverter)
-      .setUserTokenConverter(new OidcSchacHomeAwareUserAuthenticationConverter(schacHomeOrganizationKey, "client_id", "unspecified_id"));
+      .setUserTokenConverter(new SchacHomeAwareUserAuthenticationConverter(schacHomeOrganizationKey, "client_id", "unspecified_id"));
     this.httpHeaders = headersForIntrospection();
+  }
+
+  private Map<String, Object> introspection(String accessToken) {
+    MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+    body.add("token", accessToken);
+
+    HttpEntity<Object> entity = new HttpEntity<>(body, getHttpHeaders());
+
+    ResponseEntity<Map> exchange = getRestTemplate().exchange(getCheckTokenEndpointUrl(), HttpMethod.POST, entity, Map.class);
+    return exchange.getBody();
+  }
+
+  private HttpHeaders headersForIntrospection() {
+    HttpHeaders headers = new HttpHeaders();
+    String basicAuthz = clientId + ":" + clientSecret;
+    String authenticationCredentials = "Basic " + new String(Base64.encode(basicAuthz.getBytes(Charset.forName("UTF-8"))));
+    headers.add("Authorization", authenticationCredentials);
+    headers.add("Accept", "application/json");
+    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    return headers;
   }
 
   @Override
@@ -90,15 +112,6 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
     return accessTokenConverter.extractAuthentication(map);
   }
 
-  protected Map<String, Object> introspection(String accessToken) {
-    String introspectUri = UriComponentsBuilder.fromHttpUrl(checkTokenEndpointUrl)
-      .queryParam("token", accessToken)
-      .build().toUriString();
-
-    HttpEntity<Object> entity = new HttpEntity<>(this.httpHeaders);
-    return restTemplate.exchange(introspectUri, HttpMethod.GET, entity, Map.class).getBody();
-  }
-
   @Override
   public OAuth2AccessToken readAccessToken(String accessToken) {
     return new DefaultOAuth2AccessToken(accessToken);
@@ -108,20 +121,9 @@ public class OidcRemoteTokenServices implements DecisionResourceServerTokenServi
     this.restTemplate = restTemplate;
   }
 
-  protected HttpHeaders headersForIntrospection() {
-    HttpHeaders headers = new HttpHeaders();
-    String basicAuthz = clientId + ":" + clientSecret;
-    String authenticationCredentials = "Basic " + new String(Base64.encode(basicAuthz.getBytes(Charset.forName("UTF-8"))));
-    headers.add("Authorization", authenticationCredentials);
-    headers.add("Accept", "application/json");
-    return headers;
-  }
-
   @Override
   public boolean canHandle(String accessToken) {
-    //we don't do UUIDs
-    return !isUUID(accessToken) && getIssuer(accessToken).map(iss ->
-      this.issuers.contains(iss)).orElse(false);
+    return getIssuer(accessToken).map(iss -> this.issuers.contains(iss)).orElse(false);
   }
 
   public String getCheckTokenEndpointUrl() {

@@ -5,7 +5,6 @@ import org.springframework.security.oauth2.common.exceptions.InvalidClientExcept
 import voot.oauth.AbstractSchacHomeAwareUserAuthenticationConverterTest;
 import voot.oauth.ClientCredentialsAuthentication;
 import voot.oauth.SchacHomeAuthentication;
-import voot.oidc.OidcSchacHomeAwareUserAuthenticationConverter;
 
 import java.util.HashMap;
 
@@ -14,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 public class OidcSchacHomeAwareUserAuthenticationConverterTest extends AbstractSchacHomeAwareUserAuthenticationConverterTest{
 
-  private OidcSchacHomeAwareUserAuthenticationConverter subject = new OidcSchacHomeAwareUserAuthenticationConverter(
+  private SchacHomeAwareUserAuthenticationConverter subject = new SchacHomeAwareUserAuthenticationConverter(
     "schac_home_organization", "client_id", "unspecified_id");
 
   @Test

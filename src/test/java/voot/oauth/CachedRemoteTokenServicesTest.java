@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.client.RestTemplate;
-import voot.oidc.OidcRemoteTokenServices;
+import voot.oidcng.RemoteTokenServices;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class CachedRemoteTokenServicesTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testLoadAuthentication() throws Exception {
-    OidcRemoteTokenServices tokenServices = new OidcRemoteTokenServices("http://dummy", "clientId", "secret", "https://oidc.test2.surfconext.nl", "schac_home_organization");
+    RemoteTokenServices tokenServices = new RemoteTokenServices("http://dummy", "clientId", "secret", "https://connect.test2.surfconext.nl", "schac_home_organization");
     RestTemplate restTemplate = mock(RestTemplate.class);
     tokenServices.setRestTemplate(restTemplate);
 
@@ -41,7 +41,7 @@ public class CachedRemoteTokenServicesTest {
 
     ResponseEntity<Map> response = new ResponseEntity(map, HttpStatus.OK);
 
-    when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(Map.class))).thenReturn(response);
+    when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(Map.class))).thenReturn(response);
 
     OAuth2Authentication authentication = remoteTokenServices.loadAuthentication("access_token");
     map.put("unspecified_id", "someone_else");

@@ -1,4 +1,4 @@
-package voot.oidc;
+package voot.oidcng;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,7 +14,7 @@ import java.util.Set;
 import static java.util.Collections.singleton;
 
 
-public class OidcSchacHomeAwareUserAuthenticationConverter extends DefaultUserAuthenticationConverter {
+public class SchacHomeAwareUserAuthenticationConverter extends DefaultUserAuthenticationConverter {
 
   private String schacHomeKey;
   private String clientIdKey;
@@ -22,7 +22,7 @@ public class OidcSchacHomeAwareUserAuthenticationConverter extends DefaultUserAu
 
   private static final Set<GrantedAuthority> DEFAULT_AUTHORITIES = singleton(new SimpleGrantedAuthority("ROLE_USER"));
 
-  public OidcSchacHomeAwareUserAuthenticationConverter(String schacHomeKey, String clientIdKey, String unspecifiedIdKey) {
+  public SchacHomeAwareUserAuthenticationConverter(String schacHomeKey, String clientIdKey, String unspecifiedIdKey) {
     this.schacHomeKey = schacHomeKey;
     this.clientIdKey = clientIdKey;
     this.unspecifiedIdKey = unspecifiedIdKey;

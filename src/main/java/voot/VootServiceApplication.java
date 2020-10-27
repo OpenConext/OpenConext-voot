@@ -23,17 +23,13 @@ import org.springframework.security.oauth2.provider.authentication.BearerTokenEx
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
-import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
-import voot.authz.AuthzResourceServerTokenServices;
-import voot.authz.AuthzSchacHomeAwareUserAuthenticationConverter;
 import voot.oauth.CachedRemoteTokenServices;
 import voot.oauth.CompositeDecisionResourceServerTokenServices;
 import voot.oauth.DecisionResourceServerTokenServices;
-import voot.oidcng.OidcNGRemoteTokenServices;
-import voot.oidc.OidcRemoteTokenServices;
+import voot.oidcng.RemoteTokenServices;
 import voot.provider.GroupProviderType;
 import voot.provider.OpenSocialClient;
 import voot.provider.OpenSocialMembersClient;
@@ -44,6 +40,7 @@ import voot.provider.Voot2Provider;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -106,15 +103,6 @@ public class VootServiceApplication {
   @EnableWebSecurity
   protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-    @Value("${authz.checkToken.endpoint.url}")
-    private String authzCheckTokenEndpointUrl;
-
-    @Value("${authz.checkToken.clientId}")
-    private String authzCheckTokenClientId;
-
-    @Value("${authz.checkToken.secret}")
-    private String authzCheckTokenSecret;
-
     @Value("${oidcng.checkToken.endpoint.url}")
     private String oidcngCheckTokenEndpointUrl;
 
@@ -167,7 +155,7 @@ public class VootServiceApplication {
 
     private DecisionResourceServerTokenServices resourceServerTokenServices() {
       CompositeDecisionResourceServerTokenServices tokenServices = new CompositeDecisionResourceServerTokenServices(
-        Arrays.asList(oidcNgResourceServerTokenServices(), authzResourceServerTokenServices())
+        Collections.singletonList(oidcNgResourceServerTokenServices())
       );
       return checkTokenCache ?
         new CachedRemoteTokenServices(tokenServices, checkTokenCacheDurationMilliseconds, expiryIntervalCheckMilliseconds) :
@@ -175,13 +163,7 @@ public class VootServiceApplication {
     }
 
     private DecisionResourceServerTokenServices oidcNgResourceServerTokenServices() {
-      return new OidcNGRemoteTokenServices(oidcngCheckTokenEndpointUrl, oidcngCheckTokenClientId, oidcngCheckTokenSecret, oidcngCheckTokenIssuer, "schac_home_organization");
-    }
-
-    private DecisionResourceServerTokenServices authzResourceServerTokenServices() {
-      final DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
-      accessTokenConverter.setUserTokenConverter(new AuthzSchacHomeAwareUserAuthenticationConverter());
-      return new AuthzResourceServerTokenServices(authzCheckTokenClientId, authzCheckTokenSecret, authzCheckTokenEndpointUrl, accessTokenConverter);
+      return new RemoteTokenServices(oidcngCheckTokenEndpointUrl, oidcngCheckTokenClientId, oidcngCheckTokenSecret, oidcngCheckTokenIssuer, "schac_home_organization");
     }
 
     /*
