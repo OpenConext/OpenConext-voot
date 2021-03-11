@@ -184,12 +184,11 @@ public class VootServiceApplication {
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
         .and()
         .authorizeRequests()
-        .antMatchers("/me/**", "groups/**", "internal/**").access("#oauth2.hasScope('groups')")
+        .antMatchers("/me/**", "/groups/**", "/internal/**").access("#oauth2.hasScope('groups')")
         .antMatchers("/members/**").access("#oauth2.hasScope('members')")
         .antMatchers("/internal/all-groups").access("#oauth2.hasScope('all-groups')")
         .antMatchers("/public/**", "/health/**", "/info/**").permitAll()
         .antMatchers("/**").hasRole("USER");
-
     }
 
   }
