@@ -30,9 +30,7 @@ When developing, it's convenient to just execute the applications main-method, w
 This application exposes a REST-like API that is secured using oAuth2.
 To be able to check the tokens that this application is presented with by its clients, it needs to connect to the oAuth server.
 The oAuth server requires this application to authenticate itself. This is setup by a couple of
-properties mentioned in the [application.properties](src/main/resources/application.properties) file that start with 'oauth.checkToken'.
-
-See the [README of the authorization server](https://github.com/OpenConext/OpenConext-authorization-server/blob/master/README.md) on how to set this up on the servers part (a clientId, secret and role will have to be granted).
+properties mentioned in the [application.properties](src/main/resources/application.properties) file that start with 'oidcng.checkToken'.
 
 
 # Deployment
