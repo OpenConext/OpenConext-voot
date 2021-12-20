@@ -30,12 +30,7 @@ import voot.oauth.CachedRemoteTokenServices;
 import voot.oauth.CompositeDecisionResourceServerTokenServices;
 import voot.oauth.DecisionResourceServerTokenServices;
 import voot.oidcng.RemoteTokenServices;
-import voot.provider.GroupProviderType;
-import voot.provider.OpenSocialClient;
-import voot.provider.OpenSocialMembersClient;
-import voot.provider.Provider;
-import voot.provider.TeamsProviderClient;
-import voot.provider.Voot2Provider;
+import voot.provider.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -91,6 +86,8 @@ public class VootServiceApplication {
           return new TeamsProviderClient(configuration);
         case OPEN_SOCIAL_MEMBERS:
           return new OpenSocialMembersClient(configuration);
+        case GUESTS:
+          return new EduIDGuestProvider(configuration);
         default:
           throw new IllegalArgumentException("Unknown external provider-type: " + type);
       }
