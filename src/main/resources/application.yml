@@ -1,0 +1,46 @@
+server:
+  error:
+    include-message: always
+    path: "/error"
+
+externalProviders:
+  config:
+    path: "classpath:/externalProviders.yml"
+
+spring:
+  mvc:
+    log-request-details: false
+  security:
+    user:
+      name: disabled
+      password: disabled
+
+oidcng:
+  checkToken:
+    endpoint_url: "http://localhost:8080/oidc/introspect"
+    clientId: "oidcng.localhost.surfconext.nl"
+    secret: "secret"
+    issuer: "https://connect.test2.surfconext.nl"
+
+checkToken:
+  cache: true
+# Feature toggle for searching for linked GrouperGroups and ExternalGroups
+support:
+  linkedGrouperExternalGroups: true
+
+management:
+  health:
+    mail:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,mappings"
+  endpoint:
+    info:
+      enabled: true
+    mappings:
+      enabled: true
+  info:
+    git:
+      mode: full

@@ -14,5 +14,5 @@
 # Maven
 log/
 target/
-
+dependency.tree
 *.log
