@@ -20,7 +20,6 @@ oidcng:
     endpoint_url: "http://localhost:8080/oidc/introspect"
     clientId: "oidcng.localhost.surfconext.nl"
     secret: "secret"
-    issuer: "https://connect.test2.surfconext.nl"
 
 checkToken:
   cache: true
