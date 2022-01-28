@@ -1,7 +1,9 @@
 package voot.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(of = {"basic"})
 public class Membership implements Comparable<Membership> {
 
     public static final Membership MEMBER = new Membership("member");

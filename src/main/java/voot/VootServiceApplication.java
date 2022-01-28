@@ -7,6 +7,7 @@ import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfigu
 import org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceEndpointAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
@@ -21,9 +22,6 @@ import java.util.stream.Collectors;
 @SpringBootApplication(exclude = {HttpTraceEndpointAutoConfiguration.class, MetricsAutoConfiguration.class})
 public class VootServiceApplication {
 
-    @Autowired
-    private ResourceLoader resourceLoader;
-
     @Value("${support.linkedGrouperExternalGroups}")
     private boolean supportLinkedGrouperExternalGroups;
 
@@ -34,12 +32,12 @@ public class VootServiceApplication {
     @Bean
     @Autowired
     public ExternalGroupsService externalGroupsService(
-            @Value("${externalProviders.config.path}") final String configFileLocation) throws IOException {
+            @Value("${externalProviders.config.path}") final Resource configResource) throws IOException {
 
         Yaml yaml = new Yaml(new SafeConstructor());
 
         @SuppressWarnings("unchecked")
-        Map<String, List<Map<String, Object>>> config = yaml.load(resourceLoader.getResource(configFileLocation).getInputStream());
+        Map<String, List<Map<String, Object>>> config = yaml.load(configResource.getInputStream());
         final List<Map<String, Object>> externalGroupProviders = config.get("externalGroupProviders");
 
         final List<Provider> groupClients = externalGroupProviders.stream().map(entryMap -> {

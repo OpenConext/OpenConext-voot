@@ -17,7 +17,6 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import voot.util.UrnUtils;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -71,12 +70,9 @@ public abstract class AbstractProvider implements Provider {
         return !isExternalGroupProvider();
     }
 
+    @SneakyThrows
     protected <T> T parseJson(String json, Class<T> t) {
-        try {
-            return objectMapper.readValue(json, t);
-        } catch (IOException e) {
-            throw new RuntimeException("Error parsing Json", e);
-        }
+        return objectMapper.readValue(json, t);
     }
 
     protected <T, U> T handleResponse(ResponseEntity<U> response, Function<U, T> parseFunction, String methodName, T defaultValue) {
@@ -102,9 +98,5 @@ public abstract class AbstractProvider implements Provider {
     @Override
     public String toString() {
         return String.format("Provider with configuration: %s", this.configuration);
-    }
-
-    public String getGroupIdPrefix() {
-        return groupIdPrefix;
     }
 }

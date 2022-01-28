@@ -9,6 +9,9 @@ import java.util.regex.Pattern;
  */
 public class UrnUtils {
 
+    private UrnUtils() {
+    }
+
     // the application deals with converting between global and local URN-values. Register the patterns here.
     public static final String URN_COLLAB_GROUP_REGEXP = "^urn:collab:group:([^:]+):(.+)$";
     public static final Pattern GROUP_PATTERN = Pattern.compile(URN_COLLAB_GROUP_REGEXP);

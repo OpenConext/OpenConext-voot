@@ -46,10 +46,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                             .antMatchers("/actuator/**")
                             .permitAll())
                     .authorizeRequests(authz -> authz
+                            .antMatchers("/internal/all-groups").hasAuthority("SCOPE_all-groups")
                             .antMatchers("/me/**", "/groups/**", "/internal/**").hasAuthority("SCOPE_groups")
                             .antMatchers("/members/**").hasAuthority("SCOPE_members")
-                            .antMatchers("/internal/all-groups").hasAuthority("SCOPE_all-groups")
-                            .antMatchers("/api/v1/**").hasAuthority("SCOPE_openid")
                             .anyRequest().authenticated())
                     .oauth2ResourceServer(oauth2 -> oauth2.opaqueToken(token -> token
                             .introspector(new CachingOpaqueTokenIntrospector(introspectionUri, clientId, secret, cacheTokens))));

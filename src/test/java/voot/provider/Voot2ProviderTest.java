@@ -1,22 +1,18 @@
 package voot.provider;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.StreamUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import voot.AbstractTest;
 import voot.model.Group;
 import voot.provider.Provider.Configuration;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Voot2ProviderTest {
+class Voot2ProviderTest extends AbstractTest {
 
     private static final String UID = "admin";
     private static final String GROUP_ID = "nl:surfnet:diensten:apachecon";
@@ -28,17 +24,14 @@ public class Voot2ProviderTest {
 
     private Voot2Provider subject = new Voot2Provider(configuration);
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(8889);
-
     @Test
-    public void testShouldBeQueriedForMemberships() throws Exception {
+    void testShouldBeQueriedForMemberships() throws Exception {
         assertTrue(subject.shouldBeQueriedForMemberships("example.org"));
         assertFalse(subject.shouldBeQueriedForMemberships("no.org"));
     }
 
     @Test
-    public void testShouldBeQueriedForGroup() throws Exception {
+    void testShouldBeQueriedForGroup() throws Exception {
         assertFalse(subject.shouldBeQueriedForGroup("no.urn"));
         assertFalse(subject.shouldBeQueriedForGroup("urn:collab:group:diffent.schac:group:name"));
 
@@ -47,53 +40,48 @@ public class Voot2ProviderTest {
     }
 
     @Test
-    public void testGetMemberships() throws Exception {
-        stubCall("user/" + UID + "/groups", "json/voot2/voot2_groups.json");
+    void testGetMemberships() throws Exception {
+        stubCallVoot2("user/" + UID + "/groups", "json/voot2/voot2_groups.json");
         List<Group> groups = subject.getGroupMemberships(USER_URN);
         assertTrue(groups.size() > 0);
     }
 
     @Test
-    public void testGetEmptyMemberships() throws Exception {
-        stubCall("user/" + UID + "/groups", "json/voot2/voot2_groups_empty.json");
+    void testGetEmptyMemberships() throws Exception {
+        stubCallVoot2("user/" + UID + "/groups", "json/voot2/voot2_groups_empty.json");
         List<Group> memberships = subject.getGroupMemberships(USER_URN);
 
         assertTrue(memberships.isEmpty());
     }
 
     @Test
-    public void testGetEmptyMembershipsBecauseOfVootException() throws Exception {
+    void testGetEmptyMembershipsBecauseOfVootException() throws Exception {
         stubFor(get(urlEqualTo("/" + "user/" + UID + "/groups")).willReturn(aResponse().withStatus(304)));
         List<Group> memberships = subject.getGroupMemberships(USER_URN);
         assertTrue(memberships.isEmpty());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetGroupMembershipsInvalidUid() {
-        subject.getGroupMemberships("bogus");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetMembers() {
-        subject.getMembers("bogus");
+    @Test
+    void testGetGroupMembershipsInvalidUid() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> subject.getGroupMemberships("bogus"));
     }
 
     @Test
-    public void testGetAllGroups() {
+    void testGetMembers() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> subject.getMembers("bogus"));
+    }
+
+    @Test
+    void testGetAllGroups() {
         assertEquals(0, subject.getAllGroups().size());
     }
 
     @Test
-    public void testGetSpecificMembership() throws Exception {
-        stubCall("user/" + UID + "/groups/" + GROUP_ID, "json/voot2/voot2_group.json");
+    void testGetSpecificMembership() throws Exception {
+        stubCallVoot2("user/" + UID + "/groups/" + GROUP_ID, "json/voot2/voot2_group.json");
         Optional<Group> group = subject.getGroupMembership(USER_URN, GROUP_URN);
 
         assertTrue(group.isPresent());
-    }
-
-    private void stubCall(String queryPart, String responseFile) throws IOException {
-        String response = StreamUtils.copyToString(new ClassPathResource(responseFile).getInputStream(), Charset.forName("UTF-8"));
-        stubFor(get(urlEqualTo("/" + queryPart)).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(response)));
     }
 
 }

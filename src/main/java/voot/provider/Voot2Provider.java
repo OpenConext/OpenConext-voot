@@ -19,13 +19,11 @@ import static java.util.stream.Collectors.toList;
 public class Voot2Provider extends AbstractProvider {
 
     protected static final Logger LOG = LoggerFactory.getLogger(Voot2Provider.class);
-    protected String allMembershipsUrlTemplate;
-    protected String specificMembershipTemplate;
+    protected String allMembershipsUrlTemplate = "%s/user/{uid}/groups";
+    protected String specificMembershipTemplate = "%s/user/{uid}/groups/{groupId}";
 
     public Voot2Provider(Configuration configuration) {
         super(configuration);
-        allMembershipsUrlTemplate = "%s/user/{uid}/groups";
-        specificMembershipTemplate = "%s/user/{uid}/groups/{groupId}";
     }
 
     @Override

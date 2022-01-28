@@ -1,8 +1,10 @@
 package voot.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
+@EqualsAndHashCode
 public class Group {
 
     public final String id;

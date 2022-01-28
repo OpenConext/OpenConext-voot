@@ -12,8 +12,6 @@ public interface TeamsProvider extends Provider {
 
     Optional<Group> findByLocalGroupId(String localGroupId);
 
-    String getGroupIdPrefix();
-
     List<Group> linkedLocalTeamsGroup(Collection<String> fullyQualifiedExternalGroupIds);
 
     List<String> linkedExternalGroupIds(String localGroupId);

@@ -1,7 +1,7 @@
 package voot;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import voot.model.Group;
 import voot.model.Membership;
 import voot.provider.Provider;
@@ -14,8 +14,8 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -34,22 +34,20 @@ import static voot.util.UrnUtils.extractLocalGroupId;
  * As a result Mary is implicitly also member of the team Admins. Joe is not implicitly also a member of the
  * team Teachers, because the groups are nested and not linked.
  */
-public class ExternalGroupsServiceLinkedGroupsTest {
+class ExternalGroupsServiceLinkedGroupsTest {
 
-    private String groupIdPrefix = "urn:collab:group:surfnet.test:";
-    private String admins = groupIdPrefix + "Admins";
-    private String teachers = "urn:collab:group:example.org:Teachers";
-    private String adminGrouperId = extractLocalGroupId(admins);
+    private final String groupIdPrefix = "urn:collab:group:surfnet.test:";
+    private final String admins = groupIdPrefix + "Admins";
+    private final String teachers = "urn:collab:group:example.org:Teachers";
+    private final String adminGrouperId = extractLocalGroupId(admins);
 
-    private TeamsProvider teamsProvider;
-    private Provider externalGroupProvider;
     private ExternalGroupsService subject;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
 
-        this.teamsProvider = mock(TeamsProvider.class);
-        this.externalGroupProvider = mock(Provider.class);
+        TeamsProvider teamsProvider = mock(TeamsProvider.class);
+        Provider externalGroupProvider = mock(Provider.class);
 
         when(teamsProvider.shouldBeQueriedForGroup(admins)).thenReturn(true);
         when(teamsProvider.shouldBeQueriedForGroup(teachers)).thenReturn(false);
@@ -65,7 +63,6 @@ public class ExternalGroupsServiceLinkedGroupsTest {
         when(teamsProvider.findByLocalGroupId(adminGrouperId)).thenReturn(Optional.of(group(admins)));
         when(teamsProvider.getGroupMemberships("Joe")).thenReturn(asList(group(admins)));
         when(teamsProvider.getGroupMemberships("Mary")).thenReturn(Collections.<Group>emptyList());
-        when(teamsProvider.getGroupIdPrefix()).thenReturn(groupIdPrefix);
         when(teamsProvider.linkedLocalTeamsGroup(Collections.singletonList(teachers))).thenReturn(asList(group(admins)));
         when(teamsProvider.linkedExternalGroupIds("Admins")).thenReturn(asList(teachers));
 
@@ -80,25 +77,25 @@ public class ExternalGroupsServiceLinkedGroupsTest {
     }
 
     @Test
-    public void testGetGrouperTeamLinkedToInstitutionUser() throws Exception {
+    void testGetGrouperTeamLinkedToInstitutionUser() throws Exception {
         Optional<Group> group = subject.getMyGroupById("Mary", admins);
         assertEquals(admins, group.get().id);
     }
 
     @Test
-    public void testGetExternalTeamLinkedToGrouperUser() throws Exception {
+    void testGetExternalTeamLinkedToGrouperUser() throws Exception {
         Optional<Group> group = subject.getMyGroupById("Joe", teachers);
         assertFalse(group.isPresent());
     }
 
     @Test
-    public void testGetExternalTeamsLinkedToGrouperUser() throws Exception {
+    void testGetExternalTeamsLinkedToGrouperUser() throws Exception {
         Set<Group> groups = subject.getMyGroups("Joe", "surfnet.test");
         assertMyGroupsEquality(groups, admins);
     }
 
     @Test
-    public void testGetGrouperTeamsLinkedToExternalUser() throws Exception {
+    void testGetGrouperTeamsLinkedToExternalUser() throws Exception {
         Set<Group> groups = subject.getMyGroups("Mary", "example.org");
         assertMyGroupsEquality(groups, admins, teachers);
     }

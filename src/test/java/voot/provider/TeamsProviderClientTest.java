@@ -1,12 +1,10 @@
 package voot.provider;
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
+import voot.AbstractTest;
 import voot.model.Group;
 import voot.model.Member;
 
@@ -18,22 +16,15 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TeamsProviderClientTest {
+
+class TeamsProviderClientTest extends AbstractTest {
 
     private TeamsProvider subject = new TeamsProviderClient(
-            new Provider.Configuration(GroupProviderType.TEAMS, "http://localhost:8971",
+            new Provider.Configuration(GroupProviderType.TEAMS, "http://localhost:8889",
                     new Provider.Configuration.Credentials("user", "password"),
                     2000, "test.surfteams.nl", "teams"));
-
-    @Rule
-    public WireMockRule authorizationServerMock = new WireMockRule(8971);
-
-    @Before
-    public void before() {
-        authorizationServerMock.resetAll();
-    }
 
     @Test
     public void isTeamsGroup() throws Exception {
@@ -51,13 +42,13 @@ public class TeamsProviderClientTest {
     public void findByLocalGroupId() throws Exception {
         stubResponse("/group/nl:surfnet:diensten:test-team", "json/voot2/voot2_group.json");//"http://localhost:8971/user/test-team/groups"
         Optional<Group> groupOptional = subject.findByLocalGroupId("nl:surfnet:diensten:test-team");
-        assertEquals("urn:collab:group:test.surfteams.nl:id1", groupOptional.get().id);
+        assertEquals("urn:collab:group:test.surfteams.nl:id3", groupOptional.get().id);
         assertEquals("teams", groupOptional.get().sourceID);
     }
 
     @Test
     public void findByLocalGroupId404() throws Exception {
-        authorizationServerMock.stubFor(get(urlEqualTo("/group/nl:surfnet:diensten:test-team"))
+        stubFor(get(urlEqualTo("/group/nl:surfnet:diensten:test-team"))
                 .willReturn(aResponse().withStatus(404)));
         Optional<Group> groupOptional = subject.findByLocalGroupId("nl:surfnet:diensten:test-team");
         assertFalse(groupOptional.isPresent());
@@ -102,7 +93,7 @@ public class TeamsProviderClientTest {
         InputStream inputStream = new ClassPathResource(fileName).getInputStream();
         String json = StreamUtils.copyToString(inputStream, Charset.defaultCharset());
         MappingBuilder mappingBuilder = get(urlPathEqualTo(path));
-        authorizationServerMock.stubFor(mappingBuilder.willReturn(
+        stubFor(mappingBuilder.willReturn(
                 aResponse().
                         withStatus(200).
                         withHeader("Content-type", "application/json").

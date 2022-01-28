@@ -1,6 +1,7 @@
 package voot;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import voot.model.Group;
 import voot.model.Member;
 import voot.model.Membership;
@@ -10,22 +11,23 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static voot.MockProvider.SimulationMode.Error;
 import static voot.MockProvider.SimulationMode.*;
 import static voot.provider.GroupProviderType.*;
 
 @SuppressWarnings("unchecked")
-public class ExternalGroupsServiceTest {
+class ExternalGroupsServiceTest {
 
-    @Test(expected = IllegalArgumentException.class)
-    public void mustHaveClientsConfigured() {
-        externalGroupService(Collections.emptyList());
+    @Test
+    void mustHaveClientsConfigured() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> externalGroupService(Collections.emptyList()));
+
     }
 
     @Test
-    public void testAllCompleteInTimeWithSingleResult() throws Exception {
+    void testAllCompleteInTimeWithSingleResult() throws Exception {
         List<Provider> providers = new ArrayList<>();
         IntStream.rangeClosed(1, 10).forEach(i -> providers.add(new MockProvider(200L, Success, TEAMS)));
         ExternalGroupsService externalGroupsService = externalGroupService(providers);
@@ -34,7 +36,7 @@ public class ExternalGroupsServiceTest {
     }
 
     @Test
-    public void testOneCompletesInTimeAndAnotherFails() throws Exception {
+    void testOneCompletesInTimeAndAnotherFails() throws Exception {
         final MockProvider successMockProvider = new MockProvider(200L, Success, TEAMS);
         final MockProvider errorMockProvider = new MockProvider(200L, Error, TEAMS);
 
@@ -44,7 +46,7 @@ public class ExternalGroupsServiceTest {
     }
 
     @Test
-    public void testSomeCompleteInTime() throws Exception {
+    void testSomeCompleteInTime() throws Exception {
         List<Provider> providers = new ArrayList<>();
         IntStream.rangeClosed(1, 10).forEach(i -> providers.add(new MockProvider(200L, i % 2 == 0 ? Success : Timeout, TEAMS)));
         ExternalGroupsService externalGroupsService = externalGroupService(providers);
@@ -53,7 +55,7 @@ public class ExternalGroupsServiceTest {
     }
 
     @Test
-    public void testGetMyGroupById() throws Exception {
+    void testGetMyGroupById() throws Exception {
         List<Provider> providers = Collections.singletonList(new MockProvider(200L, Success, VOOT2));
         ExternalGroupsService externalGroupsService = externalGroupService(providers);
         Optional<Group> group = externalGroupsService.getMyGroupById("admin", "urn:collab:group:example.com:admin-team");
@@ -61,7 +63,7 @@ public class ExternalGroupsServiceTest {
     }
 
     @Test
-    public void testGetMyExternalGroups() throws Exception {
+    void testGetMyExternalGroups() throws Exception {
         List<Provider> providers = asList(
                 new MockProvider(200L, Success, VOOT2),
                 new MockProvider(200L, Timeout, TEAMS),
@@ -73,7 +75,7 @@ public class ExternalGroupsServiceTest {
     }
 
     @Test
-    public void testGetMembers() throws Exception {
+    void testGetMembers() throws Exception {
         List<Provider> providers = asList(
                 new MockProvider(200L, Success, TEAMS),
                 new MockProvider(200L, Timeout, TEAMS),
@@ -87,7 +89,7 @@ public class ExternalGroupsServiceTest {
     }
 
     @Test
-    public void testGetAllGroups() throws Exception {
+    void testGetAllGroups() throws Exception {
         List<Provider> providers = asList(
                 new MockProvider(200L, Success, TEAMS),
                 new MockProvider(200L, Success, VOOT2)
@@ -99,7 +101,7 @@ public class ExternalGroupsServiceTest {
     }
 
     @Test
-    public void testGetMembersIncExternal() throws Exception {
+    void testGetMembersIncExternal() throws Exception {
         List<Provider> providers = asList(
                 new MockProvider(200L, Success, OPEN_SOCIAL_MEMBERS)
         );
@@ -113,7 +115,7 @@ public class ExternalGroupsServiceTest {
     }
 
     @Test
-    public void testFilterDuplicatesWithLowerImportance() {
+    void testFilterDuplicatesWithLowerImportance() {
         ExternalGroupsService externalGroupsService = externalGroupService(asList(
                 new MockProvider(200L, Success, TEAMS)));
         List<Group> groups = new ArrayList(externalGroupsService.filterDuplicatesWithLowerImportance(asList(

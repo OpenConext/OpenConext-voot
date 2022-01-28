@@ -1,5 +1,6 @@
 package voot;
 
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -9,7 +10,6 @@ import voot.provider.Provider;
 import voot.provider.TeamsProvider;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -120,22 +120,19 @@ public class ExternalGroupsService {
                 .map(groupList -> groupList.stream().max(Comparator.comparing(group -> group.membership)).get()).collect(toSet());
     }
 
+    @SneakyThrows
     private <T> Stream<T> execute(Predicate<Provider> providerFilter, ProviderCallback<T> callback, ExceptionProviderCallback<T> exceptionCallback) {
-        try {
-            return forkJoinPool.submit(() -> providers.parallelStream()
-                    .filter(providerFilter)
-                    .map(provider -> {
-                        try {
-                            return callback.execute(provider);
-                        } catch (RuntimeException e) {
-                            //broken window syndrome as some GroupProviders are poorly implemented
-                            LOG.warn(String.format("Provider %s threw Exception", provider), e);
-                            return exceptionCallback.result();
-                        }
-                    })).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException("Unable to schedule querying of external group providers.", e);
-        }
+        return forkJoinPool.submit(() -> providers.parallelStream()
+                .filter(providerFilter)
+                .map(provider -> {
+                    try {
+                        return callback.execute(provider);
+                    } catch (RuntimeException e) {
+                        //broken window syndrome as some GroupProviders are poorly implemented
+                        LOG.warn(String.format("Provider %s threw Exception", provider), e);
+                        return exceptionCallback.result();
+                    }
+                })).get();
     }
 
 }

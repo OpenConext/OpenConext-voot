@@ -1,18 +1,18 @@
 package voot.model;
 
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static voot.model.Membership.*;
 
-public class MembershipTest {
+class MembershipTest {
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         Membership test = new Membership("test");
         Membership other = new Membership("test");
         assertEquals(test, other);
@@ -20,7 +20,12 @@ public class MembershipTest {
     }
 
     @Test
-    public void testCompareTo() throws Exception {
-        assertEquals(Arrays.asList(ADMIN, MANAGER, MEMBER).stream().max(Comparator.naturalOrder()).get(), ADMIN);
+    void testCompareTo() {
+        Membership owner = new Membership("owner");
+        assertEquals(Arrays.asList(
+                owner,
+                new Membership("prospect"),
+                ADMIN, MANAGER, MEMBER).stream().max(Comparator.naturalOrder()).get(), owner);
+        assertEquals("Membership{basic='admin'}", ADMIN.toString());
     }
 }

@@ -1,17 +1,17 @@
 package voot.model;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MemberTest {
+class MemberTest {
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         Member m1 = new Member("id", "name", "email");
         Member m2 = new Member("id", "name", "email");
 

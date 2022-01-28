@@ -1,11 +1,16 @@
 package voot.util;
 
+import org.springframework.util.CollectionUtils;
+
 import java.util.List;
 import java.util.Optional;
 
 public class StreamUtils {
 
+    private StreamUtils() {
+    }
+
     public static <T> Optional<T> optionalFromOptionalList(List<Optional<T>> list) {
-        return list != null && !list.isEmpty() ? list.get(0) : Optional.empty();
+        return CollectionUtils.isEmpty(list) ? Optional.empty() : list.get(0);
     }
 }

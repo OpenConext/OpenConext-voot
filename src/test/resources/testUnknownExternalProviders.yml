@@ -1,6 +1,6 @@
 externalGroupProviders:
   - {
-      type: "voot2",
+      type: "nope",
       url: "http://localhost:8889/",
       credentials: {
         username: "foo",
@@ -10,14 +10,3 @@ externalGroupProviders:
       name: "Foo",
       timeoutMillis: 5000
      }
-  - {
-    type: "teams",
-    url: "http://localhost:8999/",
-    credentials: {
-      username: "foo",
-      secret: "bar"
-    },
-    schacHomeOrganization: "external.nl",
-    name: "Bar",
-    timeoutMillis: 5000
-  }
