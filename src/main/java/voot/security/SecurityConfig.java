@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,7 +18,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Order(1)
-    public static class WebSecurity extends WebSecurityConfigurerAdapter {
+    public static class ResourceServerWebSecurity extends WebSecurityConfigurerAdapter {
 
 
         @Value("${oidcng.checkToken.endpoint_url}")
@@ -33,6 +34,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         private boolean cacheTokens;
 
         @Override
+        public void configure(WebSecurity web) throws Exception {
+            super.configure(web);
+            web.ignoring()
+                    .antMatchers("/internal/health", "/internal/info", "/health", "/info");
+        }
+
+        @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.cors().configurationSource(new OidcCorsConfigurationSource()).configure(http);
             http
@@ -42,9 +50,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .httpBasic().disable()
                     .anonymous()
                     .and()
-                    .authorizeRequests(authz -> authz
-                            .antMatchers("/actuator/**")
-                            .permitAll())
                     .authorizeRequests(authz -> authz
                             .antMatchers("/internal/all-groups").hasAuthority("SCOPE_all-groups")
                             .antMatchers("/me/**", "/groups/**", "/internal/**").hasAuthority("SCOPE_groups")
