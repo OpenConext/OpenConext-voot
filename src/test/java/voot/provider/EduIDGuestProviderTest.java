@@ -8,6 +8,7 @@ import voot.model.Group;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +31,7 @@ class EduIDGuestProviderTest extends AbstractTest {
                         .withStatus(200)
                         .withHeader("Content-type", "application/json").
                         withBody(json)));
-        List<Group> groupMemberships = subject.getGroupMemberships(urn);
+        Set<Group> groupMemberships = subject.getGroupMemberships(urn);
         assertEquals(2, groupMemberships.size());
     }
 

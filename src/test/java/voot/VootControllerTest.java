@@ -17,7 +17,7 @@ public class VootControllerTest extends AbstractTest {
     void testGroupsMe() throws IOException {
         super.stubCallVoot2("user/admin/groups", "json/voot2/voot2_groups.json");
         super.stubCallTeams("user/urn:collab:person:example.com:admin/groups", "json/voot2/voot2_groups.json");
-        super.stubCallTeams("linked-locals?externalGroupIds=urn:collab:group:surfteams.nl:id1,urn:collab:group:surfteams.nl:id2",
+        super.stubCallTeams("linked-locals?externalGroupIds=urn:collab:group:surfteams.nl:id2,urn:collab:group:surfteams.nl:id1",
                 "json/voot2/voot2_group.json");
         List<Map> results = given()
                 .when()

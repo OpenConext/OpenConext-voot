@@ -61,14 +61,14 @@ class ExternalGroupsServiceLinkedGroupsTest {
         when(teamsProvider.isTeamsGroup(admins)).thenReturn(true);
         when(teamsProvider.isTeamsGroup(teachers)).thenReturn(false);
         when(teamsProvider.findByLocalGroupId(adminGrouperId)).thenReturn(Optional.of(group(admins)));
-        when(teamsProvider.getGroupMemberships("Joe")).thenReturn(asList(group(admins)));
-        when(teamsProvider.getGroupMemberships("Mary")).thenReturn(Collections.<Group>emptyList());
-        when(teamsProvider.linkedLocalTeamsGroup(Collections.singletonList(teachers))).thenReturn(asList(group(admins)));
-        when(teamsProvider.linkedExternalGroupIds("Admins")).thenReturn(asList(teachers));
+        when(teamsProvider.getGroupMemberships("Joe")).thenReturn(Set.of((group(admins))));
+        when(teamsProvider.getGroupMemberships("Mary")).thenReturn(Collections.emptySet());
+        when(teamsProvider.linkedLocalTeamsGroup(Collections.singletonList(teachers))).thenReturn(Set.of((group(admins))));
+        when(teamsProvider.linkedExternalGroupIds("Admins")).thenReturn(Set.of((teachers)));
 
         when(externalGroupProvider.getGroupMembership("Mary", teachers)).thenReturn(Optional.of(group(teachers)));
         when(externalGroupProvider.getGroupMembership(eq("Joe"), anyString())).thenReturn(Optional.empty());
-        when(externalGroupProvider.getGroupMemberships("Mary")).thenReturn(asList(group(teachers)));
+        when(externalGroupProvider.getGroupMemberships("Mary")).thenReturn(Set.of((group(teachers))));
 
         when(teamsProvider.getGroupMembership("Joe", admins)).thenReturn(Optional.of(group(admins)));
         when(teamsProvider.getGroupMembership("Mary", admins)).thenReturn(Optional.empty());

@@ -14,6 +14,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,35 +58,35 @@ class TeamsProviderClientTest extends AbstractTest {
     @Test
     public void linkedLocalTeamsGroup() throws Exception {
         stubResponse("/linked-locals", "json/voot2/voot2_groups.json");
-        List<Group> groups = subject.linkedLocalTeamsGroup(Arrays.asList("urn:collab:group:avans:test-team", "urn:collab:group:avans:test-team-2"));
+        Set<Group> groups = subject.linkedLocalTeamsGroup(Set.of("urn:collab:group:avans:test-team", "urn:collab:group:avans:test-team-2"));
         assertEquals(2, groups.size());
     }
 
     @Test
     public void linkedExternalGroupIds() throws Exception {
         stubResponse("/linked-externals", "json/teams/external_team_ids.json");
-        List<String> externalGroupIds = subject.linkedExternalGroupIds("urn:collab:group:avans:test-team");
+        Set<String> externalGroupIds = subject.linkedExternalGroupIds("urn:collab:group:avans:test-team");
         assertEquals(2, externalGroupIds.size());
     }
 
     @Test
     public void getAllGroups() throws Exception {
         stubResponse("/groups", "json/voot2/voot2_groups.json");
-        List<Group> groups = subject.getAllGroups();
+        Set<Group> groups = subject.getAllGroups();
         assertEquals(2, groups.size());
     }
 
     @Test
     public void getMembers() throws Exception {
         stubResponse("/members/nl:surfnet:diensten:test-team", "json/teams/members.json");
-        List<Member> members = subject.getMembers("nl:surfnet:diensten:test-team");
+        Set<Member> members = subject.getMembers("nl:surfnet:diensten:test-team");
         assertEquals(2, members.size());
     }
 
     @Test
     public void getMembersWithMemberId() throws Exception {
         stubResponse("/members/nl:surfnet:diensten:test-team", "json/teams/members.json");
-        List<Member> members = subject.getMembers("totally-ignored", "nl:surfnet:diensten:test-team");
+        Set<Member> members = subject.getMembers("totally-ignored", "nl:surfnet:diensten:test-team");
         assertEquals(2, members.size());
     }
 

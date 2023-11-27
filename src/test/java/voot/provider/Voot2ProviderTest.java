@@ -8,6 +8,7 @@ import voot.provider.Provider.Configuration;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,14 +43,14 @@ class Voot2ProviderTest extends AbstractTest {
     @Test
     void testGetMemberships() throws Exception {
         stubCallVoot2("user/" + UID + "/groups", "json/voot2/voot2_groups.json");
-        List<Group> groups = subject.getGroupMemberships(USER_URN);
+        Set<Group> groups = subject.getGroupMemberships(USER_URN);
         assertTrue(groups.size() > 0);
     }
 
     @Test
     void testGetEmptyMemberships() throws Exception {
         stubCallVoot2("user/" + UID + "/groups", "json/voot2/voot2_groups_empty.json");
-        List<Group> memberships = subject.getGroupMemberships(USER_URN);
+        Set<Group> memberships = subject.getGroupMemberships(USER_URN);
 
         assertTrue(memberships.isEmpty());
     }
@@ -57,7 +58,7 @@ class Voot2ProviderTest extends AbstractTest {
     @Test
     void testGetEmptyMembershipsBecauseOfVootException() throws Exception {
         stubFor(get(urlEqualTo("/" + "user/" + UID + "/groups")).willReturn(aResponse().withStatus(304)));
-        List<Group> memberships = subject.getGroupMemberships(USER_URN);
+        Set<Group> memberships = subject.getGroupMemberships(USER_URN);
         assertTrue(memberships.isEmpty());
     }
 

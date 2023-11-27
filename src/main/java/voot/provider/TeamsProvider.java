@@ -3,8 +3,8 @@ package voot.provider;
 import voot.model.Group;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface TeamsProvider extends Provider {
 
@@ -12,8 +12,8 @@ public interface TeamsProvider extends Provider {
 
     Optional<Group> findByLocalGroupId(String localGroupId);
 
-    List<Group> linkedLocalTeamsGroup(Collection<String> fullyQualifiedExternalGroupIds);
+    Set<Group> linkedLocalTeamsGroup(Collection<String> fullyQualifiedExternalGroupIds);
 
-    List<String> linkedExternalGroupIds(String localGroupId);
+    Set<String> linkedExternalGroupIds(String localGroupId);
 
 }

@@ -5,6 +5,7 @@ import voot.AbstractTest;
 import voot.model.Member;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -18,7 +19,7 @@ class OpenSocialMembersClientTest extends AbstractTest {
     @Test
     void testGetMembers() throws Exception {
         stubCallVoot2("people/" + UID + "/" + GROUP_ID, "json/members/external_members.json");
-        List<Member> members = subject.getMembers(USER_URN, GROUP_URN);
+        Set<Member> members = subject.getMembers(USER_URN, GROUP_URN);
 
         assertEquals(4, members.size());
         members.forEach(this::assertMember);

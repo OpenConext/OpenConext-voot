@@ -9,10 +9,7 @@ import voot.model.Member;
 import voot.model.Membership;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EduIDGuestProvider extends AbstractProvider {
@@ -30,11 +27,11 @@ public class EduIDGuestProvider extends AbstractProvider {
     }
 
     @Override
-    public List<Group> getGroupMemberships(String uid) {
+    public Set<Group> getGroupMemberships(String uid) {
         RequestEntity requestEntity = new RequestEntity(HttpMethod.GET, URI.create(String.format(groupMembershipsUrlTemplate, configuration.url, uid)));
         ResponseEntity<List<Map<String, String>>> responseEntity = restTemplate.exchange(requestEntity, new ParameterizedTypeReference<List<Map<String, String>>>() {
         });
-        return responseEntity.getBody().stream().map(this::parseGroup).collect(Collectors.toList());
+        return responseEntity.getBody().stream().map(this::parseGroup).collect(Collectors.toSet());
     }
 
     private Group parseGroup(Map<String, String> map) {
@@ -43,8 +40,8 @@ public class EduIDGuestProvider extends AbstractProvider {
     }
 
     @Override
-    public List<Group> getAllGroups() {
-        return Collections.emptyList();
+    public Set<Group> getAllGroups() {
+        return Collections.emptySet();
     }
 
     @Override
@@ -53,12 +50,12 @@ public class EduIDGuestProvider extends AbstractProvider {
     }
 
     @Override
-    public List<Member> getMembers(String groupId) {
-        return Collections.emptyList();
+    public Set<Member> getMembers(String groupId) {
+        return Collections.emptySet();
     }
 
     @Override
-    public List<Member> getMembers(String personId, String groupId) {
-        return Collections.emptyList();
+    public Set<Member> getMembers(String personId, String groupId) {
+        return Collections.emptySet();
     }
 }

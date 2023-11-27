@@ -49,7 +49,7 @@ public class ExternalGroupsService {
                     .map(group -> group.id)
                     .collect(toList());
             if (!externalGroupIds.isEmpty()) {
-                List<Group> linkedGroups = teamsProvider.linkedLocalTeamsGroup(externalGroupIds);
+                Set<Group> linkedGroups = teamsProvider.linkedLocalTeamsGroup(externalGroupIds);
                 groups.addAll(linkedGroups);
             }
         }
@@ -95,7 +95,7 @@ public class ExternalGroupsService {
 
             if (teamsProvider.isTeamsGroup(groupId)) {
                 String localGroupId = extractLocalGroupId(groupId);
-                List<String> externalGroupIds = teamsProvider.linkedExternalGroupIds(localGroupId);
+                Set<String> externalGroupIds = teamsProvider.linkedExternalGroupIds(localGroupId);
                 List<Optional<Group>> externalGroups = externalGroupIds.stream()
                         .map(externalGroupId -> doGetMyGroupById(uid, externalGroupId, false))
                         .collect(toList());

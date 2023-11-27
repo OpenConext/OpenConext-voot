@@ -11,8 +11,8 @@ import voot.provider.Provider;
 import voot.util.UrnUtils;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public class MockProvider extends AbstractProvider {
@@ -54,13 +54,13 @@ public class MockProvider extends AbstractProvider {
     }
 
     @Override
-    public List<Group> getGroupMemberships(String uid) {
+    public Set<Group> getGroupMemberships(String uid) {
         return getResult(defaultGroup("id"));
     }
 
     @Override
-    public List<Group> getAllGroups() {
-        return Collections.singletonList(defaultGroup("id"));
+    public Set<Group> getAllGroups() {
+        return Collections.singleton(defaultGroup("id"));
     }
 
 
@@ -70,16 +70,16 @@ public class MockProvider extends AbstractProvider {
     }
 
     @Override
-    public List<Member> getMembers(String groupId) {
+    public Set<Member> getMembers(String groupId) {
         return getResult(defaultMember());
     }
 
     @Override
-    public List<Member> getMembers(String personId, String groupId) {
+    public Set<Member> getMembers(String personId, String groupId) {
         return getResult(defaultMember());
     }
 
-    private <T> List<T> getResult(T result) {
+    private <T> Set<T> getResult(T result) {
         switch (this.simulationMode) {
             case Timeout:
                 try {
@@ -87,14 +87,14 @@ public class MockProvider extends AbstractProvider {
                 } catch (InterruptedException e) {
                 }
                 LOG.debug("timed out");
-                return Collections.emptyList();
+                return Collections.emptySet();
             case Error:
                 throw new RuntimeException("failed!");
             case Empty:
-                return Collections.<T>emptyList();
+                return Collections.<T>emptySet();
             default: // Success
                 LOG.debug("got result");
-                return Collections.singletonList(result);
+                return Collections.singleton(result);
         }
     }
 

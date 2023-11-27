@@ -84,8 +84,8 @@ class ExternalGroupsServiceTest {
 
         ExternalGroupsService externalGroupsService = externalGroupService(providers);
         Set<Member> members = externalGroupsService.getMembers("urn:collab:group:example.org:nl:surfnet:diensten:apachecon");
-        assertEquals(2, members.size());
-        assertEquals("urn:collab:person:example.com:admin", members.stream().findFirst().get().id);
+        assertEquals(1, members.size());
+        assertEquals("urn:collab:person:example.com:admin", members.iterator().next().id);
     }
 
     @Test

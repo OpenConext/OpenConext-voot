@@ -23,9 +23,9 @@ import static voot.util.UrnUtils.getSchacHomeFromPersonUrn;
 @RestController
 public class VootController {
 
-    private static Logger LOG = LoggerFactory.getLogger(VootController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VootController.class);
 
-    private ExternalGroupsService externalGroupsService;
+    private final ExternalGroupsService externalGroupsService;
 
     @Autowired
     public VootController(ExternalGroupsService externalGroupsService) {

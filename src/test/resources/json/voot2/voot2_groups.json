@@ -14,5 +14,13 @@
       "basic": "member"
     },
     "description": "description...2"
+  },
+  {
+    "id": "id2",
+    "displayName": "duplicate",
+    "membership": {
+      "basic": "member"
+    },
+    "description": "duplicate...2"
   }
 ]

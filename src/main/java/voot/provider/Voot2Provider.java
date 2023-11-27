@@ -8,13 +8,10 @@ import voot.model.Member;
 import voot.model.Membership;
 import voot.util.UrnUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toSet;
 
 public class Voot2Provider extends AbstractProvider {
 
@@ -32,16 +29,16 @@ public class Voot2Provider extends AbstractProvider {
     }
 
     @Override
-    public List<Group> getGroupMemberships(final String uid) {
+    public Set<Group> getGroupMemberships(final String uid) {
         LOG.debug("Querying getGroupMemberships for subjectId: {} and name: {}", uid, configuration.schacHomeOrganization);
         String localUid = personUrnFromFullyQualifiedUrn(uid);
         ResponseEntity<String> response = restTemplate.getForEntity(String.format(allMembershipsUrlTemplate, configuration.url), String.class, localUid);
-        return handleResponse(response, this::parseGroups, "getGroupMemberships", emptyList());
+        return handleResponse(response, this::parseGroups, "getGroupMemberships", emptySet());
     }
 
     @Override
-    public List<Group> getAllGroups() {
-        return Collections.emptyList();
+    public Set<Group> getAllGroups() {
+        return Collections.emptySet();
     }
 
     @Override
@@ -68,19 +65,19 @@ public class Voot2Provider extends AbstractProvider {
     }
 
     @Override
-    public List<Member> getMembers(String groupId) {
+    public Set<Member> getMembers(String groupId) {
         throw new IllegalArgumentException("Voot2Providers do not support getting members");
     }
 
     @Override
-    public List<Member> getMembers(String personId, String groupId) {
+    public Set<Member> getMembers(String personId, String groupId) {
         return getMembers(groupId);
     }
 
     @SuppressWarnings("unchecked")
-    protected List<Group> parseGroups(String response) {
+    protected Set<Group> parseGroups(String response) {
         List<Map<String, Object>> maps = parseJson(response, List.class);
-        return maps.stream().map(this::parseGroup).collect(toList());
+        return maps.stream().map(this::parseGroup).collect(toSet());
     }
 
     @SuppressWarnings("unchecked")

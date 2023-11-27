@@ -7,14 +7,11 @@ import voot.model.Member;
 import voot.util.UrnUtils;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
+import static java.util.Collections.emptySet;
 
 public class TeamsProviderClient extends Voot2Provider implements TeamsProvider {
 
@@ -42,41 +39,43 @@ public class TeamsProviderClient extends Voot2Provider implements TeamsProvider 
     }
 
     @Override
-    public List<Group> linkedLocalTeamsGroup(Collection<String> fullyQualifiedExternalGroupIds) {
+    public Set<Group> linkedLocalTeamsGroup(Collection<String> fullyQualifiedExternalGroupIds) {
+        //Make the externalGroupIdentifiers unique
+        HashSet<String> uniqueGroupIds = new HashSet<>(fullyQualifiedExternalGroupIds);
         URI uri = UriComponentsBuilder.fromHttpUrl(String.format("%s/linked-locals", configuration.url))
-                .queryParam("externalGroupIds", String.join(",", fullyQualifiedExternalGroupIds))
+                .queryParam("externalGroupIds", String.join(",", uniqueGroupIds))
                 .build().encode().toUri();
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
-        return handleResponse(response, this::parseGroups, "findByLocalGroupId", emptyList());
+        return handleResponse(response, this::parseGroups, "findByLocalGroupId", emptySet());
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<String> linkedExternalGroupIds(String localGroupId) {
+    public Set<String> linkedExternalGroupIds(String localGroupId) {
         URI uri = UriComponentsBuilder.fromHttpUrl(String.format("%s/linked-externals", configuration.url))
                 .queryParam("teamId", localGroupId)
                 .build().encode().toUri();
-        ResponseEntity<List> response = restTemplate.getForEntity(uri, List.class);
-        return handleResponse(response, s -> s, "findByLocalGroupId", emptyList());
+        ResponseEntity<Set> response = restTemplate.getForEntity(uri, Set.class);
+        return handleResponse(response, s -> s, "findByLocalGroupId", emptySet());
     }
 
     @Override
-    public List<Member> getMembers(String personId, String groupId) {
+    public Set<Member> getMembers(String personId, String groupId) {
         return getMembers(groupId);
     }
 
     @Override
-    public List<Member> getMembers(String groupId) {
+    public Set<Member> getMembers(String groupId) {
         String uri = String.format("%s/members/{groupId}", configuration.url);
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class, groupId);
-        return handleResponse(response, this::parseMembers, "getMembers", emptyList());
+        return handleResponse(response, this::parseMembers, "getMembers", emptySet());
     }
 
     @Override
-    public List<Group> getAllGroups() {
+    public Set<Group> getAllGroups() {
         String uri = String.format("%s/groups", configuration.url);
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
-        return handleResponse(response, this::parseGroups, "getAllGroups", emptyList());
+        return handleResponse(response, this::parseGroups, "getAllGroups", emptySet());
     }
 
     /**
@@ -88,9 +87,9 @@ public class TeamsProviderClient extends Voot2Provider implements TeamsProvider 
     }
 
     @SuppressWarnings("unchecked")
-    private List<Member> parseMembers(String response) {
+    private Set<Member> parseMembers(String response) {
         List<Map<String, String>> maps = parseJson(response, List.class);
-        return maps.stream().map(map -> new Member(map.get("id"), map.get("name"), map.get("email"))).collect(toList());
+        return maps.stream().map(map -> new Member(map.get("id"), map.get("name"), map.get("email"))).collect(Collectors.toSet());
     }
 
 }

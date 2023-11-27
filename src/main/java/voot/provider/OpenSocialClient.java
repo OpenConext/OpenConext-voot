@@ -4,10 +4,7 @@ import org.springframework.util.CollectionUtils;
 import voot.model.Group;
 import voot.model.Membership;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class OpenSocialClient extends Voot2Provider {
@@ -19,11 +16,11 @@ public class OpenSocialClient extends Voot2Provider {
     }
 
     @Override
-    protected List<Group> parseGroups(String response) {
+    protected Set<Group> parseGroups(String response) {
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> groups = (List) parseJson(response, Map.class).get("entry");
         if (CollectionUtils.isEmpty(groups)) {
-            return new ArrayList<>();
+            return Collections.emptySet();
         }
         return groups.stream().map(map -> {
             Object idHolder = map.get("id");
@@ -35,13 +32,13 @@ public class OpenSocialClient extends Voot2Provider {
                     (String) map.get("description"),
                     configuration.name,
                     new Membership((String) map.getOrDefault("voot_membership_role", "member")));
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toSet());
     }
 
     @Override
     protected Optional<Group> parseSingleGroup(String response) {
-        List<Group> groups = parseGroups(response);
-        return groups.isEmpty() ? Optional.empty() : Optional.of(groups.get(0));
+        Set<Group> groups = parseGroups(response);
+        return groups.isEmpty() ? Optional.empty() : Optional.of(groups.iterator().next());
     }
 
 }

@@ -3,8 +3,8 @@ package voot.provider;
 import voot.model.Group;
 import voot.model.Member;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface Provider {
 
@@ -32,12 +32,12 @@ public interface Provider {
     /**
      * @param uid the fully qualified uid
      */
-    List<Group> getGroupMemberships(String uid);
+    Set<Group> getGroupMemberships(String uid);
 
     /**
      * All groups
      */
-    List<Group> getAllGroups();
+    Set<Group> getAllGroups();
 
     /**
      * @param uid     the fully qualified uid
@@ -52,7 +52,7 @@ public interface Provider {
      * @param groupId the fully qualified uid groupId
      * @return all Members
      */
-    List<Member> getMembers(String groupId);
+    Set<Member> getMembers(String groupId);
 
     /**
      * Get all members of a group
@@ -61,7 +61,7 @@ public interface Provider {
      * @param groupId  the fully qualified uid groupId
      * @return all Members
      */
-    List<Member> getMembers(String personId, String groupId);
+    Set<Member> getMembers(String personId, String groupId);
 
     /**
      * Tells us if it is worthwhile calling this client when returning all members of a group

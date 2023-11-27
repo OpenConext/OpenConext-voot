@@ -7,6 +7,7 @@ import voot.provider.Provider.Configuration;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +26,7 @@ class OpenSocialClientTest extends AbstractTest {
     @Test
     void testGetMemberships() throws Exception {
         stubCallVoot2("groups/" + UID, "json/opensocial/open_social_groups.json");
-        final List<Group> memberships = subject.getGroupMemberships(USER_URN);
+        Set<Group> memberships = subject.getGroupMemberships(USER_URN);
 
         assertGroups(memberships);
     }
@@ -33,7 +34,7 @@ class OpenSocialClientTest extends AbstractTest {
     @Test
     void testGetEmptyMemberships() throws Exception {
         stubCallVoot2("groups/" + UID, "json/opensocial/open_social_groups_empty.json");
-        final List<Group> memberships = subject.getGroupMemberships(USER_URN);
+        final Set<Group> memberships = subject.getGroupMemberships(USER_URN);
 
         assertTrue(memberships.isEmpty());
     }
@@ -41,7 +42,7 @@ class OpenSocialClientTest extends AbstractTest {
     @Test
     void testGetMembershipsDeprecatedCompoundId() throws Exception {
         stubCallVoot2("groups/admin", "json/opensocial/open_social_deprecated_groups.json");
-        final List<Group> memberships = subject.getGroupMemberships(USER_URN);
+        Set<Group> memberships = subject.getGroupMemberships(USER_URN);
         assertGroups(memberships);
     }
 
@@ -79,13 +80,13 @@ class OpenSocialClientTest extends AbstractTest {
         assertFalse(group.isPresent());
     }
 
-    private void assertGroups(List<Group> memberships) {
+    private void assertGroups(Set<Group> memberships) {
         assertEquals(2, memberships.size());
 
-        Group group1 = memberships.get(0);
+        Group group1 = memberships.stream().filter(group -> group.id.equals("urn:collab:group:example.org:etc:sysadmingroup") ).findFirst().get();
         assertAdminGroup(group1);
 
-        Group group2 = memberships.get(1);
+        Group group2 = memberships.stream().filter(group -> group.id.equals("urn:collab:group:example.org:nl:surfnet:diensten:test") ).findFirst().get();
         assertEquals("urn:collab:group:example.org:nl:surfnet:diensten:test", group2.id);
         assertEquals("test title", group2.displayName);
         assertEquals("test description", group2.description);
