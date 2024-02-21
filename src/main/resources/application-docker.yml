@@ -1,0 +1,5 @@
+oidcng:
+  checkToken:
+    endpoint_url: "https://connect.dev.openconext.local/oidc/introspect"
+    clientId: "voot.dev.openconext.local"
+    secret: "secretsecret"
