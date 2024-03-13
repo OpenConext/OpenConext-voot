@@ -1,9 +1,10 @@
 package voot.provider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
 import voot.model.Group;
 import voot.model.Member;
 import voot.model.Membership;
@@ -13,6 +14,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class InviteProvider extends AbstractProvider {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InviteProvider.class);
 
     private final String groupMembershipsUrlTemplate;
 
@@ -27,7 +30,15 @@ public class InviteProvider extends AbstractProvider {
     }
 
     @Override
+    public boolean isExternalGroupProvider() {
+        return false;
+    }
+
+
+    @Override
     public Set<Group> getGroupMemberships(String uid) {
+        LOG.debug("Calling getGroupMemberships for " + uid);
+
         String uri = String.format(groupMembershipsUrlTemplate, configuration.url, uid);
         RequestEntity<List<Map<String, String>>> requestEntity = new RequestEntity<>(HttpMethod.GET, URI.create(uri));
         return restTemplate.exchange(requestEntity, new ParameterizedTypeReference<List<Map<String, String>>>() {
