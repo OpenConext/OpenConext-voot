@@ -8,9 +8,9 @@ import java.util.Map;
 @Getter
 public class User {
 
-    private String clientId;
-    private String unspecifiedId;
-    private String schacHomeOrganization;
+    private final String clientId;
+    private final String unspecifiedId;
+    private final String schacHomeOrganization;
 
     public User(BearerTokenAuthentication bearerTokenAuthentication) {
         Map<String, Object> tokenAttributes = bearerTokenAuthentication.getTokenAttributes();

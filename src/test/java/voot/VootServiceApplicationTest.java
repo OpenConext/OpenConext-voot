@@ -23,12 +23,12 @@ class VootServiceApplicationTest {
         ExternalGroupsService externalGroupsService =
                 app.externalGroupsService(new ClassPathResource("/testAllExternalProviders.yml"));
         Object providers = ReflectionTestUtils.getField(externalGroupsService, "providers");
-        assertEquals(5, ((List) providers).size());
+        assertEquals(6, ((List) providers).size());
     }
 
 
     @Test
-    void externalGroupsServiceUnknown() throws IOException {
+    void externalGroupsServiceUnknown() {
         VootServiceApplication app = new VootServiceApplication();
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> app.externalGroupsService(new ClassPathResource("/testUnknownExternalProviders.yml")));

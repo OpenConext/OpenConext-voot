@@ -1,0 +1,10 @@
+[
+  {
+    "urn": "urn1",
+    "name": "administrator"
+  },
+  {
+    "urn": "urn2",
+    "name": "guest"
+  }
+]
