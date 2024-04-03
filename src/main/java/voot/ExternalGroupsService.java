@@ -117,7 +117,8 @@ public class ExternalGroupsService {
 
     protected Set<Group> filterDuplicatesWithLowerImportance(List<Group> groups) {
         return groups.stream().collect(groupingBy(group -> group.id)).values().stream()
-                .map(groupList -> groupList.stream().max(Comparator.comparing(group -> group.membership)).get()).collect(toSet());
+                .map(groupList -> groupList.stream().max(Comparator.comparing(group -> group.membership)).get())
+                .collect(toSet());
     }
 
     @SneakyThrows

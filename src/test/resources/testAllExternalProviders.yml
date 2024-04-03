@@ -54,3 +54,14 @@ externalGroupProviders:
     name: "Bar",
     timeoutMillis: 5000
   }
+  - {
+    type: "invite",
+    url: "http://localhost:8999/",
+    credentials: {
+      username: "foo",
+      secret: "bar"
+    },
+    schacHomeOrganization: "N/A",
+    name: "Invite",
+    timeoutMillis: 5000
+  }

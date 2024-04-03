@@ -64,6 +64,8 @@ public class VootServiceApplication {
                     return new OpenSocialMembersClient(configuration);
                 case GUESTS:
                     return new EduIDGuestProvider(configuration);
+                case INVITE:
+                    return new InviteProvider(configuration);
                 default:
                     throw new IllegalArgumentException("Unknown external provider-type: " + type);
             }

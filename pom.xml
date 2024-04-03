@@ -4,7 +4,7 @@
 
   <groupId>org.openconext</groupId>
   <artifactId>voot-service</artifactId>
-  <version>5.0.2-SNAPSHOT</version>
+  <version>6.0.0</version>
   <packaging>jar</packaging>
 
   <name>voot-service</name>
@@ -87,7 +87,7 @@
     <dependency>
       <groupId>com.nimbusds</groupId>
       <artifactId>nimbus-jose-jwt</artifactId>
-      <version>9.16.1</version>
+      <version>9.37.2</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
