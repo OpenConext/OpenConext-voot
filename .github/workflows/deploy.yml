@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "*"
+    wokflow_dispatch:
 
 jobs:
   deployment:
