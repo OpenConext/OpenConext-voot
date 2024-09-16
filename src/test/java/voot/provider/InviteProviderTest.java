@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class InviteProviderTest extends AbstractTest {
 
     private final InviteProvider subject = new InviteProvider(
-            new Provider.Configuration(GroupProviderType.INVITE, "http://localhost:8889",
+            new Provider.Configuration(GroupProviderType.INVITE, "http://localhost:8889/api/external/v1/voot",
                     new Provider.Configuration.Credentials("user", "password"),
                     2000, "N/A", "invite"));
 
@@ -25,12 +25,29 @@ class InviteProviderTest extends AbstractTest {
     void getGroupMemberships() throws IOException {
         String json = IOUtils.readInputStreamToString(new ClassPathResource("json/invite/group_memberships.json").getInputStream());
         String urn = "urn:collab:person:example.com:admin";
-        stubFor(get(urlPathEqualTo("/api/voot/" + urn))
+        stubFor(get(urlPathEqualTo("/api/external/v1/voot/" + urn))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-type", "application/json").
                         withBody(json)));
         Set<Group> groupMemberships = subject.getGroupMemberships(urn);
+        assertEquals(2, groupMemberships.size());
+    }
+
+    @Test
+    void getGroupMembershipsMissingSlash() throws IOException {
+        InviteProvider inviteProvider = new InviteProvider(
+                new Provider.Configuration(GroupProviderType.INVITE, "http://localhost:8889/api/voot/",
+                        new Provider.Configuration.Credentials("user", "password"),
+                        2000, "N/A", "invite"));
+        String json = IOUtils.readInputStreamToString(new ClassPathResource("json/invite/group_memberships.json").getInputStream());
+        String urn = "urn:collab:person:example.com:admin";
+        stubFor(get(urlPathEqualTo("/api/voot/" + urn))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-type", "application/json").
+                        withBody(json)));
+        Set<Group> groupMemberships = inviteProvider.getGroupMemberships(urn);
         assertEquals(2, groupMemberships.size());
     }
 

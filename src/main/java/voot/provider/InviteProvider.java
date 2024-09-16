@@ -21,7 +21,7 @@ public class InviteProvider extends AbstractProvider {
 
     public InviteProvider(Configuration configuration) {
         super(configuration);
-        groupMembershipsUrlTemplate = "%s/api/voot/%s";
+        groupMembershipsUrlTemplate = String.format("%s", configuration.url.endsWith("/") ? configuration.url : (configuration.url + "/"));
     }
 
     @Override
@@ -39,7 +39,7 @@ public class InviteProvider extends AbstractProvider {
     public Set<Group> getGroupMemberships(String uid) {
         LOG.debug("Calling getGroupMemberships for " + uid);
 
-        String uri = String.format(groupMembershipsUrlTemplate, configuration.url, uid);
+        String uri = groupMembershipsUrlTemplate + uid;
         RequestEntity<List<Map<String, String>>> requestEntity = new RequestEntity<>(HttpMethod.GET, URI.create(uri));
         return restTemplate.exchange(requestEntity, new ParameterizedTypeReference<List<Map<String, String>>>() {
         }).getBody().stream()
