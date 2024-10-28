@@ -21,9 +21,9 @@ grant all on grouper_local.* to 'root'@'localhost';
 ```
 
 # Getting started
-This project uses Spring Boot and Maven and JDK11. Install JDK11 and point your `JAVA_HOME` to this directory:
+This project uses Spring Boot and Maven and JDK21. Install JDK21 and point your `JAVA_HOME` to this directory:
 
-`export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-11.jdk/Contents/Home/`
+`export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home/`
 
 To run locally, type:
 
