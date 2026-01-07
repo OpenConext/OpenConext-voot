@@ -1,8 +1,16 @@
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: "/**"
+  - package-ecosystem: maven
+    directory: "/"
     schedule:
       interval: "weekly"
     allow:
       - dependency-type: "production"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    groups:
+      gha:
+        update-types: [ "major", "minor", "patch" ]
+    schedule:
+      interval: "weekly"
