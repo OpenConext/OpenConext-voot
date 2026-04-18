@@ -2,13 +2,12 @@ package voot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StreamUtils;
@@ -62,7 +61,7 @@ public abstract class AbstractTest {
         List<String> scopeList = new ArrayList<>(Arrays.asList(scopes));
         scopeList.add("openid");
 
-        String introspectResult = IOUtils.toString(new ClassPathResource(responseJsonFileName).getInputStream(), Charset.defaultCharset().name());
+        String introspectResult = StreamUtils.copyToString(new ClassPathResource(responseJsonFileName).getInputStream(), Charset.defaultCharset());
         String introspectResultWithScope = String.format(introspectResult, String.join(" ", scopeList));
         mockServer.stubFor(post(urlPathMatching("/introspect")).willReturn(aResponse()
                 .withStatus(200)

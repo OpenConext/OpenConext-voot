@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 import voot.util.UrnUtils;
 
 import java.net.MalformedURLException;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 
@@ -85,14 +86,22 @@ public abstract class AbstractProvider implements Provider {
     }
 
     private ClientHttpRequestFactory getRequestFactory() throws MalformedURLException {
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().evictExpiredConnections().evictIdleConnections(10l, TimeUnit.SECONDS);
-        BasicCredentialsProvider basicCredentialsProvider = new BasicCredentialsProvider();
-        basicCredentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(configuration.credentials.username, configuration.credentials.password));
-        httpClientBuilder.setDefaultCredentialsProvider(basicCredentialsProvider);
-        httpClientBuilder.setDefaultRequestConfig(RequestConfig.custom().setConnectionRequestTimeout(configuration.timeOutMillis).setConnectTimeout(configuration.timeOutMillis).setSocketTimeout(configuration.timeOutMillis).build());
-
-        CloseableHttpClient httpClient = httpClientBuilder.build();
-        return new PreemptiveAuthenticationHttpComponentsClientHttpRequestFactory(httpClient, configuration.url);
+        BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(
+                new AuthScope(null, -1),
+                new UsernamePasswordCredentials(configuration.credentials.username, configuration.credentials.password.toCharArray()));
+        CloseableHttpClient httpClient = HttpClientBuilder.create()
+                .evictExpiredConnections()
+                .evictIdleConnections(TimeValue.ofSeconds(10))
+                .setDefaultCredentialsProvider(credentialsProvider)
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setConnectionRequestTimeout(Timeout.ofMilliseconds(configuration.timeOutMillis))
+                        .setConnectTimeout(Timeout.ofMilliseconds(configuration.timeOutMillis))
+                        .setResponseTimeout(Timeout.ofMilliseconds(configuration.timeOutMillis))
+                        .build())
+                .build();
+        return new PreemptiveAuthenticationHttpComponentsClientHttpRequestFactory(httpClient, configuration.url,
+                new UsernamePasswordCredentials(configuration.credentials.username, configuration.credentials.password.toCharArray()));
     }
 
     @Override
