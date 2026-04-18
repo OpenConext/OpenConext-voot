@@ -1,15 +1,13 @@
 package voot;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceEndpointAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.StringUtils;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import voot.provider.*;
@@ -19,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@SpringBootApplication(exclude = {HttpTraceEndpointAutoConfiguration.class, MetricsAutoConfiguration.class})
+@SpringBootApplication(exclude = {MetricsAutoConfiguration.class})
 public class VootServiceApplication {
 
     @Value("${support.linkedGrouperExternalGroups}")
@@ -30,11 +28,10 @@ public class VootServiceApplication {
     }
 
     @Bean
-    @Autowired
     public ExternalGroupsService externalGroupsService(
             @Value("${externalProviders.config.path}") final Resource configResource) throws IOException {
 
-        Yaml yaml = new Yaml(new SafeConstructor());
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
 
         @SuppressWarnings("unchecked")
         Map<String, List<Map<String, Object>>> config = yaml.load(configResource.getInputStream());
