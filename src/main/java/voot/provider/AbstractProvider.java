@@ -94,6 +94,7 @@ public abstract class AbstractProvider implements Provider {
                 .evictExpiredConnections()
                 .evictIdleConnections(TimeValue.ofSeconds(10))
                 .setDefaultCredentialsProvider(credentialsProvider)
+                .disableCookieManagement()
                 .setDefaultRequestConfig(RequestConfig.custom()
                         .setConnectionRequestTimeout(Timeout.ofMilliseconds(configuration.timeOutMillis))
                         .setConnectTimeout(Timeout.ofMilliseconds(configuration.timeOutMillis))
