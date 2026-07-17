@@ -237,4 +237,17 @@ public class VootControllerTest extends AbstractTest {
                 .statusCode(403);
     }
 
+    @Test
+    void testFirewallRejectsMaliciousRequest() {
+        // Verify that StrictHttpFirewall rejects malicious scanner requests (semicolons, encoded slashes, etc.)
+        // with HTTP 400 via RequestRejectedHandler, WITHOUT reaching authentication or logging ERROR.
+        // The firewall blocks the request before any auth processing, so no token is needed.
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .get("/me/groups;malicious=probe")
+                .then()
+                .statusCode(400);
+    }
+
 }
