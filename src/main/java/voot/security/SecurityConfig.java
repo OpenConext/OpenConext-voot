@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
+import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -46,6 +48,14 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .oauth2ResourceServer(oauth2 -> oauth2.opaqueToken(token -> token
                         .introspector(new CachingOpaqueTokenIntrospector(introspectionUri, clientId, secret, cacheTokens))));
         return http.build();
+    }
+
+    @Bean
+    public RequestRejectedHandler requestRejectedHandler() {
+        // Return HTTP 400 for malicious/malformed requests (scanner probes with ;, encoded slashes, etc.)
+        // instead of propagating RequestRejectedException up to Tomcat as ERROR.
+        // StrictHttpFirewall correctly rejects these - we just want clean 400 responses without error logs/emails.
+        return new HttpStatusRequestRejectedHandler();
     }
 
     @Override
