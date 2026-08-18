@@ -1,8 +1,9 @@
 package voot.provider;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
@@ -38,9 +39,10 @@ public abstract class AbstractProvider implements Provider {
     /*
      * ObjectMapper is thread-safe (http://wiki.fasterxml.com/JacksonFAQ)
      */
-    protected static final ObjectMapper objectMapper = new ObjectMapper().
+    protected static final ObjectMapper objectMapper = JsonMapper.builder().
             enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY).
-            setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL)).
+            build();
 
 
     @SneakyThrows

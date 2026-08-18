@@ -32,7 +32,7 @@ public class TeamsProviderClient extends Voot2Provider implements TeamsProvider 
 
     @Override
     public Optional<Group> findByLocalGroupId(String localGroupId) {
-        URI uri = UriComponentsBuilder.fromHttpUrl(String.format("%s/group/%s", configuration.url, localGroupId))
+        URI uri = UriComponentsBuilder.fromUriString(String.format("%s/group/%s", configuration.url, localGroupId))
                 .build().encode().toUri();
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
         return handleResponse(response, this::parseSingleGroup, "findByLocalGroupId", Optional.empty());
@@ -42,7 +42,7 @@ public class TeamsProviderClient extends Voot2Provider implements TeamsProvider 
     public Set<Group> linkedLocalTeamsGroup(Collection<String> fullyQualifiedExternalGroupIds) {
         //Make the externalGroupIdentifiers unique
         HashSet<String> uniqueGroupIds = new HashSet<>(fullyQualifiedExternalGroupIds);
-        URI uri = UriComponentsBuilder.fromHttpUrl(String.format("%s/linked-locals", configuration.url))
+        URI uri = UriComponentsBuilder.fromUriString(String.format("%s/linked-locals", configuration.url))
                 .queryParam("externalGroupIds", String.join(",", uniqueGroupIds))
                 .build().encode().toUri();
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
@@ -52,7 +52,7 @@ public class TeamsProviderClient extends Voot2Provider implements TeamsProvider 
     @Override
     @SuppressWarnings("unchecked")
     public Set<String> linkedExternalGroupIds(String localGroupId) {
-        URI uri = UriComponentsBuilder.fromHttpUrl(String.format("%s/linked-externals", configuration.url))
+        URI uri = UriComponentsBuilder.fromUriString(String.format("%s/linked-externals", configuration.url))
                 .queryParam("teamId", localGroupId)
                 .build().encode().toUri();
         ResponseEntity<Set> response = restTemplate.getForEntity(uri, Set.class);
