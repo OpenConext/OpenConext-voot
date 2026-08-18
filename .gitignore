@@ -16,3 +16,4 @@ log/
 target/
 dependency.tree
 *.log
+SPRING_MIGRATION.md
