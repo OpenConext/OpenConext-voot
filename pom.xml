@@ -5,7 +5,7 @@
 
     <groupId>org.openconext</groupId>
     <artifactId>voot-service</artifactId>
-    <version>8.0.0</version>
+    <version>8.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>voot-service</name>
@@ -58,6 +58,13 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.20.0</version>
+        </dependency>
+        <!-- Needed at runtime by logback's SMTPAppender (production logback config), even though
+       no application code uses mail directly. -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.nimbusds</groupId>
