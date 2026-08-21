@@ -27,6 +27,8 @@ checkToken:
 support:
   linkedGrouperExternalGroups: true
 
+version: "@project.version@"
+
 management:
   health:
     mail:

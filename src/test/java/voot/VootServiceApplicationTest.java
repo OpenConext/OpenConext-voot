@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.util.ReflectionTestUtils;
+import voot.provider.Provider;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,6 +25,36 @@ class VootServiceApplicationTest {
                 app.externalGroupsService(new ClassPathResource("/testAllExternalProviders.yml"));
         Object providers = ReflectionTestUtils.getField(externalGroupsService, "providers");
         assertEquals(6, ((List) providers).size());
+    }
+
+    @Test
+    void externalGroupsServiceUserAgent() throws IOException {
+        VootServiceApplication app = new VootServiceApplication();
+        ReflectionTestUtils.setField(app, "version", "1.2.3");
+        ReflectionTestUtils.setField(app, "userAgentExtra", "");
+
+        ExternalGroupsService externalGroupsService =
+                app.externalGroupsService(new ClassPathResource("/testAllExternalProviders.yml"));
+        List<Provider> providers = (List<Provider>) ReflectionTestUtils.getField(externalGroupsService, "providers");
+
+        for (Provider provider : providers) {
+            Provider.Configuration configuration = (Provider.Configuration) ReflectionTestUtils.getField(provider, "configuration");
+            assertEquals("voot/1.2.3", configuration.userAgent);
+        }
+    }
+
+    @Test
+    void externalGroupsServiceUserAgentWithExtra() throws IOException {
+        VootServiceApplication app = new VootServiceApplication();
+        ReflectionTestUtils.setField(app, "version", "1.2.3");
+        ReflectionTestUtils.setField(app, "userAgentExtra", "myinstance");
+
+        ExternalGroupsService externalGroupsService =
+                app.externalGroupsService(new ClassPathResource("/testAllExternalProviders.yml"));
+        List<Provider> providers = (List<Provider>) ReflectionTestUtils.getField(externalGroupsService, "providers");
+
+        Provider.Configuration configuration = (Provider.Configuration) ReflectionTestUtils.getField(providers.get(0), "configuration");
+        assertEquals("voot/1.2.3/myinstance", configuration.userAgent);
     }
 
 

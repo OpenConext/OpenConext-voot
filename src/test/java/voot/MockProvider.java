@@ -26,13 +26,13 @@ public class MockProvider extends AbstractProvider {
     private final SimulationMode simulationMode;
 
     public MockProvider(Long timeoutMillis, SimulationMode simulationMode, GroupProviderType type) {
-        super(new Provider.Configuration(type, "https://localhost/some/path", new Provider.Configuration.Credentials("user", "password"), 2000, SCHAC_HOME_ORGANIZATION, "example"));
+        super(new Provider.Configuration(type, "https://localhost/some/path", new Provider.Configuration.Credentials("user", "password"), 2000, SCHAC_HOME_ORGANIZATION, "example", "userAgent"));
         this.timeoutMillis = timeoutMillis;
         this.simulationMode = simulationMode;
     }
 
     public MockProvider(SimulationMode simulationMode, GroupProviderType type, String schacHome) {
-        super(new Provider.Configuration(type, "https://localhost/some/path", new Provider.Configuration.Credentials("user", "password"), 2000, schacHome, "example"));
+        super(new Provider.Configuration(type, "https://localhost/some/path", new Provider.Configuration.Credentials("user", "password"), 2000, schacHome, "example", "userAgent"));
         this.timeoutMillis = 0L;
         this.simulationMode = simulationMode;
     }

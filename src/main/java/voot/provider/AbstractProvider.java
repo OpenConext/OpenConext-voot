@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import voot.UserAgentInterceptor;
 import voot.util.UrnUtils;
 
 import java.net.MalformedURLException;
@@ -49,7 +50,8 @@ public abstract class AbstractProvider implements Provider {
     public AbstractProvider(Configuration configuration) {
         this.configuration = configuration;
         this.restTemplate = new RestTemplate(getRequestFactory());
-        restTemplate.setErrorHandler(new ProviderResponseErrorHandler());
+        this.restTemplate.setErrorHandler(new ProviderResponseErrorHandler());
+        this.restTemplate.getInterceptors().add(new UserAgentInterceptor(configuration.userAgent));
         this.groupIdPrefix = String.format("urn:collab:group:%s:", configuration.schacHomeOrganization);
         LOG.debug("Initializing {} {}", getClass(), configuration);
     }

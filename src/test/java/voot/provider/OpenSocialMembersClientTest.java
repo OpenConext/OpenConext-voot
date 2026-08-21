@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class OpenSocialMembersClientTest extends AbstractTest {
 
-    private Provider.Configuration configuration = new Provider.Configuration(GroupProviderType.OPEN_SOCIAL_MEMBERS, "http://localhost:8889", new Provider.Configuration.Credentials("user", "password"), 2000, "example.org", "Example");
+    private Provider.Configuration configuration = new Provider.Configuration(GroupProviderType.OPEN_SOCIAL_MEMBERS, "http://localhost:8889", new Provider.Configuration.Credentials("user", "password"), 2000, "example.org", "Example", "userAgent");
     private OpenSocialMembersClient subject = new OpenSocialMembersClient(configuration);
 
     @Test

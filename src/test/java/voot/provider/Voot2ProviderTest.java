@@ -21,7 +21,7 @@ class Voot2ProviderTest extends AbstractTest {
     private static final String GROUP_URN = "urn:collab:group:surfteams.nl:" + GROUP_ID;
 
     private Configuration configuration = new Configuration(GroupProviderType.VOOT2, "http://localhost:8889",
-            new Configuration.Credentials("user", "password"), 2000, "example.org", "example");
+            new Configuration.Credentials("user", "password"), 2000, "example.org", "example", "userAgent");
 
     private Voot2Provider subject = new Voot2Provider(configuration);
 
@@ -83,6 +83,15 @@ class Voot2ProviderTest extends AbstractTest {
         Optional<Group> group = subject.getGroupMembership(USER_URN, GROUP_URN);
 
         assertTrue(group.isPresent());
+    }
+
+    @Test
+    void testUserAgentHeaderIsSentOnRequests() throws Exception {
+        stubCallVoot2("user/" + UID + "/groups", "json/voot2/voot2_groups.json");
+        subject.getGroupMemberships(USER_URN);
+
+        verify(getRequestedFor(urlEqualTo("/user/" + UID + "/groups"))
+                .withHeader("User-Agent", equalTo(configuration.userAgent)));
     }
 
 }

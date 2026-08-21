@@ -79,14 +79,17 @@ public interface Provider {
         public final Integer timeOutMillis;
         public final String schacHomeOrganization;
         public final String name;
+        public final String userAgent;
 
-        public Configuration(GroupProviderType type, String url, Credentials credentials, Integer timeOutMillis, String schacHomeOrganization, String name) {
+        public Configuration(GroupProviderType type, String url, Credentials credentials, Integer timeOutMillis,
+                             String schacHomeOrganization, String name, String userAgent) {
             this.type = type;
             this.url = url;
             this.credentials = credentials;
             this.timeOutMillis = timeOutMillis;
             this.schacHomeOrganization = schacHomeOrganization;
             this.name = name;
+            this.userAgent = userAgent;
         }
 
         @Override

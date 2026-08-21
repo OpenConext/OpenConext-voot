@@ -20,8 +20,16 @@ import java.util.stream.Collectors;
 @SpringBootApplication(exclude = {MetricsAutoConfiguration.class})
 public class VootServiceApplication {
 
+    private static final String APPLICATION_NAME = "voot";
+
     @Value("${support.linkedGrouperExternalGroups}")
     private boolean supportLinkedGrouperExternalGroups;
+
+    @Value("${version}")
+    private String version;
+
+    @Value("${USER_AGENT_EXTRA:}")
+    private String userAgentExtra;
 
     public static void main(String[] args) {
         SpringApplication.run(VootServiceApplication.class, args);
@@ -48,8 +56,17 @@ public class VootServiceApplication {
             String secret = (String) rawCredentials.get("secret");
 
             GroupProviderType groupProviderType = GroupProviderType.valueOf(type.toUpperCase());
+            String userAgent = APPLICATION_NAME + "/" + version + (StringUtils.hasText(userAgentExtra) ? "/" + userAgentExtra : "");
 
-            final Provider.Configuration configuration = new Provider.Configuration(groupProviderType, url, new Provider.Configuration.Credentials(username, secret), timeoutMillis, schacHomeOrganization, name);
+            final Provider.Configuration configuration = new Provider.Configuration(
+                    groupProviderType,
+                    url,
+                    new Provider.Configuration.Credentials(username, secret),
+                    timeoutMillis,
+                    schacHomeOrganization,
+                    name,
+                    userAgent);
+
             switch (groupProviderType) {
                 case VOOT2:
                     return new Voot2Provider(configuration);

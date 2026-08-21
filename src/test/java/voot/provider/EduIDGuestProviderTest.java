@@ -20,7 +20,7 @@ class EduIDGuestProviderTest extends AbstractTest {
     private EduIDGuestProvider subject = new EduIDGuestProvider(
             new Provider.Configuration(GroupProviderType.GUESTS, "http://localhost:8889",
                     new Provider.Configuration.Credentials("user", "password"),
-                    2000, "test.eduid.nl", "eduid"));
+                    2000, "test.eduid.nl", "eduid", "userAgent"));
 
     @Test
     void getGroupMemberships() throws IOException {

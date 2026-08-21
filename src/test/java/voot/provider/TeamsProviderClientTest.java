@@ -25,7 +25,7 @@ class TeamsProviderClientTest extends AbstractTest {
     private TeamsProvider subject = new TeamsProviderClient(
             new Provider.Configuration(GroupProviderType.TEAMS, "http://localhost:8889",
                     new Provider.Configuration.Credentials("user", "password"),
-                    2000, "test.surfteams.nl", "teams"));
+                    2000, "test.surfteams.nl", "teams", "userAgent"));
 
     @Test
     public void isTeamsGroup() throws Exception {

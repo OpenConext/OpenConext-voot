@@ -13,13 +13,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class OpenSocialClientTest extends AbstractTest {
 
-    private Configuration configuration = new Configuration(
+    private final Configuration configuration = new Configuration(
             GroupProviderType.OPEN_SOCIAL,
             "http://localhost:8889",
             new Configuration.Credentials("user", "password"),
             2000,
             "example.org",
-            "Example");
+            "Example", "userAgent");
 
     private OpenSocialClient subject = new OpenSocialClient(configuration);
 

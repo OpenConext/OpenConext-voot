@@ -19,7 +19,7 @@ class InviteProviderTest extends AbstractTest {
     private final InviteProvider subject = new InviteProvider(
             new Provider.Configuration(GroupProviderType.INVITE, "http://localhost:8889/api/external/v1/voot",
                     new Provider.Configuration.Credentials("user", "password"),
-                    2000, "N/A", "invite"));
+                    2000, "N/A", "invite", "userAgent"));
 
     @Test
     void getGroupMemberships() throws IOException {
@@ -39,7 +39,7 @@ class InviteProviderTest extends AbstractTest {
         InviteProvider inviteProvider = new InviteProvider(
                 new Provider.Configuration(GroupProviderType.INVITE, "http://localhost:8889/api/voot/",
                         new Provider.Configuration.Credentials("user", "password"),
-                        2000, "N/A", "invite"));
+                        2000, "N/A", "invite", "userAgent"));
         String json = IOUtils.readInputStreamToString(new ClassPathResource("json/invite/group_memberships.json").getInputStream());
         String urn = "urn:collab:person:example.com:admin";
         stubFor(get(urlPathEqualTo("/api/voot/" + urn))
