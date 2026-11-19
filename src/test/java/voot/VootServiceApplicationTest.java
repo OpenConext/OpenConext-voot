@@ -57,6 +57,20 @@ class VootServiceApplicationTest {
         assertEquals("voot/1.2.3/myinstance", configuration.userAgent);
     }
 
+    @Test
+    void resolveVersionWithoutVersionProperty() {
+        VootServiceApplication app = new VootServiceApplication();
+        ReflectionTestUtils.setField(app, "version", "");
+        // Running from target/classes there is no jar manifest, so no Implementation-Version
+        assertEquals("unknown", app.resolveVersion());
+    }
+
+    @Test
+    void resolveVersionWithUnfilteredPlaceholder() {
+        VootServiceApplication app = new VootServiceApplication();
+        ReflectionTestUtils.setField(app, "version", "@project.version@");
+        assertEquals("unknown", app.resolveVersion());
+    }
 
     @Test
     void externalGroupsServiceUnknown() {

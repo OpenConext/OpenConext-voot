@@ -25,7 +25,9 @@ public class VootServiceApplication {
     @Value("${support.linkedGrouperExternalGroups}")
     private boolean supportLinkedGrouperExternalGroups;
 
-    @Value("${version}")
+    // Optional: deployments that supply their own application.yml (replacing the packaged one) do not define
+    // 'version', so fall back to the Implementation-Version in the jar manifest.
+    @Value("${version:}")
     private String version;
 
     @Value("${USER_AGENT_EXTRA:}")
@@ -56,7 +58,7 @@ public class VootServiceApplication {
             String secret = (String) rawCredentials.get("secret");
 
             GroupProviderType groupProviderType = GroupProviderType.valueOf(type.toUpperCase());
-            String userAgent = APPLICATION_NAME + "/" + version + (StringUtils.hasText(userAgentExtra) ? "/" + userAgentExtra : "");
+            String userAgent = APPLICATION_NAME + "/" + resolveVersion() + (StringUtils.hasText(userAgentExtra) ? "/" + userAgentExtra : "");
 
             final Provider.Configuration configuration = new Provider.Configuration(
                     groupProviderType,
@@ -85,6 +87,14 @@ public class VootServiceApplication {
             }
         }).collect(Collectors.toList());
         return new ExternalGroupsService(groupClients, supportLinkedGrouperExternalGroups);
+    }
+
+    String resolveVersion() {
+        if (StringUtils.hasText(version) && !version.startsWith("@")) {
+            return version;
+        }
+        String implementationVersion = VootServiceApplication.class.getPackage().getImplementationVersion();
+        return StringUtils.hasText(implementationVersion) ? implementationVersion : "unknown";
     }
 
 }
