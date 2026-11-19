@@ -28,7 +28,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
         value = {
                 "externalProviders.config.path=classpath:/testExternalProviders.yml",
                 "oidcng.checkToken.endpoint_url=http://localhost:8889/introspect",
-                "checkToken.cache=false",
                 "support.linkedGrouperExternalGroups=true"
         }
 )

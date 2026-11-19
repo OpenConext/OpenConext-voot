@@ -7,6 +7,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
@@ -28,9 +29,6 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Value("${oidcng.checkToken.secret}")
     private String secret;
 
-    @Value("${checkToken.cache}")
-    private boolean cacheTokens;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -46,7 +44,11 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/members/**").hasAuthority("SCOPE_members")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.opaqueToken(token -> token
-                        .introspector(new CachingOpaqueTokenIntrospector(introspectionUri, clientId, secret, cacheTokens))));
+                        .introspector(SpringOpaqueTokenIntrospector
+                                .withIntrospectionUri(introspectionUri)
+                                .clientId(clientId)
+                                .clientSecret(secret)
+                                .build())));
         return http.build();
     }
 
