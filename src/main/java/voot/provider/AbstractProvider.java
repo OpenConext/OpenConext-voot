@@ -5,10 +5,7 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
-import org.apache.hc.client5.http.auth.AuthScope;
-import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.util.TimeValue;
@@ -17,11 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestTemplate;
 import voot.UserAgentInterceptor;
 import voot.util.UrnUtils;
 
-import java.net.MalformedURLException;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 
@@ -30,7 +28,7 @@ public abstract class AbstractProvider implements Provider {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractProvider.class);
 
     /*
-     * We can't share the RestTemplate among Providers as we tie the BasicCredentialsProvider with the configured user / password
+     * We can't share the RestTemplate among Providers as we tie the BasicAuthenticationInterceptor with the configured user / password
      * and those are Provider specific
      */
     protected final RestTemplate restTemplate;
@@ -46,12 +44,13 @@ public abstract class AbstractProvider implements Provider {
             build();
 
 
-    @SneakyThrows
     public AbstractProvider(Configuration configuration) {
         this.configuration = configuration;
         this.restTemplate = new RestTemplate(getRequestFactory());
         this.restTemplate.setErrorHandler(new ProviderResponseErrorHandler());
         this.restTemplate.getInterceptors().add(new UserAgentInterceptor(configuration.userAgent));
+        this.restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(
+                configuration.credentials.username, configuration.credentials.password));
         this.groupIdPrefix = String.format("urn:collab:group:%s:", configuration.schacHomeOrganization);
         LOG.debug("Initializing {} {}", getClass(), configuration);
     }
@@ -89,15 +88,10 @@ public abstract class AbstractProvider implements Provider {
         }
     }
 
-    private ClientHttpRequestFactory getRequestFactory() throws MalformedURLException {
-        BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(
-                new AuthScope(null, -1),
-                new UsernamePasswordCredentials(configuration.credentials.username, configuration.credentials.password.toCharArray()));
+    private ClientHttpRequestFactory getRequestFactory() {
         CloseableHttpClient httpClient = HttpClientBuilder.create()
                 .evictExpiredConnections()
                 .evictIdleConnections(TimeValue.ofSeconds(10))
-                .setDefaultCredentialsProvider(credentialsProvider)
                 .disableCookieManagement()
                 .setDefaultRequestConfig(RequestConfig.custom()
                         .setConnectionRequestTimeout(Timeout.ofMilliseconds(configuration.timeOutMillis))
@@ -105,8 +99,7 @@ public abstract class AbstractProvider implements Provider {
                         .setResponseTimeout(Timeout.ofMilliseconds(configuration.timeOutMillis))
                         .build())
                 .build();
-        return new PreemptiveAuthenticationHttpComponentsClientHttpRequestFactory(httpClient, configuration.url,
-                new UsernamePasswordCredentials(configuration.credentials.username, configuration.credentials.password.toCharArray()));
+        return new HttpComponentsClientHttpRequestFactory(httpClient);
     }
 
     @Override

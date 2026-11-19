@@ -1,5 +1,6 @@
 package voot.provider;
 
+import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.nimbusds.jose.util.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -49,6 +50,21 @@ class InviteProviderTest extends AbstractTest {
                         withBody(json)));
         Set<Group> groupMemberships = inviteProvider.getGroupMemberships(urn);
         assertEquals(2, groupMemberships.size());
+    }
+
+    @Test
+    void getGroupMembershipsSendsCredentialsUpFront() throws IOException {
+        String json = IOUtils.readInputStreamToString(new ClassPathResource("json/invite/group_memberships.json").getInputStream());
+        String urn = "urn:collab:person:example.com:preemptive";
+        String path = "/api/external/v1/voot/" + urn;
+        stubFor(get(urlPathEqualTo(path)).willReturn(aResponse().withStatus(401)
+                .withHeader("WWW-Authenticate", "Basic realm=\"test\"")));
+        stubFor(get(urlPathEqualTo(path)).withBasicAuth("user", "password")
+                .willReturn(aResponse().withStatus(200)
+                        .withHeader("Content-type", "application/json").withBody(json)));
+        assertEquals(2, subject.getGroupMemberships(urn).size());
+        verify(1, getRequestedFor(urlPathEqualTo(path)));
+        verify(1, getRequestedFor(urlPathEqualTo(path)).withBasicAuth(new BasicCredentials("user", "password")));
     }
 
     @Test
